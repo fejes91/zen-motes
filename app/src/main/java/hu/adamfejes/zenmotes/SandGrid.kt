@@ -23,47 +23,36 @@ class SandGrid(
     }
     
     private fun createMiddleObstacle() {
-        val centerX = width / 2
-        val centerY = height / 2
-        val obstacleWidth = width / 8
-        val obstacleHeight = height / 12
-        
-        // Create a rectangular obstacle in the middle with rounded corners
-        for (y in (centerY - obstacleHeight/2)..(centerY + obstacleHeight/2)) {
-            for (x in (centerX - obstacleWidth/2)..(centerX + obstacleWidth/2)) {
-                if (x in 0 until width && y in 0 until height) {
-                    // Check if we're at a corner and apply rounding
-                    val dx = x - centerX
-                    val dy = y - centerY
-                    val cornerRadius = 2f
-                    
-                    val isInCorner = (kotlin.math.abs(dx) > obstacleWidth/2 - cornerRadius && 
-                                     kotlin.math.abs(dy) > obstacleHeight/2 - cornerRadius)
-                    
-                    if (!isInCorner || 
-                        (dx*dx + dy*dy) <= cornerRadius * cornerRadius) {
-                        grid[y][x] = Cell(CellType.OBSTACLE)
-                    }
-                }
-            }
-        }
+        createRoundedRectangle(
+            centerX = width / 2,
+            centerY = height / 2,
+            width = width / 8,
+            height = height / 12,
+            cornerRadius = 2f
+        )
     }
     
     private fun createVerticalWall() {
-        val centerX = width / 2
-        val wallHeight = (height * 0.2f).toInt() // 20% of screen height
-        val wallWidth = 2 // Make wall 2 pixels thick for better visibility
-        
-        // Create vertical wall from bottom up with rounded top
-        for (y in (height - wallHeight) until height) {
-            for (x in (centerX - wallWidth/2)..(centerX + wallWidth/2)) {
-                if (x in 0 until width && y in 0 until height) {
-                    // Round the top of the wall
-                    val isTop = y == height - wallHeight
+        createRoundedRectangle(
+            centerX = width / 2,
+            centerY = height - (height * 0.1f).toInt(),
+            width = 2,
+            height = (height * 0.2f).toInt(),
+            cornerRadius = 1f
+        )
+    }
+    
+    private fun createRoundedRectangle(centerX: Int, centerY: Int, width: Int, height: Int, cornerRadius: Float) {
+        for (y in (centerY - height/2)..(centerY + height/2)) {
+            for (x in (centerX - width/2)..(centerX + width/2)) {
+                if (isValidPosition(x, y)) {
                     val dx = x - centerX
-                    val cornerRadius = 1f
+                    val dy = y - centerY
                     
-                    if (!isTop || kotlin.math.abs(dx) <= cornerRadius) {
+                    val isInCorner = (kotlin.math.abs(dx) > width/2 - cornerRadius && 
+                                     kotlin.math.abs(dy) > height/2 - cornerRadius)
+                    
+                    if (!isInCorner || (dx*dx + dy*dy) <= cornerRadius * cornerRadius) {
                         grid[y][x] = Cell(CellType.OBSTACLE)
                     }
                 }
@@ -72,6 +61,9 @@ class SandGrid(
     }
     
     private fun updateObstacles() {
+        // Unsettle sand particles near rotating obstacles before clearing
+        unsettleSandNearRotatingObstacles()
+        
         // Clear previous rotating obstacles only
         for (y in 0 until height) {
             for (x in 0 until width) {
@@ -86,48 +78,75 @@ class SandGrid(
         createRotatingRightWall()
     }
     
-    private fun createRotatingLeftWall() {
-        val wallCenterX = (width / 2.3f).toInt()
-        val wallCenterY = (height / 4.8f).toInt()
-        val wallLength = width / 4
-        val wallThickness = 2
+    private fun unsettleSandNearRotatingObstacles() {
+        val leftCenterX = (width / 2.3f).toInt()
+        val leftCenterY = (height / 4.8f).toInt()
+        val rightCenterX = (width / 1.7f).toInt()
+        val rightCenterY = (height / 2.8f).toInt()
+        val radius = width / 3 // Area around rotating obstacles
         
-        // Convert rotation angle to radians
-        val angleRad = Math.toRadians(rotationAngle.toDouble())
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val cell = grid[y][x]
+                if (cell.type == CellType.SAND && cell.particle?.isSettled == true) {
+                    // Check if near any rotating obstacle
+                    val distToLeft = kotlin.math.sqrt(
+                        ((x - leftCenterX) * (x - leftCenterX) + (y - leftCenterY) * (y - leftCenterY)).toDouble()
+                    )
+                    val distToRight = kotlin.math.sqrt(
+                        ((x - rightCenterX) * (x - rightCenterX) + (y - rightCenterY) * (y - rightCenterY)).toDouble()
+                    )
+                    
+                    if (distToLeft < radius || distToRight < radius) {
+                        // Unsettle the particle
+                        val unsettledParticle = cell.particle.copy(isSettled = false)
+                        grid[y][x] = Cell(CellType.SAND, unsettledParticle)
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun createRotatingLeftWall() {
+        createRotatingWall(
+            centerX = (width / 2.3f).toInt(),
+            centerY = (height / 4.8f).toInt(),
+            length = width / 4,
+            angle = rotationAngle
+        )
+    }
+    
+    private fun createRotatingRightWall() {
+        createRotatingWall(
+            centerX = (width / 1.7f).toInt(),
+            centerY = (height / 2.8f).toInt(),
+            length = width / 3,
+            angle = -rotationAngle
+        )
+    }
+    
+    private fun createRotatingWall(centerX: Int, centerY: Int, length: Int, angle: Float) {
+        val thickness = 2
+        val angleRad = Math.toRadians(angle.toDouble())
         val cosAngle = kotlin.math.cos(angleRad)
         val sinAngle = kotlin.math.sin(angleRad)
         
-        // Create rotating wall around center point
-        for (i in -wallLength/2 until wallLength/2) {
-            // Calculate point along the wall line
+        for (i in -length/2 until length/2) {
             val localX = i.toDouble()
-            val localY = 0.0
+            val rotatedX = localX * cosAngle
+            val rotatedY = localX * sinAngle
             
-            // Rotate the point
-            val rotatedX = localX * cosAngle - localY * sinAngle
-            val rotatedY = localX * sinAngle + localY * cosAngle
+            val worldX = centerX + rotatedX.toInt()
+            val worldY = centerY + rotatedY.toInt()
             
-            // Translate to world position
-            val worldX = wallCenterX + rotatedX.toInt()
-            val worldY = wallCenterY + rotatedY.toInt()
-            
-            // Add thickness around the line
-            for (thickX in -wallThickness/2..wallThickness/2) {
-                for (thickY in -wallThickness/2..wallThickness/2) {
+            for (thickX in -thickness/2..thickness/2) {
+                for (thickY in -thickness/2..thickness/2) {
                     val x = worldX + thickX
                     val y = worldY + thickY
                     
-                    if (x in 0 until width && y in 0 until height) {
-                        // Round the ends
-                        val distFromEnd = kotlin.math.abs(i)
-                        val isNearEnd = distFromEnd > wallLength/2 - 3
-                        val distFromThickCenter = kotlin.math.sqrt((thickX * thickX + thickY * thickY).toDouble())
-                        
-                        if (!isNearEnd || distFromThickCenter <= 1.5) {
-                            // Only place if not already occupied by static obstacle
-                            if (grid[y][x].type == CellType.EMPTY) {
-                                grid[y][x] = Cell(CellType.ROTATING_OBSTACLE)
-                            }
+                    if (isValidPosition(x, y) && shouldPlaceWallPixel(i, length, thickX, thickY)) {
+                        if (grid[y][x].type == CellType.EMPTY) {
+                            grid[y][x] = Cell(CellType.ROTATING_OBSTACLE)
                         }
                     }
                 }
@@ -135,54 +154,15 @@ class SandGrid(
         }
     }
     
+    private fun shouldPlaceWallPixel(i: Int, length: Int, thickX: Int, thickY: Int): Boolean {
+        val distFromEnd = kotlin.math.abs(i)
+        val isNearEnd = distFromEnd > length/2 - 3
+        val distFromThickCenter = kotlin.math.sqrt((thickX * thickX + thickY * thickY).toDouble())
+        return !isNearEnd || distFromThickCenter <= 1.5
+    }
     
-    private fun createRotatingRightWall() {
-        val wallCenterX = (width / 1.7f).toInt()
-        val wallCenterY = (height / 2.8f).toInt()
-        val wallLength = width / 3 // Make it similar to the old static wall
-        val wallThickness = 2
-        
-        // Convert rotation angle to radians (rotate in opposite direction for variety)
-        val angleRad = Math.toRadians((-rotationAngle).toDouble())
-        val cosAngle = kotlin.math.cos(angleRad)
-        val sinAngle = kotlin.math.sin(angleRad)
-        
-        // Create rotating wall around center point
-        for (i in -wallLength/2 until wallLength/2) {
-            // Calculate point along the wall line
-            val localX = i.toDouble()
-            val localY = 0.0
-            
-            // Rotate the point
-            val rotatedX = localX * cosAngle - localY * sinAngle
-            val rotatedY = localX * sinAngle + localY * cosAngle
-            
-            // Translate to world position
-            val worldX = wallCenterX + rotatedX.toInt()
-            val worldY = wallCenterY + rotatedY.toInt()
-            
-            // Add thickness around the line
-            for (thickX in -wallThickness/2..wallThickness/2) {
-                for (thickY in -wallThickness/2..wallThickness/2) {
-                    val x = worldX + thickX
-                    val y = worldY + thickY
-                    
-                    if (x in 0 until width && y in 0 until height) {
-                        // Round the ends
-                        val distFromEnd = kotlin.math.abs(i)
-                        val isNearEnd = distFromEnd > wallLength/2 - 3
-                        val distFromThickCenter = kotlin.math.sqrt((thickX * thickX + thickY * thickY).toDouble())
-                        
-                        if (!isNearEnd || distFromThickCenter <= 1.5) {
-                            // Only place if not already occupied by static obstacle
-                            if (grid[y][x].type == CellType.EMPTY) {
-                                grid[y][x] = Cell(CellType.ROTATING_OBSTACLE)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    private fun isValidPosition(x: Int, y: Int): Boolean {
+        return x in 0 until width && y in 0 until height
     }
     
     fun getCell(x: Int, y: Int): Cell? {
@@ -258,7 +238,7 @@ class SandGrid(
             val xIndices = (0 until width).shuffled()
             for (x in xIndices) {
                 val cell = grid[y][x]
-                if (cell.type == CellType.SAND && cell.particle != null) {
+                if (cell.type == CellType.SAND && cell.particle != null && !cell.particle.isSettled) {
                     val moved = tryMoveSandWithGravity(x, y, newGrid, currentTime)
                     if (moved) {
                         newActiveRegions.add(Pair(x, y))
@@ -355,13 +335,58 @@ class SandGrid(
             }
         }
         
-        // If no movement possible, reset velocity
+        // If no movement possible, mark as settled only if truly stable and not near rotating obstacles
+        val isAtBottom = y >= height - 2
+        val isSurrounded = checkIfSurrounded(x, y, newGrid)
+        val isNearRotatingObstacle = checkIfNearRotatingObstacle(x, y)
+        
         val stoppedParticle = particle.copy(
             velocityY = 0f,
-            lastUpdateTime = currentTime
+            lastUpdateTime = currentTime,
+            isSettled = (isAtBottom || isSurrounded) && !isNearRotatingObstacle
         )
         newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
         return false
+    }
+    
+    private fun checkIfNearRotatingObstacle(x: Int, y: Int): Boolean {
+        val leftCenterX = (width / 2.3f).toInt()
+        val leftCenterY = (height / 4.8f).toInt()
+        val rightCenterX = (width / 1.7f).toInt()
+        val rightCenterY = (height / 2.8f).toInt()
+        val radius = width / 4 // Smaller radius for settling check
+        
+        val distToLeft = kotlin.math.sqrt(
+            ((x - leftCenterX) * (x - leftCenterX) + (y - leftCenterY) * (y - leftCenterY)).toDouble()
+        )
+        val distToRight = kotlin.math.sqrt(
+            ((x - rightCenterX) * (x - rightCenterX) + (y - rightCenterY) * (y - rightCenterY)).toDouble()
+        )
+        
+        return distToLeft < radius || distToRight < radius
+    }
+    
+    private fun checkIfSurrounded(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
+        // Check if particle is surrounded by other sand or obstacles
+        for (dy in -1..1) {
+            for (dx in -1..1) {
+                if (dx == 0 && dy == 0) continue
+                val checkX = x + dx
+                val checkY = y + dy
+                if (checkX in 0 until width && checkY in 0 until height) {
+                    if (grid[checkY][checkX].type == CellType.EMPTY) {
+                        return false
+                    }
+                } else if (checkY >= height) {
+                    // Bottom boundary
+                    continue
+                } else {
+                    // Side boundaries
+                    return false
+                }
+            }
+        }
+        return true
     }
     
     fun getAllCells(): List<Triple<Int, Int, Cell>> {

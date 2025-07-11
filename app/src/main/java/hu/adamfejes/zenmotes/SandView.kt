@@ -27,9 +27,9 @@ fun SandView(
     modifier: Modifier = Modifier,
     sandColor: Color = Color.Yellow,
     cellSize: Float = 6f,
-    hasOwnBackground: Boolean = true
+    hasOwnBackground: Boolean = true,
+    sandGenerationAmount: Int = 8 // Higher value for performance testing
 ) {
-    val density = LocalDensity.current
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
@@ -38,26 +38,7 @@ fun SandView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .then(
-                if (hasOwnBackground) {
-                    Modifier.background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFFFFEBF0), // Darker light pink
-                                Color(0xFFEBF0FF), // Darker light blue
-                                Color(0xFFEBFFEB), // Darker light green
-                                Color(0xFFFFF8EB), // Darker light yellow
-                                Color(0xFFF0EBFF), // Darker light purple
-                                Color(0xFFFFEBEB)  // Darker light coral
-                            ),
-                            startY = 0f,
-                            endY = Float.POSITIVE_INFINITY
-                        )
-                    )
-                } else {
-                    Modifier
-                }
-            )
+            .then(if (hasOwnBackground) createBackgroundModifier() else Modifier)
             .clipToBounds()
     ) {
         Canvas(
@@ -69,56 +50,96 @@ fun SandView(
                             sandSourceX = offset.x
                             isAddingSand = true
                         },
-                        onDragEnd = {
-                            isAddingSand = false
-                        }
+                        onDragEnd = { isAddingSand = false }
                     ) { change, _ ->
                         sandSourceX = change.position.x
+                        isAddingSand = true
                     }
                 }
         ) {
-            val width = (size.width / cellSize).roundToInt()
-            val height = (size.height / cellSize).roundToInt()
-            
-            // Initialize grid if needed
-            if (sandGrid == null || sandGrid!!.getWidth() != width || sandGrid!!.getHeight() != height) {
-                sandGrid = SandGrid(width, height)
-            }
+            val gridDimensions = calculateGridDimensions(size, cellSize)
+            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions)
             
             sandGrid?.let { grid ->
-                // Add sand at source position with sprinkling effect
                 if (isAddingSand) {
-                    val centerX = (sandSourceX / cellSize).roundToInt().coerceIn(0, width - 1)
-                    
-                    // Generate multiple sand particles in a sprinkle pattern
-                    repeat(3) {
-                        val spreadX = centerX + (-2..2).random()
-                        val spreadY = (0..1).random()
-                        
-                        if (spreadX in 0 until width && spreadY in 0 until height) {
-                            grid.addSand(spreadX, spreadY, sandColor, frame)
-                        }
-                    }
-                    
-                    // Always add one at the center
-                    grid.addSand(centerX, 0, sandColor, frame)
+                    addSandParticles(grid, sandSourceX, cellSize, sandColor, frame, gridDimensions, sandGenerationAmount)
                 }
-                
-                // Render sand particles (frame triggers recomposition)
                 drawSandGrid(grid, cellSize, frame)
             }
         }
     }
     
-    // Animation loop
+    SandAnimationLoop { frameTime ->
+        frame = frameTime
+        sandGrid?.update(frameTime)
+    }
+}
+
+@Composable
+private fun SandAnimationLoop(onFrame: (Long) -> Unit) {
     LaunchedEffect(Unit) {
         while (true) {
-            withFrameMillis { frameTime ->
-                frame = frameTime
-                sandGrid?.update(frameTime)
-            }
+            withFrameMillis(onFrame)
         }
     }
+}
+
+private fun createBackgroundModifier(): Modifier {
+    return Modifier.background(
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFFFFEBF0), Color(0xFFEBF0FF), Color(0xFFEBFFEB),
+                Color(0xFFFFF8EB), Color(0xFFF0EBFF), Color(0xFFFFEBEB)
+            ),
+            startY = 0f,
+            endY = Float.POSITIVE_INFINITY
+        )
+    )
+}
+
+private fun calculateGridDimensions(size: androidx.compose.ui.geometry.Size, cellSize: Float): Pair<Int, Int> {
+    return Pair(
+        (size.width / cellSize).roundToInt(),
+        (size.height / cellSize).roundToInt()
+    )
+}
+
+private fun initializeGridIfNeeded(
+    currentGrid: SandGrid?,
+    dimensions: Pair<Int, Int>
+): SandGrid {
+    val (width, height) = dimensions
+    return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
+        SandGrid(width, height)
+    } else {
+        currentGrid
+    }
+}
+
+private fun addSandParticles(
+    grid: SandGrid,
+    sourceX: Float,
+    cellSize: Float,
+    color: Color,
+    frame: Long,
+    dimensions: Pair<Int, Int>,
+    sandGenerationAmount: Int
+) {
+    val (width, height) = dimensions
+    val centerX = (sourceX / cellSize).roundToInt().coerceIn(0, width - 1)
+    
+    // Generate multiple sand particles in a sprinkle pattern
+    repeat(sandGenerationAmount) {
+        val spreadX = centerX + (-2..2).random()
+        val spreadY = (0..1).random()
+        
+        if (spreadX in 0 until width && spreadY in 0 until height) {
+            grid.addSand(spreadX, spreadY, color, frame)
+        }
+    }
+    
+    // Always add one at the center
+    grid.addSand(centerX, 0, color, frame)
 }
 
 private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, frame: Long) {

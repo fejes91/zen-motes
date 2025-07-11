@@ -75,7 +75,8 @@ fun SandSimulation(
                     .weight(1f)
                     .navigationBarsPadding(),
                 sandColor = selectedColor,
-                hasOwnBackground = false
+                hasOwnBackground = false,
+                sandGenerationAmount = 8
             )
         }
     }
