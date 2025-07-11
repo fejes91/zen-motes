@@ -30,54 +30,32 @@ fun SandSimulation(
     )
     
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFFFEBF0), // Darker light pink
-                        Color(0xFFEBF0FF), // Darker light blue
-                        Color(0xFFEBFFEB), // Darker light green
-                        Color(0xFFFFF8EB), // Darker light yellow
-                        Color(0xFFF0EBFF), // Darker light purple
-                        Color(0xFFFFEBEB)  // Darker light coral
-                    ),
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
-                )
-            )
+        modifier = modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        // Sand simulation view - full edge-to-edge behind everything
+        SandView(
+            modifier = Modifier.fillMaxSize(),
+            sandColor = selectedColor,
+            hasOwnBackground = true,
+            sandGenerationAmount = 60
+        )
+        
+        // Color picker overlay - positioned at the top with proper padding
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Color picker - edge to edge with system bar padding
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                items(sandColors) { color ->
-                    ColorButton(
-                        color = color,
-                        isSelected = color == selectedColor,
-                        onClick = { selectedColor = color }
-                    )
-                }
+            items(sandColors) { color ->
+                ColorButton(
+                    color = color,
+                    isSelected = color == selectedColor,
+                    onClick = { selectedColor = color }
+                )
             }
-            
-            // Sand simulation view
-            SandView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
-                    .navigationBarsPadding(),
-                sandColor = selectedColor,
-                hasOwnBackground = false,
-                sandGenerationAmount = 8
-            )
         }
     }
 }

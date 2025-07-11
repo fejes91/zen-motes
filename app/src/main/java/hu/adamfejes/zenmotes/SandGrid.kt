@@ -2,6 +2,7 @@ package hu.adamfejes.zenmotes
 
 import androidx.compose.ui.graphics.Color
 import kotlin.random.Random
+import android.util.Log
 
 class SandGrid(
     private val width: Int,
@@ -14,6 +15,13 @@ class SandGrid(
     private val activeRegions = mutableSetOf<Pair<Int, Int>>()
     private var rotationAngle = 0f
     private val rotationSpeed = 0.5f // degrees per frame
+    
+    // Separate collections for performance optimization
+    private val movingParticles = mutableListOf<Triple<Int, Int, SandParticle>>()
+    private val settledParticles = mutableSetOf<Pair<Int, Int>>()
+    
+    // Non-settle zone at top 5% of screen to prevent stuck particles
+    private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
     
     init {
         // Add static obstacles
@@ -101,6 +109,9 @@ class SandGrid(
                         // Unsettle the particle
                         val unsettledParticle = cell.particle.copy(isSettled = false)
                         grid[y][x] = Cell(CellType.SAND, unsettledParticle)
+                        // Move from settled to moving list
+                        settledParticles.removeIf { it.first == x && it.second == y }
+                        movingParticles.add(Triple(x, y, unsettledParticle))
                     }
                 }
             }
@@ -212,16 +223,24 @@ class SandGrid(
                 noiseVariation = noiseVariation
             )
             setCell(x, y, Cell(CellType.SAND, particle))
+            // Add to moving particles list for performance optimization
+            movingParticles.add(Triple(x, y, particle))
         }
     }
     
     fun update(currentTime: Long = System.currentTimeMillis()) {
+        val updateStartTime = System.nanoTime()
+        
         // Update rotation angle
         rotationAngle += rotationSpeed
         if (rotationAngle >= 360f) rotationAngle -= 360f
         
         // Update dynamic obstacles
+        val obstacleStartTime = System.nanoTime()
         updateObstacles()
+        val obstacleTime = (System.nanoTime() - obstacleStartTime) / 1_000_000.0
+        
+        Log.d("SandPerf", "Obstacle update: ${obstacleTime}ms")
         
         val newGrid = Array(height) { Array(width) { Cell() } }
         val newActiveRegions = mutableSetOf<Pair<Int, Int>>()
@@ -233,19 +252,45 @@ class SandGrid(
             }
         }
         
-        // Update sand particles from bottom to top, randomize x order to fix asymmetry
-        for (y in height - 2 downTo 0) {
-            val xIndices = (0 until width).shuffled()
-            for (x in xIndices) {
-                val cell = grid[y][x]
-                if (cell.type == CellType.SAND && cell.particle != null && !cell.particle.isSettled) {
-                    val moved = tryMoveSandWithGravity(x, y, newGrid, currentTime)
-                    if (moved) {
-                        newActiveRegions.add(Pair(x, y))
-                    }
-                }
+        // Only process moving particles for massive performance gain
+        val physicsStartTime = System.nanoTime()
+        val newMovingParticles = mutableListOf<Triple<Int, Int, SandParticle>>()
+        
+        // Process moving particles in random order to avoid asymmetry
+        val shuffleStartTime = System.nanoTime()
+        val shuffledMoving = movingParticles.shuffled()
+        val shuffleTime = (System.nanoTime() - shuffleStartTime) / 1_000_000.0
+        
+        var collisionTime = 0.0
+        var movementTime = 0.0
+        var particleCount = 0
+        
+        for ((x, y, particle) in shuffledMoving) {
+            // Skip if position has been overwritten by obstacle update
+            if (grid[y][x].type != CellType.SAND || grid[y][x].particle != particle) {
+                continue
             }
+            
+            val particleStartTime = System.nanoTime()
+            val moved = tryMoveSandWithGravity(x, y, newGrid, currentTime, newMovingParticles)
+            val particleTime = (System.nanoTime() - particleStartTime) / 1_000_000.0
+            
+            if (moved) {
+                movementTime += particleTime
+                newActiveRegions.add(Pair(x, y))
+            } else {
+                collisionTime += particleTime
+            }
+            particleCount++
         }
+        
+        // Update moving particles list
+        movingParticles.clear()
+        movingParticles.addAll(newMovingParticles)
+        
+        val physicsTime = (System.nanoTime() - physicsStartTime) / 1_000_000.0
+        
+        Log.d("SandPerf", "Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
         
         // Update grid and active regions
         for (y in 0 until height) {
@@ -256,9 +301,12 @@ class SandGrid(
         
         activeRegions.clear()
         activeRegions.addAll(newActiveRegions)
+        
+        val totalUpdateTime = (System.nanoTime() - updateStartTime) / 1_000_000.0
+        Log.d("SandPerf", "Total update: ${totalUpdateTime}ms, Moving particles: ${movingParticles.size}, Settled particles: ${settledParticles.size}")
     }
     
-    private fun tryMoveSandWithGravity(x: Int, y: Int, newGrid: Array<Array<Cell>>, currentTime: Long): Boolean {
+    private fun tryMoveSandWithGravity(x: Int, y: Int, newGrid: Array<Array<Cell>>, currentTime: Long, newMovingParticles: MutableList<Triple<Int, Int, SandParticle>>): Boolean {
         val cell = grid[y][x]
         val particle = cell.particle ?: return false
         
@@ -294,6 +342,7 @@ class SandGrid(
                     lastUpdateTime = currentTime
                 )
                 newGrid[finalY][x] = Cell(CellType.SAND, updatedParticle)
+                newMovingParticles.add(Triple(x, finalY, updatedParticle))
                 return true
             }
         }
@@ -312,6 +361,7 @@ class SandGrid(
                     lastUpdateTime = currentTime
                 )
                 newGrid[newY][newX] = Cell(CellType.SAND, updatedParticle)
+                newMovingParticles.add(Triple(newX, newY, updatedParticle))
                 return true
             }
         }
@@ -329,6 +379,7 @@ class SandGrid(
                             lastUpdateTime = currentTime
                         )
                         newGrid[newY][newX] = Cell(CellType.SAND, updatedParticle)
+                        newMovingParticles.add(Triple(newX, newY, updatedParticle))
                         return true
                     }
                 }
@@ -339,13 +390,21 @@ class SandGrid(
         val isAtBottom = y >= height - 2
         val isSurrounded = checkIfSurrounded(x, y, newGrid)
         val isNearRotatingObstacle = checkIfNearRotatingObstacle(x, y)
+        val isInNonSettleZone = y < nonSettleZoneHeight
         
         val stoppedParticle = particle.copy(
             velocityY = 0f,
             lastUpdateTime = currentTime,
-            isSettled = (isAtBottom || isSurrounded) && !isNearRotatingObstacle
+            isSettled = (isAtBottom || isSurrounded) && !isNearRotatingObstacle && !isInNonSettleZone
         )
         newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
+        
+        // If particle is truly settled, add to settled list, otherwise keep in moving list
+        if (stoppedParticle.isSettled) {
+            settledParticles.add(Pair(x, y))
+        } else {
+            newMovingParticles.add(Triple(x, y, stoppedParticle))
+        }
         return false
     }
     

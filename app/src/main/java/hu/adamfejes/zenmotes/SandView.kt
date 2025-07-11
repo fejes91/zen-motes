@@ -128,17 +128,17 @@ private fun addSandParticles(
     val (width, height) = dimensions
     val centerX = (sourceX / cellSize).roundToInt().coerceIn(0, width - 1)
     
-    // Generate multiple sand particles in a sprinkle pattern
+    // Generate multiple sand particles in a sprinkle pattern at the top of the screen
     repeat(sandGenerationAmount) {
         val spreadX = centerX + (-2..2).random()
-        val spreadY = (0..1).random()
+        val spreadY = 0 // Always spawn at the top of the screen
         
-        if (spreadX in 0 until width && spreadY in 0 until height) {
+        if (spreadX in 0 until width) {
             grid.addSand(spreadX, spreadY, color, frame)
         }
     }
     
-    // Always add one at the center
+    // Always add one at the center of the top
     grid.addSand(centerX, 0, color, frame)
 }
 
