@@ -27,9 +27,9 @@ class SandGrid(
     private var allowSandBuildup = true
     
     init {
-        // Add static obstacles
-        createMiddleObstacle()
-        createVerticalWall()
+        // Temporarily removing obstacles
+        // createMiddleObstacle()
+        // createVerticalWall()
         // Both angled walls will be created dynamically in updateObstacles()
     }
     
@@ -238,12 +238,11 @@ class SandGrid(
         rotationAngle += rotationSpeed
         if (rotationAngle >= 360f) rotationAngle -= 360f
         
-        // Update dynamic obstacles
-        val obstacleStartTime = System.nanoTime()
-        updateObstacles()
-        val obstacleTime = (System.nanoTime() - obstacleStartTime) / 1_000_000.0
-        
-        Log.d("SandPerf", "Obstacle update: ${obstacleTime}ms")
+        // Temporarily removing dynamic obstacles
+        // val obstacleStartTime = System.nanoTime()
+        // updateObstacles()
+        // val obstacleTime = (System.nanoTime() - obstacleStartTime) / 1_000_000.0
+        // Log.d("SandPerf", "Obstacle update: ${obstacleTime}ms")
         
         val newGrid = Array(height) { Array(width) { Cell() } }
         val newActiveRegions = mutableSetOf<Pair<Int, Int>>()
