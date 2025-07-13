@@ -28,7 +28,8 @@ fun SandView(
     sandColor: Color = Color.Yellow,
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
-    sandGenerationAmount: Int = 8 // Higher value for performance testing
+    sandGenerationAmount: Int = 8, // Higher value for performance testing
+    allowSandBuildup: Boolean = true // Control whether sand builds up or falls through
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
@@ -64,6 +65,7 @@ fun SandView(
                 if (isAddingSand) {
                     addSandParticles(grid, sandSourceX, cellSize, sandColor, frame, gridDimensions, sandGenerationAmount)
                 }
+                grid.setAllowSandBuildup(allowSandBuildup)
                 drawSandGrid(grid, cellSize, frame)
             }
         }

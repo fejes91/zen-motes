@@ -37,7 +37,8 @@ fun SandSimulation(
             modifier = Modifier.fillMaxSize(),
             sandColor = selectedColor,
             hasOwnBackground = true,
-            sandGenerationAmount = 60
+            sandGenerationAmount = 60,
+            allowSandBuildup = true // Can be changed to false to make sand fall through
         )
         
         // Color picker overlay - positioned at the top with proper padding

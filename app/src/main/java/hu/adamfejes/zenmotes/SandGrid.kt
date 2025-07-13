@@ -23,6 +23,9 @@ class SandGrid(
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
     
+    // Control whether sand builds up or falls through the screen
+    private var allowSandBuildup = true
+    
     init {
         // Add static obstacles
         createMiddleObstacle()
@@ -337,6 +340,12 @@ class SandGrid(
             // If we can move down, do it
             if (finalY > y) {
                 newGrid[y][x] = Cell()
+                
+                // If sand buildup is disabled and particle reaches bottom, remove it
+                if (!allowSandBuildup && finalY >= height - 3) {
+                    return true // Particle falls out of screen
+                }
+                
                 val updatedParticle = particle.copy(
                     velocityY = newVelocityY,
                     lastUpdateTime = currentTime
@@ -356,6 +365,12 @@ class SandGrid(
             val newY = y + 1
             if (newX in 0 until width && newY < height && newGrid[newY][newX].type == CellType.EMPTY) {
                 newGrid[y][x] = Cell()
+                
+                // If sand buildup is disabled and particle reaches bottom, remove it
+                if (!allowSandBuildup && newY >= height - 3) {
+                    return true // Particle falls out of screen
+                }
+                
                 val updatedParticle = particle.copy(
                     velocityY = newVelocityY * 0.8f, // Keep most velocity when sliding
                     lastUpdateTime = currentTime
@@ -374,6 +389,12 @@ class SandGrid(
                     val newY = y + step
                     if (newX in 0 until width && newY < height && newGrid[newY][newX].type == CellType.EMPTY) {
                         newGrid[y][x] = Cell()
+                        
+                        // If sand buildup is disabled and particle reaches bottom, remove it
+                        if (!allowSandBuildup && newY >= height - 3) {
+                            return true // Particle falls out of screen
+                        }
+                        
                         val updatedParticle = particle.copy(
                             velocityY = newVelocityY * 0.7f, // Reduce velocity more for multi-step slides
                             lastUpdateTime = currentTime
@@ -392,10 +413,16 @@ class SandGrid(
         val isNearRotatingObstacle = checkIfNearRotatingObstacle(x, y)
         val isInNonSettleZone = y < nonSettleZoneHeight
         
+        // If sand buildup is disabled and particle reaches bottom, remove it
+        if (!allowSandBuildup && y >= height - 3) {
+            newGrid[y][x] = Cell() // Remove particle
+            return true
+        }
+        
         val stoppedParticle = particle.copy(
             velocityY = 0f,
             lastUpdateTime = currentTime,
-            isSettled = (isAtBottom || isSurrounded) && !isNearRotatingObstacle && !isInNonSettleZone
+            isSettled = allowSandBuildup && (isAtBottom || isSurrounded) && !isNearRotatingObstacle && !isInNonSettleZone
         )
         newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
         
@@ -464,4 +491,8 @@ class SandGrid(
     
     fun getWidth() = width
     fun getHeight() = height
+    
+    fun setAllowSandBuildup(allow: Boolean) {
+        allowSandBuildup = allow
+    }
 }
