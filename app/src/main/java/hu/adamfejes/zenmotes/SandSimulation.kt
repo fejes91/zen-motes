@@ -13,12 +13,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
     var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
+    var resetTrigger by remember { mutableStateOf(0) }
     
     val sandColors = listOf(
         Color(0xFFFF9BB5), // Saturated Pink
@@ -38,10 +40,11 @@ fun SandSimulation(
             sandColor = selectedColor,
             hasOwnBackground = true,
             sandGenerationAmount = 60,
-            allowSandBuildup = true // Can be changed to false to make sand fall through
+            allowSandBuildup = true, // Can be changed to false to make sand fall through
+            resetTrigger = resetTrigger
         )
         
-        // Color picker overlay - positioned at the top with proper padding
+        // Top UI overlay - color picker and reset button
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,6 +58,13 @@ fun SandSimulation(
                     color = color,
                     isSelected = color == selectedColor,
                     onClick = { selectedColor = color }
+                )
+            }
+            
+            item {
+                // Reset button - circular and same size as color buttons
+                ResetButton(
+                    onClick = { resetTrigger++ }
                 )
             }
         }
@@ -90,5 +100,34 @@ private fun ColorButton(
             ),
             contentPadding = PaddingValues(0.dp)
         ) {}
+    }
+}
+
+@Composable
+private fun ResetButton(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.9f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.size(40.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black
+            ),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text(
+                text = "↻",
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+        }
     }
 }

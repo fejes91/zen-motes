@@ -29,7 +29,8 @@ fun SandView(
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
-    allowSandBuildup: Boolean = true // Control whether sand builds up or falls through
+    allowSandBuildup: Boolean = true, // Control whether sand builds up or falls through
+    resetTrigger: Int = 0 // Trigger to reset obstacles when value changes
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
@@ -65,9 +66,15 @@ fun SandView(
                 if (isAddingSand) {
                     addSandParticles(grid, sandSourceX, cellSize, sandColor, frame, gridDimensions, sandGenerationAmount)
                 }
-                grid.setAllowSandBuildup(allowSandBuildup)
                 drawSandGrid(grid, cellSize, frame)
             }
+        }
+    }
+    
+    // Reset obstacles when trigger changes
+    LaunchedEffect(resetTrigger) {
+        if (resetTrigger > 0) {
+            sandGrid?.resetObstacles()
         }
     }
     
@@ -112,7 +119,7 @@ private fun initializeGridIfNeeded(
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        SandGrid(width, height)
+        SandGrid(width = width, height = height, allowSandBuildup = false)
     } else {
         currentGrid
     }
@@ -190,8 +197,9 @@ private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, frame: Long)
                 )
             }
             CellType.DESTROYABLE_OBSTACLE -> {
+                val obstacleColor = cell.destroyableObstacle?.color ?: Color(0xFFD2691E)
                 drawRoundRect(
-                    color = Color(0xFFD2691E), // Orange-brown color for destroyable obstacles
+                    color = obstacleColor, // Use the obstacle's color from sand palette
                     topLeft = Offset(
                         x = x * cellSize,
                         y = y * cellSize

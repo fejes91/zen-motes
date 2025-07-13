@@ -22,7 +22,9 @@ enum class CellType {
 data class DestroyableObstacle(
     val weightThreshold: Int = 5, // Maximum sand height before destruction
     val x: Int,
-    val y: Int
+    val y: Int,
+    val size: Int = 18, // Size of the obstacle (width and height)
+    val color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFFD2691E) // Color for rendering
 )
 
 data class Cell(

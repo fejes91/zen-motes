@@ -6,7 +6,8 @@ import android.util.Log
 
 class SandGrid(
     private val width: Int,
-    private val height: Int
+    private val height: Int,
+    private val allowSandBuildup: Boolean = true // If false, sand will fall through the bottom without building up
 ) {
     private val gravity = 0.8f
     private val maxVelocity = 30f
@@ -22,9 +23,6 @@ class SandGrid(
     
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
-    
-    // Control whether sand builds up or falls through the screen
-    private var allowSandBuildup = true
     
     // Destroyable obstacles
     private val destroyableObstacles = mutableListOf<DestroyableObstacle>()
@@ -464,11 +462,16 @@ class SandGrid(
         val obstaclesToDestroy = mutableListOf<DestroyableObstacle>()
         
         for (obstacle in destroyableObstacles) {
-            val sandHeight = calculateSandHeightAbove(obstacle.x, obstacle.y)
+            val sandHeight = calculateSandHeightAbove(obstacle)
             if (sandHeight >= obstacle.weightThreshold) {
+                Log.d("SandDestroy", "🔥 DESTROYING ${obstacle.size}x${obstacle.size} obstacle at (${obstacle.x}, ${obstacle.y}) - sand: $sandHeight, threshold: ${obstacle.weightThreshold}")
                 obstaclesToDestroy.add(obstacle)
+            } else {
+                Log.d("SandDestroy", "⚖️ ${obstacle.size}x${obstacle.size} obstacle at (${obstacle.x}, ${obstacle.y}) - sand: $sandHeight, need: ${obstacle.weightThreshold}")
             }
         }
+        
+        Log.d("SandDestroy", "🧱 Total obstacles: ${destroyableObstacles.size}, to destroy: ${obstaclesToDestroy.size}")
         
         // Destroy obstacles that exceed their weight threshold
         for (obstacle in obstaclesToDestroy) {
@@ -476,34 +479,53 @@ class SandGrid(
         }
     }
     
-    private fun calculateSandHeightAbove(x: Int, y: Int): Int {
-        var height = 0
-        for (checkY in y - 1 downTo 0) {
-            if (grid[checkY][x].type == CellType.SAND) {
-                height++
+    private fun calculateSandHeightAbove(obstacle: DestroyableObstacle): Int {
+        // Simple: measure how high the sand pile is above the top of the obstacle
+        val halfSize = obstacle.size / 2
+        val x = obstacle.x
+        val y = obstacle.y
+        val topOfObstacle = y - halfSize
+        
+        // Check for sand directly above the center of the obstacle
+        var maxHeight = 0
+        for (checkY in topOfObstacle - 1 downTo 0) {
+            if (isValidPosition(x, checkY) && grid[checkY][x].type == CellType.SAND) {
+                maxHeight++
             } else {
-                break // Stop counting if we hit empty space or other obstacle
+                break // Stop when we hit empty space
             }
         }
-        return height
+        
+        if (maxHeight > 0) {
+            Log.d("SandHeight", "✅ Sand pile height above ${obstacle.size}x${obstacle.size} obstacle: $maxHeight")
+        }
+        return maxHeight
     }
     
     private fun destroyObstacle(obstacle: DestroyableObstacle) {
         // Remove from obstacles list
         destroyableObstacles.remove(obstacle)
         
-        // Convert obstacle to sand particle
-        if (isValidPosition(obstacle.x, obstacle.y)) {
-            val sandParticle = SandParticle(
-                color = androidx.compose.ui.graphics.Color(0xFFB8860B), // Dark goldenrod color for destroyed obstacles
-                isActive = true,
-                velocityY = 0.1f,
-                lastUpdateTime = System.currentTimeMillis(),
-                noiseVariation = 0.9f
-            )
-            grid[obstacle.y][obstacle.x] = Cell(CellType.SAND, sandParticle)
-            movingParticles.add(Triple(obstacle.x, obstacle.y, sandParticle))
+        // Convert entire obstacle block to sand particles using the actual obstacle size
+        val halfSize = obstacle.size / 2
+        for (dy in -halfSize..halfSize) {
+            for (dx in -halfSize..halfSize) {
+                val x = obstacle.x + dx
+                val y = obstacle.y + dy
+                if (isValidPosition(x, y) && grid[y][x].type == CellType.DESTROYABLE_OBSTACLE) {
+                    val sandParticle = SandParticle(
+                        color = obstacle.color, // Use the obstacle's original color
+                        isActive = true,
+                        velocityY = 0.1f,
+                        lastUpdateTime = System.currentTimeMillis(),
+                        noiseVariation = 0.9f
+                    )
+                    grid[y][x] = Cell(CellType.SAND, sandParticle)
+                    movingParticles.add(Triple(x, y, sandParticle))
+                }
+            }
         }
+        Log.d("SandDestroy", "💥 Converted ${obstacle.size}x${obstacle.size} obstacle to sand particles")
     }
     
     private fun checkIfSurrounded(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
@@ -547,23 +569,93 @@ class SandGrid(
     fun getWidth() = width
     fun getHeight() = height
     
-    fun setAllowSandBuildup(allow: Boolean) {
-        allowSandBuildup = allow
+    fun resetObstacles() {
+        // Clear all obstacles from grid
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                if (grid[y][x].type == CellType.DESTROYABLE_OBSTACLE) {
+                    grid[y][x] = Cell(CellType.EMPTY)
+                }
+            }
+        }
+        
+        // Clear obstacles list and regenerate
+        destroyableObstacles.clear()
+        createDestroyableObstacles()
     }
     
     private fun createDestroyableObstacles() {
-        // Create a few destroyable obstacles at different positions
-        val obstacle1 = DestroyableObstacle(weightThreshold = 4, x = width / 3, y = height / 2)
-        val obstacle2 = DestroyableObstacle(weightThreshold = 6, x = 2 * width / 3, y = height / 3)
-        val obstacle3 = DestroyableObstacle(weightThreshold = 3, x = width / 2, y = 2 * height / 3)
+        // Generate more obstacles with varied sizes
+        val obstacleCount = (8..15).random()
+        Log.d("SandObstacle", "🎯 Creating $obstacleCount obstacles on grid ${width}x${height}")
         
-        destroyableObstacles.addAll(listOf(obstacle1, obstacle2, obstacle3))
+        // Sand palette colors for obstacles
+        val sandColors = listOf(
+            Color(0xFFFF9BB5), // Pink
+            Color(0xFF9BCFFF), // Blue
+            Color(0xFF9BFF9B), // Green
+            Color(0xFFFFE066), // Yellow
+            Color(0xFFD99BFF), // Purple
+            Color(0xFFFF9B66)  // Orange
+        )
         
-        // Place them in the grid
-        destroyableObstacles.forEach { obstacle ->
-            if (isValidPosition(obstacle.x, obstacle.y)) {
-                grid[obstacle.y][obstacle.x] = Cell(CellType.DESTROYABLE_OBSTACLE, destroyableObstacle = obstacle)
+        repeat(obstacleCount) {
+            // Try to find a valid position (avoid top 10% and make obstacles much bigger)
+            var attempts = 0
+            while (attempts < 30) {
+                // Generate random obstacle sizes including even larger ones
+                val sizeMultiplier = listOf(4, 5, 6, 7, 8, 9, 10).random() // More size variety
+                val obstacleSize = 3 * sizeMultiplier // 12x12, 15x15, 18x18, 21x21, 24x24, 27x27, 30x30
+                val halfSize = obstacleSize / 2
+                
+                val centerX = (halfSize until width - halfSize).random()
+                val centerY = (height/10 + halfSize until height - halfSize).random()
+                
+                // Check if area is clear
+                var canPlace = true
+                for (dy in -halfSize..halfSize) {
+                    for (dx in -halfSize..halfSize) {
+                        val x = centerX + dx
+                        val y = centerY + dy
+                        if (!isValidPosition(x, y) || grid[y][x].type != CellType.EMPTY) {
+                            canPlace = false
+                            break
+                        }
+                    }
+                    if (!canPlace) break
+                }
+                
+                if (canPlace) {
+                    // Threshold based on size divided by 1.5
+                    val weightThreshold = (obstacleSize / 1.5).toInt() // 12->8, 15->10, 18->12, 21->14, 24->16, 27->18, 30->20
+                    val obstacleColor = sandColors.random() // Random color from sand palette
+                    val obstacle = DestroyableObstacle(
+                        weightThreshold = weightThreshold,
+                        x = centerX,
+                        y = centerY,
+                        size = obstacleSize,
+                        color = obstacleColor
+                    )
+                    
+                    destroyableObstacles.add(obstacle)
+                    Log.d("SandObstacle", "🏗️ Created ${obstacleSize}x${obstacleSize} obstacle at ($centerX, $centerY) with threshold $weightThreshold")
+                    
+                    // Place obstacle block in grid
+                    for (dy in -halfSize..halfSize) {
+                        for (dx in -halfSize..halfSize) {
+                            val x = centerX + dx
+                            val y = centerY + dy
+                            grid[y][x] = Cell(CellType.DESTROYABLE_OBSTACLE, destroyableObstacle = obstacle)
+                        }
+                    }
+                    break
+                }
+                attempts++
+            }
+            if (attempts >= 30) {
+                Log.d("SandObstacle", "❌ Failed to place obstacle after 30 attempts")
             }
         }
+        Log.d("SandObstacle", "✅ Final obstacle count: ${destroyableObstacles.size}")
     }
 }
