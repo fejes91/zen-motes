@@ -15,10 +15,18 @@ enum class CellType {
     EMPTY,
     SAND,
     OBSTACLE,
-    ROTATING_OBSTACLE
+    ROTATING_OBSTACLE,
+    DESTROYABLE_OBSTACLE
 }
+
+data class DestroyableObstacle(
+    val weightThreshold: Int = 5, // Maximum sand height before destruction
+    val x: Int,
+    val y: Int
+)
 
 data class Cell(
     val type: CellType = CellType.EMPTY,
-    val particle: SandParticle? = null
+    val particle: SandParticle? = null,
+    val destroyableObstacle: DestroyableObstacle? = null
 )

@@ -26,11 +26,17 @@ class SandGrid(
     // Control whether sand builds up or falls through the screen
     private var allowSandBuildup = true
     
+    // Destroyable obstacles
+    private val destroyableObstacles = mutableListOf<DestroyableObstacle>()
+    
     init {
         // Temporarily removing obstacles
         // createMiddleObstacle()
         // createVerticalWall()
         // Both angled walls will be created dynamically in updateObstacles()
+        
+        // Add some destroyable obstacles
+        createDestroyableObstacles()
     }
     
     private fun createMiddleObstacle() {
@@ -237,6 +243,9 @@ class SandGrid(
         // Update rotation angle
         rotationAngle += rotationSpeed
         if (rotationAngle >= 360f) rotationAngle -= 360f
+        
+        // Check for destroyable obstacles that should be destroyed
+        checkDestroyableObstacles()
         
         // Temporarily removing dynamic obstacles
         // val obstacleStartTime = System.nanoTime()
@@ -451,6 +460,52 @@ class SandGrid(
         return distToLeft < radius || distToRight < radius
     }
     
+    private fun checkDestroyableObstacles() {
+        val obstaclesToDestroy = mutableListOf<DestroyableObstacle>()
+        
+        for (obstacle in destroyableObstacles) {
+            val sandHeight = calculateSandHeightAbove(obstacle.x, obstacle.y)
+            if (sandHeight >= obstacle.weightThreshold) {
+                obstaclesToDestroy.add(obstacle)
+            }
+        }
+        
+        // Destroy obstacles that exceed their weight threshold
+        for (obstacle in obstaclesToDestroy) {
+            destroyObstacle(obstacle)
+        }
+    }
+    
+    private fun calculateSandHeightAbove(x: Int, y: Int): Int {
+        var height = 0
+        for (checkY in y - 1 downTo 0) {
+            if (grid[checkY][x].type == CellType.SAND) {
+                height++
+            } else {
+                break // Stop counting if we hit empty space or other obstacle
+            }
+        }
+        return height
+    }
+    
+    private fun destroyObstacle(obstacle: DestroyableObstacle) {
+        // Remove from obstacles list
+        destroyableObstacles.remove(obstacle)
+        
+        // Convert obstacle to sand particle
+        if (isValidPosition(obstacle.x, obstacle.y)) {
+            val sandParticle = SandParticle(
+                color = androidx.compose.ui.graphics.Color(0xFFB8860B), // Dark goldenrod color for destroyed obstacles
+                isActive = true,
+                velocityY = 0.1f,
+                lastUpdateTime = System.currentTimeMillis(),
+                noiseVariation = 0.9f
+            )
+            grid[obstacle.y][obstacle.x] = Cell(CellType.SAND, sandParticle)
+            movingParticles.add(Triple(obstacle.x, obstacle.y, sandParticle))
+        }
+    }
+    
     private fun checkIfSurrounded(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
         // Check if particle is surrounded by other sand or obstacles
         for (dy in -1..1) {
@@ -480,7 +535,8 @@ class SandGrid(
             for (x in 0 until width) {
                 if (grid[y][x].type == CellType.SAND || 
                     grid[y][x].type == CellType.OBSTACLE || 
-                    grid[y][x].type == CellType.ROTATING_OBSTACLE) {
+                    grid[y][x].type == CellType.ROTATING_OBSTACLE ||
+                    grid[y][x].type == CellType.DESTROYABLE_OBSTACLE) {
                     cells.add(Triple(x, y, grid[y][x]))
                 }
             }
@@ -493,5 +549,21 @@ class SandGrid(
     
     fun setAllowSandBuildup(allow: Boolean) {
         allowSandBuildup = allow
+    }
+    
+    private fun createDestroyableObstacles() {
+        // Create a few destroyable obstacles at different positions
+        val obstacle1 = DestroyableObstacle(weightThreshold = 4, x = width / 3, y = height / 2)
+        val obstacle2 = DestroyableObstacle(weightThreshold = 6, x = 2 * width / 3, y = height / 3)
+        val obstacle3 = DestroyableObstacle(weightThreshold = 3, x = width / 2, y = 2 * height / 3)
+        
+        destroyableObstacles.addAll(listOf(obstacle1, obstacle2, obstacle3))
+        
+        // Place them in the grid
+        destroyableObstacles.forEach { obstacle ->
+            if (isValidPosition(obstacle.x, obstacle.y)) {
+                grid[obstacle.y][obstacle.x] = Cell(CellType.DESTROYABLE_OBSTACLE, destroyableObstacle = obstacle)
+            }
+        }
     }
 }

@@ -189,6 +189,17 @@ private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, frame: Long)
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(1f, 1f)
                 )
             }
+            CellType.DESTROYABLE_OBSTACLE -> {
+                drawRoundRect(
+                    color = Color(0xFFD2691E), // Orange-brown color for destroyable obstacles
+                    topLeft = Offset(
+                        x = x * cellSize,
+                        y = y * cellSize
+                    ),
+                    size = androidx.compose.ui.geometry.Size(cellSize, cellSize),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f, 2f)
+                )
+            }
             CellType.EMPTY -> {
                 // Do nothing for empty cells
             }
