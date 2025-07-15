@@ -11,6 +11,17 @@ data class SandParticle(
     val isSettled: Boolean = false // true if particle won't move anymore
 )
 
+data class MovingParticle(
+    val x: Int,
+    val y: Int,
+    val particle: SandParticle
+)
+
+data class ParticlePosition(
+    val x: Int,
+    val y: Int
+)
+
 enum class CellType {
     EMPTY,
     SAND,
@@ -24,7 +35,7 @@ data class DestroyableObstacle(
     val x: Int,
     val y: Int,
     val size: Int = 18, // Size of the obstacle (width and height)
-    val color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFFD2691E) // Color for rendering
+    val color: Color = Color(0xFFD2691E) // Color for rendering
 )
 
 data class Cell(
