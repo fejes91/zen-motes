@@ -7,7 +7,8 @@ import android.util.Log
 class SandGrid(
     private val width: Int,
     private val height: Int,
-    private val allowSandBuildup: Boolean = true // If false, sand will fall through the bottom without building up
+    private val allowSandBuildup: Boolean = true, // If false, sand will fall through the bottom without building up
+    private val slidingObstacleTransitTimeSeconds: Float = 5.0f // Time in seconds for obstacle to cross screen
 ) {
     private val gravity = 0.8f
     private val maxVelocity = 30f
@@ -27,8 +28,14 @@ class SandGrid(
     // Non-obstacle zone at top 15% of screen to prevent obstacles from sitting on top
     private val nonObstacleZoneHeight = (height * 0.15f).toInt().coerceAtLeast(10)
     
-    // Destroyable obstacles
-    private val destroyableObstacles = mutableListOf<DestroyableObstacle>()
+    
+    // Sliding obstacles
+    private val slidingObstacles = mutableListOf<SlidingObstacle>()
+    private var lastSlidingObstacleTime = 0L
+    private val slidingObstacleInterval = 3000L // 3 seconds between obstacles
+    
+    // Calculate sliding speed based on transit time (assumes 60 FPS)
+    private val slidingSpeed = width / (slidingObstacleTransitTimeSeconds * 60f)
     
     init {
         // Temporarily removing obstacles
@@ -36,8 +43,6 @@ class SandGrid(
         // createVerticalWall()
         // Both angled walls will be created dynamically in updateObstacles()
         
-        // Add some destroyable obstacles
-        createDestroyableObstacles()
     }
     
     private fun createMiddleObstacle() {
@@ -245,8 +250,9 @@ class SandGrid(
         rotationAngle += rotationSpeed
         if (rotationAngle >= 360f) rotationAngle -= 360f
         
-        // Check for destroyable obstacles that should be destroyed
-        checkDestroyableObstacles()
+        
+        // Update sliding obstacles
+        updateSlidingObstacles(currentTime)
         
         // Temporarily removing dynamic obstacles
         // val obstacleStartTime = System.nanoTime()
@@ -462,76 +468,6 @@ class SandGrid(
         return distToLeft < radius || distToRight < radius
     }
     
-    private fun checkDestroyableObstacles() {
-        val obstaclesToDestroy = mutableListOf<DestroyableObstacle>()
-        
-        for (obstacle in destroyableObstacles) {
-            val sandHeight = calculateSandHeightAbove(obstacle)
-            if (sandHeight >= obstacle.weightThreshold) {
-                Log.d("SandDestroy", "🔥 DESTROYING ${obstacle.size}x${obstacle.size} obstacle at (${obstacle.x}, ${obstacle.y}) - sand: $sandHeight, threshold: ${obstacle.weightThreshold}")
-                obstaclesToDestroy.add(obstacle)
-            } else {
-                Log.d("SandDestroy", "⚖️ ${obstacle.size}x${obstacle.size} obstacle at (${obstacle.x}, ${obstacle.y}) - sand: $sandHeight, need: ${obstacle.weightThreshold}")
-            }
-        }
-        
-        Log.d("SandDestroy", "🧱 Total obstacles: ${destroyableObstacles.size}, to destroy: ${obstaclesToDestroy.size}")
-        
-        // Destroy obstacles that exceed their weight threshold
-        for (obstacle in obstaclesToDestroy) {
-            destroyObstacle(obstacle)
-        }
-    }
-    
-    private fun calculateSandHeightAbove(obstacle: DestroyableObstacle): Int {
-        // Simple: measure how high the sand pile is above the top of the obstacle
-        val halfSize = obstacle.size / 2
-        val x = obstacle.x
-        val y = obstacle.y
-        val topOfObstacle = y - halfSize
-        
-        // Check for sand directly above the center of the obstacle
-        var maxHeight = 0
-        for (checkY in topOfObstacle - 1 downTo 0) {
-            if (isValidPosition(x, checkY) && grid[checkY][x].type == CellType.SAND) {
-                maxHeight++
-            } else {
-                break // Stop when we hit empty space
-            }
-        }
-        
-        if (maxHeight > 0) {
-            Log.d("SandHeight", "✅ Sand pile height above ${obstacle.size}x${obstacle.size} obstacle: $maxHeight")
-        }
-        return maxHeight
-    }
-    
-    private fun destroyObstacle(obstacle: DestroyableObstacle) {
-        // Remove from obstacles list
-        destroyableObstacles.remove(obstacle)
-        
-        // Convert entire obstacle block to sand particles using the actual obstacle size
-        val halfSize = obstacle.size / 2
-        for (dy in -halfSize..halfSize) {
-            for (dx in -halfSize..halfSize) {
-                val x = obstacle.x + dx
-                val y = obstacle.y + dy
-                if (isValidPosition(x, y) && grid[y][x].type == CellType.DESTROYABLE_OBSTACLE) {
-                    val sandParticle = SandParticle(
-                        color = obstacle.color, // Use the obstacle's original color
-                        isActive = true,
-                        velocityY = 0.1f,
-                        lastUpdateTime = System.currentTimeMillis(),
-                        noiseVariation = 0.9f
-                    )
-                    grid[y][x] = Cell(CellType.SAND, sandParticle)
-                    movingParticles.add(MovingParticle(x, y, sandParticle))
-                }
-            }
-        }
-        Log.d("SandDestroy", "💥 Converted ${obstacle.size}x${obstacle.size} obstacle to sand particles")
-    }
-    
     private fun checkIfSurrounded(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
         // Check if particle is surrounded by other sand or obstacles
         for (dy in -1..1) {
@@ -562,7 +498,7 @@ class SandGrid(
                 if (grid[y][x].type == CellType.SAND || 
                     grid[y][x].type == CellType.OBSTACLE || 
                     grid[y][x].type == CellType.ROTATING_OBSTACLE ||
-                    grid[y][x].type == CellType.DESTROYABLE_OBSTACLE) {
+                    grid[y][x].type == CellType.SLIDING_OBSTACLE) {
                     cells.add(Triple(x, y, grid[y][x]))
                 }
             }
@@ -573,93 +509,111 @@ class SandGrid(
     fun getWidth() = width
     fun getHeight() = height
     
-    fun resetObstacles() {
-        // Clear all obstacles from grid
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                if (grid[y][x].type == CellType.DESTROYABLE_OBSTACLE) {
+    
+    private fun updateSlidingObstacles(currentTime: Long) {
+        // Generate new sliding obstacles if enough time has passed
+        if (currentTime - lastSlidingObstacleTime >= slidingObstacleInterval) {
+            generateSlidingObstacle()
+            lastSlidingObstacleTime = currentTime
+        }
+        
+        // Update existing sliding obstacles
+        val obstaclesToRemove = mutableListOf<SlidingObstacle>()
+        val updatedObstacles = mutableListOf<SlidingObstacle>()
+        
+        for (obstacle in slidingObstacles) {
+            // Clear old obstacle position from grid
+            clearSlidingObstacleFromGrid(obstacle)
+            
+            // Update obstacle position
+            val newX = obstacle.x + slidingSpeed
+            
+            // Check if obstacle has moved off screen
+            if (newX > width + obstacle.size) {
+                obstaclesToRemove.add(obstacle)
+                continue
+            }
+            
+            // Create updated obstacle
+            val updatedObstacle = obstacle.copy(x = newX)
+            updatedObstacles.add(updatedObstacle)
+            
+            // Place updated obstacle in grid
+            placeSlidingObstacleInGrid(updatedObstacle)
+        }
+        
+        // Remove obstacles that have moved off screen
+        slidingObstacles.removeAll(obstaclesToRemove)
+        
+        // Update the sliding obstacles list
+        slidingObstacles.clear()
+        slidingObstacles.addAll(updatedObstacles)
+        
+        Log.d("SlidingObstacle", "🚀 Active sliding obstacles: ${slidingObstacles.size}")
+    }
+    
+    private fun generateSlidingObstacle() {
+        // Generate random Y position avoiding non-obstacle zone
+        val minY = nonObstacleZoneHeight + 6 // Add margin
+        val maxY = height - 20 // Add margin from bottom
+        
+        if (minY >= maxY) return // Not enough space to place obstacle
+        
+        val obstacleY = (minY..maxY).random()
+        val obstacleSize = listOf(8, 10, 12, 14, 16).random()
+        
+        // Sliding obstacle colors (different from destroyable obstacles)
+        val slidingColors = listOf(
+            Color(0xFF00BCD4), // Cyan
+            Color(0xFF4CAF50), // Green
+            Color(0xFFFF9800), // Orange
+            Color(0xFF9C27B0), // Purple
+            Color(0xFFE91E63), // Pink
+            Color(0xFF2196F3)  // Blue
+        )
+        
+        val obstacle = SlidingObstacle(
+            x = -obstacleSize.toFloat(), // Start just off screen to the left
+            y = obstacleY,
+            targetX = width.toFloat() + obstacleSize, // Target is off screen to the right
+            speed = slidingSpeed,
+            size = obstacleSize,
+            color = slidingColors.random()
+        )
+        
+        slidingObstacles.add(obstacle)
+        Log.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${obstacleSize}x${obstacleSize} at y=$obstacleY")
+    }
+    
+    private fun clearSlidingObstacleFromGrid(obstacle: SlidingObstacle) {
+        val halfSize = obstacle.size / 2
+        val centerX = obstacle.x.toInt()
+        val centerY = obstacle.y
+        
+        for (dy in -halfSize..halfSize) {
+            for (dx in -halfSize..halfSize) {
+                val x = centerX + dx
+                val y = centerY + dy
+                if (isValidPosition(x, y) && grid[y][x].type == CellType.SLIDING_OBSTACLE) {
                     grid[y][x] = Cell(CellType.EMPTY)
                 }
             }
         }
-        
-        // Clear obstacles list and regenerate
-        destroyableObstacles.clear()
-        createDestroyableObstacles()
     }
     
-    private fun createDestroyableObstacles() {
-        // Generate more obstacles with varied sizes
-        val obstacleCount = (8..15).random()
-        Log.d("SandObstacle", "🎯 Creating $obstacleCount obstacles on grid ${width}x${height}")
+    private fun placeSlidingObstacleInGrid(obstacle: SlidingObstacle) {
+        val halfSize = obstacle.size / 2
+        val centerX = obstacle.x.toInt()
+        val centerY = obstacle.y
         
-        // Sand palette colors for obstacles
-        val sandColors = listOf(
-            Color(0xFFFF9BB5), // Pink
-            Color(0xFF9BCFFF), // Blue
-            Color(0xFF9BFF9B), // Green
-            Color(0xFFFFE066), // Yellow
-            Color(0xFFD99BFF), // Purple
-            Color(0xFFFF9B66)  // Orange
-        )
-        
-        repeat(obstacleCount) {
-            // Try to find a valid position (avoid non-obstacle zone and make obstacles much bigger)
-            var attempts = 0
-            while (attempts < 30) {
-                // Generate random obstacle sizes including even larger ones
-                val sizeMultiplier = listOf(4, 5, 6, 7, 8, 9, 10).random() // More size variety
-                val obstacleSize = 3 * sizeMultiplier // 12x12, 15x15, 18x18, 21x21, 24x24, 27x27, 30x30
-                val halfSize = obstacleSize / 2
-                
-                val centerX = (halfSize until width - halfSize).random()
-                val centerY = (nonObstacleZoneHeight + halfSize until height - halfSize).random()
-                
-                // Check if area is clear
-                var canPlace = true
-                for (dy in -halfSize..halfSize) {
-                    for (dx in -halfSize..halfSize) {
-                        val x = centerX + dx
-                        val y = centerY + dy
-                        if (!isValidPosition(x, y) || grid[y][x].type != CellType.EMPTY) {
-                            canPlace = false
-                            break
-                        }
-                    }
-                    if (!canPlace) break
+        for (dy in -halfSize..halfSize) {
+            for (dx in -halfSize..halfSize) {
+                val x = centerX + dx
+                val y = centerY + dy
+                if (isValidPosition(x, y) && grid[y][x].type == CellType.EMPTY) {
+                    grid[y][x] = Cell(CellType.SLIDING_OBSTACLE, null, obstacle)
                 }
-                
-                if (canPlace) {
-                    // Threshold based on size divided by 1.5
-                    val weightThreshold = (obstacleSize / 1.5).toInt() // 12->8, 15->10, 18->12, 21->14, 24->16, 27->18, 30->20
-                    val obstacleColor = sandColors.random() // Random color from sand palette
-                    val obstacle = DestroyableObstacle(
-                        weightThreshold = weightThreshold,
-                        x = centerX,
-                        y = centerY,
-                        size = obstacleSize,
-                        color = obstacleColor
-                    )
-                    
-                    destroyableObstacles.add(obstacle)
-                    Log.d("SandObstacle", "🏗️ Created ${obstacleSize}x${obstacleSize} obstacle at ($centerX, $centerY) with threshold $weightThreshold")
-                    
-                    // Place obstacle block in grid
-                    for (dy in -halfSize..halfSize) {
-                        for (dx in -halfSize..halfSize) {
-                            val x = centerX + dx
-                            val y = centerY + dy
-                            grid[y][x] = Cell(CellType.DESTROYABLE_OBSTACLE, destroyableObstacle = obstacle)
-                        }
-                    }
-                    break
-                }
-                attempts++
-            }
-            if (attempts >= 30) {
-                Log.d("SandObstacle", "❌ Failed to place obstacle after 30 attempts")
             }
         }
-        Log.d("SandObstacle", "✅ Final obstacle count: ${destroyableObstacles.size}")
     }
 }

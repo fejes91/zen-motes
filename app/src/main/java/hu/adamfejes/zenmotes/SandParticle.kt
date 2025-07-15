@@ -27,19 +27,22 @@ enum class CellType {
     SAND,
     OBSTACLE,
     ROTATING_OBSTACLE,
-    DESTROYABLE_OBSTACLE
+    SLIDING_OBSTACLE
 }
 
-data class DestroyableObstacle(
-    val weightThreshold: Int = 5, // Maximum sand height before destruction
-    val x: Int,
-    val y: Int,
-    val size: Int = 18, // Size of the obstacle (width and height)
-    val color: Color = Color(0xFFD2691E) // Color for rendering
+
+data class SlidingObstacle(
+    val x: Float, // Current x position (can be fractional for smooth movement)
+    val y: Int, // Y position (fixed during slide)
+    val targetX: Float, // Target x position to slide to
+    val speed: Float, // Pixels per update cycle
+    val size: Int = 12, // Size of the obstacle (width and height)
+    val color: Color = Color(0xFFFF6B6B), // Color for rendering
+    val id: String = java.util.UUID.randomUUID().toString() // Unique identifier
 )
 
 data class Cell(
     val type: CellType = CellType.EMPTY,
     val particle: SandParticle? = null,
-    val destroyableObstacle: DestroyableObstacle? = null
+    val slidingObstacle: SlidingObstacle? = null
 )

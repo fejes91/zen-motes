@@ -20,7 +20,6 @@ fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
     var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
-    var resetTrigger by remember { mutableStateOf(0) }
     
     val sandColors = listOf(
         Color(0xFFFF9BB5), // Saturated Pink
@@ -41,7 +40,6 @@ fun SandSimulation(
             hasOwnBackground = true,
             sandGenerationAmount = 60,
             allowSandBuildup = true, // Can be changed to false to make sand fall through
-            resetTrigger = resetTrigger
         )
         
         // Top UI overlay - color picker and reset button
@@ -64,7 +62,7 @@ fun SandSimulation(
             item {
                 // Reset button - circular and same size as color buttons
                 ResetButton(
-                    onClick = { resetTrigger++ }
+                    onClick = { /* Reset functionality removed since destroyable obstacles are gone */ }
                 )
             }
         }

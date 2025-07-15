@@ -29,8 +29,7 @@ fun SandView(
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
-    allowSandBuildup: Boolean = true, // Control whether sand builds up or falls through
-    resetTrigger: Int = 0 // Trigger to reset obstacles when value changes
+    allowSandBuildup: Boolean = true // Control whether sand builds up or falls through
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
@@ -71,12 +70,6 @@ fun SandView(
         }
     }
     
-    // Reset obstacles when trigger changes
-    LaunchedEffect(resetTrigger) {
-        if (resetTrigger > 0) {
-            sandGrid?.resetObstacles()
-        }
-    }
     
     SandAnimationLoop { frameTime ->
         frame = frameTime
@@ -134,7 +127,7 @@ private fun addSandParticles(
     dimensions: Pair<Int, Int>,
     sandGenerationAmount: Int
 ) {
-    val (width, height) = dimensions
+    val (width, _) = dimensions
     val centerX = (sourceX / cellSize).roundToInt().coerceIn(0, width - 1)
     
     // Generate multiple sand particles in a sprinkle pattern at the top of the screen
@@ -151,7 +144,7 @@ private fun addSandParticles(
     grid.addSand(centerX, 0, color, frame)
 }
 
-private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, frame: Long) {
+private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, @Suppress("UNUSED_PARAMETER") frame: Long) {
     grid.getAllCells().forEach { (x, y, cell) ->
         when (cell.type) {
             CellType.SAND -> {
@@ -196,16 +189,16 @@ private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, frame: Long)
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(1f, 1f)
                 )
             }
-            CellType.DESTROYABLE_OBSTACLE -> {
-                val obstacleColor = cell.destroyableObstacle?.color ?: Color(0xFFD2691E)
+            CellType.SLIDING_OBSTACLE -> {
+                val obstacleColor = cell.slidingObstacle?.color ?: Color(0xFFFF6B6B)
                 drawRoundRect(
-                    color = obstacleColor, // Use the obstacle's color from sand palette
+                    color = obstacleColor, // Use the sliding obstacle's color
                     topLeft = Offset(
                         x = x * cellSize,
                         y = y * cellSize
                     ),
                     size = androidx.compose.ui.geometry.Size(cellSize, cellSize),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f, 2f)
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(3f, 3f)
                 )
             }
             CellType.EMPTY -> {
