@@ -29,7 +29,7 @@ fun SandView(
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
-    allowSandBuildup: Boolean = true // Control whether sand builds up or falls through
+    allowSandBuildup: Boolean // Control whether sand builds up or falls through
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
@@ -59,7 +59,7 @@ fun SandView(
                 }
         ) {
             val gridDimensions = calculateGridDimensions(size, cellSize)
-            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions)
+            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, allowSandBuildup)
             
             sandGrid?.let { grid ->
                 if (isAddingSand) {
@@ -108,11 +108,12 @@ private fun calculateGridDimensions(size: androidx.compose.ui.geometry.Size, cel
 
 private fun initializeGridIfNeeded(
     currentGrid: SandGrid?,
-    dimensions: Pair<Int, Int>
+    dimensions: Pair<Int, Int>,
+    allowSandBuildup: Boolean
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        SandGrid(width = width, height = height, allowSandBuildup = false)
+        SandGrid(width = width, height = height, allowSandBuildup = allowSandBuildup)
     } else {
         currentGrid
     }

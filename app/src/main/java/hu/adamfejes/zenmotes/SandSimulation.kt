@@ -39,7 +39,7 @@ fun SandSimulation(
             sandColor = selectedColor,
             hasOwnBackground = true,
             sandGenerationAmount = 60,
-            allowSandBuildup = true, // Can be changed to false to make sand fall through
+            allowSandBuildup = false, // Can be changed to false to make sand fall through
         )
         
         // Top UI overlay - color picker and reset button
