@@ -26,7 +26,6 @@ enum class CellType {
     EMPTY,
     SAND,
     OBSTACLE,
-    ROTATING_OBSTACLE,
     SLIDING_OBSTACLE
 }
 

@@ -178,17 +178,6 @@ private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, @Suppress("U
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(1f, 1f)
                 )
             }
-            CellType.ROTATING_OBSTACLE -> {
-                drawRoundRect(
-                    color = Color(0x80CCCCCC), // Same color as regular obstacles
-                    topLeft = Offset(
-                        x = x * cellSize,
-                        y = y * cellSize
-                    ),
-                    size = androidx.compose.ui.geometry.Size(cellSize, cellSize),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(1f, 1f)
-                )
-            }
             CellType.SLIDING_OBSTACLE -> {
                 val obstacleColor = cell.slidingObstacle?.color ?: Color(0xFFFF6B6B)
                 drawRoundRect(

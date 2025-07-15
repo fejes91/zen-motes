@@ -15,8 +15,6 @@ class SandGrid(
     private val terminalVelocity = 15f
     private val grid = Array(height) { Array(width) { Cell() } }
     private val activeRegions = mutableSetOf<Pair<Int, Int>>()
-    private var rotationAngle = 0f
-    private val rotationSpeed = 0.5f // degrees per frame
     
     // Separate collections for performance optimization
     private val movingParticles = mutableListOf<MovingParticle>()
@@ -37,155 +35,10 @@ class SandGrid(
     // Calculate sliding speed based on transit time (assumes 60 FPS)
     private val slidingSpeed = width / (slidingObstacleTransitTimeSeconds * 60f)
     
-    init {
-        // Temporarily removing obstacles
-        // createMiddleObstacle()
-        // createVerticalWall()
-        // Both angled walls will be created dynamically in updateObstacles()
-        
-    }
     
-    private fun createMiddleObstacle() {
-        createRoundedRectangle(
-            centerX = width / 2,
-            centerY = height / 2,
-            width = width / 8,
-            height = height / 12,
-            cornerRadius = 2f
-        )
-    }
     
-    private fun createVerticalWall() {
-        createRoundedRectangle(
-            centerX = width / 2,
-            centerY = height - (height * 0.1f).toInt(),
-            width = 2,
-            height = (height * 0.2f).toInt(),
-            cornerRadius = 1f
-        )
-    }
     
-    private fun createRoundedRectangle(centerX: Int, centerY: Int, width: Int, height: Int, cornerRadius: Float) {
-        for (y in (centerY - height/2)..(centerY + height/2)) {
-            for (x in (centerX - width/2)..(centerX + width/2)) {
-                if (isValidPosition(x, y)) {
-                    val dx = x - centerX
-                    val dy = y - centerY
-                    
-                    val isInCorner = (kotlin.math.abs(dx) > width/2 - cornerRadius && 
-                                     kotlin.math.abs(dy) > height/2 - cornerRadius)
-                    
-                    if (!isInCorner || (dx*dx + dy*dy) <= cornerRadius * cornerRadius) {
-                        grid[y][x] = Cell(CellType.OBSTACLE)
-                    }
-                }
-            }
-        }
-    }
     
-    private fun updateObstacles() {
-        // Unsettle sand particles near rotating obstacles before clearing
-        unsettleSandNearRotatingObstacles()
-        
-        // Clear previous rotating obstacles only
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                if (grid[y][x].type == CellType.ROTATING_OBSTACLE) {
-                    grid[y][x] = Cell(CellType.EMPTY)
-                }
-            }
-        }
-        
-        // Create rotating walls
-        createRotatingLeftWall()
-        createRotatingRightWall()
-    }
-    
-    private fun unsettleSandNearRotatingObstacles() {
-        val leftCenterX = (width / 2.3f).toInt()
-        val leftCenterY = (height / 4.8f).toInt()
-        val rightCenterX = (width / 1.7f).toInt()
-        val rightCenterY = (height / 2.8f).toInt()
-        val radius = width / 3 // Area around rotating obstacles
-        
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val cell = grid[y][x]
-                if (cell.type == CellType.SAND && cell.particle?.isSettled == true) {
-                    // Check if near any rotating obstacle
-                    val distToLeft = kotlin.math.sqrt(
-                        ((x - leftCenterX) * (x - leftCenterX) + (y - leftCenterY) * (y - leftCenterY)).toDouble()
-                    )
-                    val distToRight = kotlin.math.sqrt(
-                        ((x - rightCenterX) * (x - rightCenterX) + (y - rightCenterY) * (y - rightCenterY)).toDouble()
-                    )
-                    
-                    if (distToLeft < radius || distToRight < radius) {
-                        // Unsettle the particle
-                        val unsettledParticle = cell.particle.copy(isSettled = false)
-                        grid[y][x] = Cell(CellType.SAND, unsettledParticle)
-                        // Move from settled to moving list
-                        settledParticles.removeIf { it.x == x && it.y == y }
-                        movingParticles.add(MovingParticle(x, y, unsettledParticle))
-                    }
-                }
-            }
-        }
-    }
-    
-    private fun createRotatingLeftWall() {
-        createRotatingWall(
-            centerX = (width / 2.3f).toInt(),
-            centerY = (height / 4.8f).toInt(),
-            length = width / 4,
-            angle = rotationAngle
-        )
-    }
-    
-    private fun createRotatingRightWall() {
-        createRotatingWall(
-            centerX = (width / 1.7f).toInt(),
-            centerY = (height / 2.8f).toInt(),
-            length = width / 3,
-            angle = -rotationAngle
-        )
-    }
-    
-    private fun createRotatingWall(centerX: Int, centerY: Int, length: Int, angle: Float) {
-        val thickness = 2
-        val angleRad = Math.toRadians(angle.toDouble())
-        val cosAngle = kotlin.math.cos(angleRad)
-        val sinAngle = kotlin.math.sin(angleRad)
-        
-        for (i in -length/2 until length/2) {
-            val localX = i.toDouble()
-            val rotatedX = localX * cosAngle
-            val rotatedY = localX * sinAngle
-            
-            val worldX = centerX + rotatedX.toInt()
-            val worldY = centerY + rotatedY.toInt()
-            
-            for (thickX in -thickness/2..thickness/2) {
-                for (thickY in -thickness/2..thickness/2) {
-                    val x = worldX + thickX
-                    val y = worldY + thickY
-                    
-                    if (isValidPosition(x, y) && shouldPlaceWallPixel(i, length, thickX, thickY)) {
-                        if (grid[y][x].type == CellType.EMPTY) {
-                            grid[y][x] = Cell(CellType.ROTATING_OBSTACLE)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    private fun shouldPlaceWallPixel(i: Int, length: Int, thickX: Int, thickY: Int): Boolean {
-        val distFromEnd = kotlin.math.abs(i)
-        val isNearEnd = distFromEnd > length/2 - 3
-        val distFromThickCenter = kotlin.math.sqrt((thickX * thickX + thickY * thickY).toDouble())
-        return !isNearEnd || distFromThickCenter <= 1.5
-    }
     
     private fun isValidPosition(x: Int, y: Int): Boolean {
         return x in 0 until width && y in 0 until height
@@ -246,19 +99,8 @@ class SandGrid(
     fun update(currentTime: Long = System.currentTimeMillis()) {
         val updateStartTime = System.nanoTime()
         
-        // Update rotation angle
-        rotationAngle += rotationSpeed
-        if (rotationAngle >= 360f) rotationAngle -= 360f
-        
-        
         // Update sliding obstacles
         updateSlidingObstacles(currentTime)
-        
-        // Temporarily removing dynamic obstacles
-        // val obstacleStartTime = System.nanoTime()
-        // updateObstacles()
-        // val obstacleTime = (System.nanoTime() - obstacleStartTime) / 1_000_000.0
-        // Log.d("SandPerf", "Obstacle update: ${obstacleTime}ms")
         
         val newGrid = Array(height) { Array(width) { Cell() } }
         val newActiveRegions = mutableSetOf<Pair<Int, Int>>()
@@ -426,7 +268,6 @@ class SandGrid(
         // If no movement possible, mark as settled only if truly stable and not near rotating obstacles
         val isAtBottom = y >= height - 2
         val isSurrounded = checkIfSurrounded(x, y, newGrid)
-        val isNearRotatingObstacle = checkIfNearRotatingObstacle(x, y)
         val isInNonSettleZone = y < nonSettleZoneHeight
         
         // If sand buildup is disabled and particle reaches bottom, remove it
@@ -438,7 +279,7 @@ class SandGrid(
         val stoppedParticle = particle.copy(
             velocityY = 0f,
             lastUpdateTime = currentTime,
-            isSettled = allowSandBuildup && (isAtBottom || isSurrounded) && !isNearRotatingObstacle && !isInNonSettleZone
+            isSettled = allowSandBuildup && (isAtBottom || isSurrounded) && !isInNonSettleZone
         )
         newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
         
@@ -451,22 +292,6 @@ class SandGrid(
         return false
     }
     
-    private fun checkIfNearRotatingObstacle(x: Int, y: Int): Boolean {
-        val leftCenterX = (width / 2.3f).toInt()
-        val leftCenterY = (height / 4.8f).toInt()
-        val rightCenterX = (width / 1.7f).toInt()
-        val rightCenterY = (height / 2.8f).toInt()
-        val radius = width / 4 // Smaller radius for settling check
-        
-        val distToLeft = kotlin.math.sqrt(
-            ((x - leftCenterX) * (x - leftCenterX) + (y - leftCenterY) * (y - leftCenterY)).toDouble()
-        )
-        val distToRight = kotlin.math.sqrt(
-            ((x - rightCenterX) * (x - rightCenterX) + (y - rightCenterY) * (y - rightCenterY)).toDouble()
-        )
-        
-        return distToLeft < radius || distToRight < radius
-    }
     
     private fun checkIfSurrounded(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
         // Check if particle is surrounded by other sand or obstacles
@@ -497,7 +322,6 @@ class SandGrid(
             for (x in 0 until width) {
                 if (grid[y][x].type == CellType.SAND || 
                     grid[y][x].type == CellType.OBSTACLE || 
-                    grid[y][x].type == CellType.ROTATING_OBSTACLE ||
                     grid[y][x].type == CellType.SLIDING_OBSTACLE) {
                     cells.add(Triple(x, y, grid[y][x]))
                 }
