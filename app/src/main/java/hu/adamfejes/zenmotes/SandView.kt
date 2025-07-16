@@ -29,7 +29,6 @@ fun SandView(
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
-    allowSandBuildup: Boolean // Control whether sand builds up or falls through
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
@@ -59,7 +58,7 @@ fun SandView(
                 }
         ) {
             val gridDimensions = calculateGridDimensions(size, cellSize)
-            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, allowSandBuildup)
+            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions)
             
             sandGrid?.let { grid ->
                 if (isAddingSand) {
@@ -108,12 +107,11 @@ private fun calculateGridDimensions(size: androidx.compose.ui.geometry.Size, cel
 
 private fun initializeGridIfNeeded(
     currentGrid: SandGrid?,
-    dimensions: Pair<Int, Int>,
-    allowSandBuildup: Boolean
+    dimensions: Pair<Int, Int>
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        SandGrid(width = width, height = height, allowSandBuildup = allowSandBuildup)
+        SandGrid(width = width, height = height)
     } else {
         currentGrid
     }
@@ -151,15 +149,20 @@ private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, @Suppress("U
             CellType.SAND -> {
                 val particle = cell.particle
                 if (particle != null) {
-                    // Apply noise variation to make some particles darker
-                    val noisyColor = particle.color.copy(
-                        red = (particle.color.red * particle.noiseVariation).coerceIn(0f, 1f),
-                        green = (particle.color.green * particle.noiseVariation).coerceIn(0f, 1f),
-                        blue = (particle.color.blue * particle.noiseVariation).coerceIn(0f, 1f)
-                    )
+                    // Show settled particles in white for testing
+                    val displayColor = if (particle.isSettled) {
+                        Color.Magenta
+                    } else {
+                        // Apply noise variation to make some particles darker
+                        particle.color.copy(
+                            red = (particle.color.red * particle.noiseVariation).coerceIn(0f, 1f),
+                            green = (particle.color.green * particle.noiseVariation).coerceIn(0f, 1f),
+                            blue = (particle.color.blue * particle.noiseVariation).coerceIn(0f, 1f)
+                        )
+                    }
                     
                     drawRect(
-                        color = noisyColor,
+                        color = displayColor,
                         topLeft = Offset(
                             x = x * cellSize,
                             y = y * cellSize

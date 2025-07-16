@@ -8,7 +8,8 @@ data class SandParticle(
     val velocityY: Float = 0f,
     val lastUpdateTime: Long = 0L,
     val noiseVariation: Float = 1f, // 1f = normal, < 1f = darker
-    val isSettled: Boolean = false // true if particle won't move anymore
+    val isSettled: Boolean = false, // true if particle won't move anymore
+    val obstacleId: String? = null // ID of the obstacle this particle is settling on
 )
 
 data class MovingParticle(

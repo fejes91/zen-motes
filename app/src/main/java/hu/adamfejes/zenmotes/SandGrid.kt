@@ -6,7 +6,6 @@ import android.util.Log
 class SandGrid(
     private val width: Int,
     private val height: Int,
-    allowSandBuildup: Boolean,
     slidingObstacleTransitTimeSeconds: Float = 5.0f
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
@@ -18,7 +17,7 @@ class SandGrid(
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
     private val obstacleGenerator = ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
-    private val particlePhysics = ParticlePhysics(width, height, allowSandBuildup, nonSettleZoneHeight)
+    private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
     
     fun getCell(x: Int, y: Int): Cell? = gridState.getCell(x, y)
     
