@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import android.util.Log
 import kotlin.math.roundToInt
 
-private const val slidingObstacleTransitTimeSeconds = 10f
+private const val slidingObstacleTransitTimeSeconds = 7.5f
 
 class SandGrid(
     private val width: Int,
@@ -192,7 +192,10 @@ class SandGrid(
     
     private fun updateSettledParticles(grid: Array<Array<Cell>>, obstacle: SlidingObstacle, updatedObstacle: SlidingObstacle): Array<Array<Cell>> {
         // Calculate the delta (movement difference) between old and new obstacle positions
-        val deltaX = (updatedObstacle.x - obstacle.x).roundToInt()
+        // Round both positions to get integer grid deltas
+        val oldGridX = obstacle.x.roundToInt()
+        val newGridX = updatedObstacle.x.roundToInt()
+        val deltaX = newGridX - oldGridX
         val deltaY = updatedObstacle.y - obstacle.y
 
         // Only process if there's actual movement
