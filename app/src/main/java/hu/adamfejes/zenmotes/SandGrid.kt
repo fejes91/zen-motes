@@ -4,10 +4,11 @@ import androidx.compose.ui.graphics.Color
 import android.util.Log
 import kotlin.math.roundToInt
 
+private const val slidingObstacleTransitTimeSeconds = 10f
+
 class SandGrid(
     private val width: Int,
-    private val height: Int,
-    slidingObstacleTransitTimeSeconds: Float = 5.0f
+    private val height: Int
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
@@ -67,7 +68,7 @@ class SandGrid(
             workingGrid = clearSlidingObstacleFromGrid(workingGrid, obstacle)
             
             // Update obstacle position
-            val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle)
+            val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, currentTime)
 
             // Move settled particles to new position to follow the obstacle
             workingGrid = updateSettledParticles(workingGrid, obstacle, updatedObstacle)

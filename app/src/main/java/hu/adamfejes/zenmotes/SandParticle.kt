@@ -35,10 +35,11 @@ data class SlidingObstacle(
     val x: Float, // Current x position (can be fractional for smooth movement)
     val y: Int, // Y position (fixed during slide)
     val targetX: Float, // Target x position to slide to
-    val speed: Float, // Pixels per update cycle
+    val speed: Float, // Pixels per second
     val size: Int = 12, // Size of the obstacle (width and height)
     val color: Color = Color(0xFFFF6B6B), // Color for rendering
-    val id: String = java.util.UUID.randomUUID().toString() // Unique identifier
+    val id: String = java.util.UUID.randomUUID().toString(), // Unique identifier
+    val lastUpdateTime: Long = 0L // Last time this obstacle was updated (for time-based movement)
 )
 
 data class Cell(
