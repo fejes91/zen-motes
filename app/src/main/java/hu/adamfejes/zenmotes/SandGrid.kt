@@ -1,9 +1,9 @@
 package hu.adamfejes.zenmotes
 
 import androidx.compose.ui.graphics.Color
-import android.util.Log
 import kotlin.math.roundToInt
 import kotlin.system.measureTimeMillis
+import timber.log.Timber
 
 private const val slidingObstacleTransitTimeSeconds = 7.5f
 
@@ -73,15 +73,15 @@ class SandGrid(
         
         val totalTime = gridCreateTime + obstacleTime + particleTime + updateGridTime + cleanupTime
         
-        Log.d("SandPerf", "BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
-        Log.d("SandPerf", "TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
+        Timber.tag("SandPerf").d("BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
+        Timber.tag("SandPerf").d("TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
     }
     
     private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
         // Generate new sliding obstacles if needed
         obstacleGenerator.generateSlidingObstacle(currentTime)?.let { newObstacle ->
             gridState.addSlidingObstacle(newObstacle)
-            Log.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
+            Timber.tag("SlidingObstacle").d("🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
         }
         
         // Update existing sliding obstacles
@@ -100,7 +100,7 @@ class SandGrid(
             val weightThreshold = obstacle.size / 2 // Threshold based on obstacle size
 
             if (sandHeight >= weightThreshold) {
-                Log.d("SlidingObstacle", "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
+                Timber.tag("SlidingObstacle").d("💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
                 // Convert obstacle to sand particles instead of updating position
                 workingGrid = destroySlidingObstacle(workingGrid, obstacle)
                 continue
@@ -123,7 +123,7 @@ class SandGrid(
         // Update the sliding obstacles list
         gridState.setSlidingObstacles(updatedObstacles)
         
-        Log.d("SlidingObstacle", "🚀 Active sliding obstacles: ${updatedObstacles.size}")
+        Timber.tag("SlidingObstacle").d("🚀 Active sliding obstacles: ${updatedObstacles.size}")
         
         return workingGrid
     }
@@ -177,7 +177,7 @@ class SandGrid(
         gridState.setMovingParticles(newMovingParticles)
         
         val physicsTime = (System.nanoTime() - physicsStartTime) / 1_000_000.0
-        Log.d("SandPerf", "Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
+        Timber.tag("SandPerf").d("Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
         
         return grid
     }
@@ -282,7 +282,7 @@ class SandGrid(
             gridState.addSettledParticle(movedParticle)
         }
 
-        Log.d("SlidingObstacle", "🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}")
+        Timber.tag("SlidingObstacle").d("🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}")
         
         return grid
     }
@@ -378,7 +378,7 @@ class SandGrid(
         }
         
         if (particlesToReactivate.isNotEmpty()) {
-            Log.d("SandCleanup", "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
+            Timber.tag("SandCleanup").d("🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
             
             for (particlePos in particlesToReactivate) {
                 val x = particlePos.x
