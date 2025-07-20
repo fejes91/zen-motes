@@ -16,6 +16,10 @@ class SandGrid(
     // Non-obstacle zone at top 15% of screen to prevent obstacles from sitting on top
     private val nonObstacleZoneHeight = (height * 0.15f).toInt().coerceAtLeast(10)
     
+    // Cleanup routine timing - run every 2 seconds
+    private var lastCleanupTime = 0L
+    private val cleanupIntervalMs = 500L
+    
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
     private val obstacleGenerator = ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
@@ -44,6 +48,12 @@ class SandGrid(
         // Update grid state with final result
         gridState.updateGrid(gridAfterParticles)
         gridState.clearActiveRegions()
+        
+        // Run cleanup routine periodically
+        if (currentTime - lastCleanupTime >= cleanupIntervalMs) {
+            cleanupInconsistentSettledParticles(currentTime)
+            lastCleanupTime = currentTime
+        }
         
         val totalUpdateTime = (System.nanoTime() - updateStartTime) / 1_000_000.0
         Log.d("SandPerf", "Total update: ${totalUpdateTime}ms, Moving particles: ${gridState.getMovingParticles().size}, Settled particles: ${gridState.getSettledParticles().size}")
@@ -325,5 +335,70 @@ class SandGrid(
         }
         
         return grid
+    }
+    
+    private fun cleanupInconsistentSettledParticles(currentTime: Long) {
+        val grid = gridState.createNewGrid()
+        val settledParticles = gridState.getSettledParticles()
+        val particlesToReactivate = mutableListOf<ParticlePosition>()
+        
+        for (settledParticle in settledParticles) {
+            val x = settledParticle.x
+            val y = settledParticle.y
+            val cell = grid[y][x]
+            
+            // Check if the particle is actually settled in the grid
+            if (cell.type == CellType.SAND && cell.particle?.isSettled == true) {
+                // Check if particle has proper support below
+                if (!hasProperSupport(x, y, grid)) {
+                    particlesToReactivate.add(settledParticle)
+                }
+            } else {
+                // Particle position doesn't match - remove from settled list
+                particlesToReactivate.add(settledParticle)
+            }
+        }
+        
+        if (particlesToReactivate.isNotEmpty()) {
+            Log.d("SandCleanup", "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
+            
+            for (particlePos in particlesToReactivate) {
+                val x = particlePos.x
+                val y = particlePos.y
+                val cell = grid[y][x]
+                
+                if (cell.type == CellType.SAND && cell.particle != null) {
+                    // Convert to normal falling sand
+                    val reactivatedParticle = cell.particle.copy(
+                        isActive = true,
+                        velocityY = 0.2f, // Give gentle initial velocity
+                        isSettled = false,
+                        obstacleId = null // Clear obstacle link
+                    )
+                    gridState.setCell(x, y, Cell(CellType.SAND, reactivatedParticle))
+                    gridState.addMovingParticle(MovingParticle(x, y, reactivatedParticle))
+                }
+                
+                // Remove from settled particles list
+                gridState.removeSettledParticle(x, y)
+            }
+        }
+    }
+    
+    private fun hasProperSupport(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
+        // Check if at bottom of screen
+        if (y >= height - 1) return true
+        
+        // Check cell directly below
+        val belowY = y + 1
+        val cellBelow = grid[belowY][x]
+        
+        // Has support if there's sand, obstacle, or sliding obstacle below
+        return when (cellBelow.type) {
+            CellType.SAND -> true
+            CellType.OBSTACLE -> true 
+            CellType.SLIDING_OBSTACLE -> true
+            CellType.EMPTY -> false
+        }
     }
 }
