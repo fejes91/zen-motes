@@ -9,7 +9,8 @@ data class SandParticle(
     val lastUpdateTime: Long = 0L,
     val noiseVariation: Float = 1f, // 1f = normal, < 1f = darker
     val isSettled: Boolean = false, // true if particle won't move anymore
-    val obstacleId: String? = null // ID of the obstacle this particle is settling on
+    val obstacleId: String? = null, // ID of the obstacle this particle is settling on
+    val used: Boolean = false // true if particle was from destroyed obstacle - never settles again
 )
 
 data class MovingParticle(
@@ -20,7 +21,8 @@ data class MovingParticle(
 
 data class ParticlePosition(
     val x: Int,
-    val y: Int
+    val y: Int,
+    val obstacleId: String? = null
 )
 
 enum class CellType {

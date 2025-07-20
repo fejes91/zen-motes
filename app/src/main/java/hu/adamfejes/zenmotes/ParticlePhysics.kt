@@ -207,7 +207,7 @@ class ParticlePhysics(
         val stoppedParticle = particle.copy(
             velocityY = 0f,
             lastUpdateTime = currentTime,
-            isSettled = (obstacleId != null || isSurrounded) && !isInNonSettleZone,
+            isSettled = (obstacleId != null || isSurrounded) && !isInNonSettleZone && !particle.used,
             obstacleId = obstacleId
         )
         newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
@@ -216,7 +216,7 @@ class ParticlePhysics(
             moved = false,
             newParticle = if (stoppedParticle.isSettled) null else MovingParticle(x, y, stoppedParticle),
             isSettled = stoppedParticle.isSettled,
-            settledPosition = if (stoppedParticle.isSettled) ParticlePosition(x, y) else null
+            settledPosition = if (stoppedParticle.isSettled) ParticlePosition(x, y, obstacleId) else null
         )
     }
     

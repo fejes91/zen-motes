@@ -67,6 +67,17 @@ class SandGrid(
             // Clear old obstacle position from working grid
             workingGrid = clearSlidingObstacleFromGrid(workingGrid, obstacle)
             
+            // Check if obstacle should be destroyed by sand weight
+            val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
+            val weightThreshold = obstacle.size / 2 // Threshold based on obstacle size
+
+            if (sandHeight >= weightThreshold) {
+                Log.d("SlidingObstacle", "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
+                // Convert obstacle to sand particles instead of updating position
+                workingGrid = destroySlidingObstacle(workingGrid, obstacle)
+                continue
+            }
+            
             // Update obstacle position
             val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, currentTime)
 
@@ -230,7 +241,7 @@ class SandGrid(
             if (newX in 0 until width && newY in 0 until height) {
                 // Move particle to new position (no collision checking)
                 grid[newY][newX] = Cell(CellType.SAND, particle)
-                movedParticles.add(ParticlePosition(newX, newY))
+                movedParticles.add(ParticlePosition(newX, newY, obstacle.id))
             }
         }
         
@@ -244,6 +255,74 @@ class SandGrid(
         }
 
         Log.d("SlidingObstacle", "🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}")
+        
+        return grid
+    }
+    
+    private fun calculateSandHeightAboveSlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Int {
+        val centerX = obstacle.x.roundToInt()
+        val centerY = obstacle.y
+        val halfSize = obstacle.size / 2
+        val topOfObstacle = centerY - halfSize
+        
+        // Check for sand directly above the center of the obstacle
+        var maxHeight = 0
+        for (checkY in topOfObstacle - 1 downTo 0) {
+            if (centerX in 0 until width && checkY >= 0 && grid[checkY][centerX].type == CellType.SAND) {
+                maxHeight++
+            } else {
+                break // Stop when we hit empty space or other obstacle
+            }
+        }
+        
+        return maxHeight
+    }
+    
+    private fun destroySlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Array<Array<Cell>> {
+        val centerX = obstacle.x.roundToInt()
+        val centerY = obstacle.y
+        val halfSize = obstacle.size / 2
+
+        // Convert entire obstacle block to sand particles
+        for (dy in -halfSize..halfSize) {
+            for (dx in -halfSize..halfSize) {
+                val x = centerX + dx
+                val y = centerY + dy
+                if (x in 0 until width && y in 0 until height && grid[y][x].type == CellType.SLIDING_OBSTACLE) {
+                    val sandParticle = particlePhysics.createSandParticle(obstacle.color, System.currentTimeMillis()).copy(
+                        velocityY = 0.5f, // Give some initial velocity so they fall immediately
+                        noiseVariation = 0.9f,
+                        isActive = true,
+                        isSettled = false,
+                        used = true // Mark as used so it never settles again
+                    )
+                    grid[y][x] = Cell(CellType.SAND, sandParticle)
+                    gridState.addMovingParticle(MovingParticle(x, y, sandParticle))
+                }
+            }
+        }
+        
+        // Convert all linked settled particles to normal falling sand
+        for (settledParticle in gridState.getSettledParticlesByObstacleId(obstacle.id)) {
+            val x = settledParticle.x
+            val y = settledParticle.y
+            val cell = grid[y][x]
+            
+            if (cell.type == CellType.SAND && cell.particle != null) {
+                val reactivatedParticle = cell.particle.copy(
+                    isActive = true,
+                    velocityY = 0.5f, // Give some initial velocity to start falling
+                    isSettled = false, // No longer settled since support is gone
+                    obstacleId = null, // No longer associated with the destroyed obstacle
+                    used = true // Mark as used so it never settles again
+                )
+                grid[y][x] = Cell(CellType.SAND, reactivatedParticle)
+                gridState.addMovingParticle(MovingParticle(x, y, reactivatedParticle))
+                
+                // Remove from settled particles
+                gridState.removeSettledParticle(x, y)
+            }
+        }
         
         return grid
     }

@@ -95,6 +95,10 @@ class GridState(
     
     fun getSettledParticles(): Set<ParticlePosition> = settledParticles.toSet()
     
+    fun getSettledParticlesByObstacleId(obstacleId: String): Set<ParticlePosition> {
+        return settledParticles.filter { it.obstacleId == obstacleId }.toSet()
+    }
+    
     // Sliding obstacles management
     fun addSlidingObstacle(obstacle: SlidingObstacle) {
         slidingObstacles.add(obstacle)
