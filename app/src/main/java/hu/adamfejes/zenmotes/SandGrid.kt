@@ -3,6 +3,7 @@ package hu.adamfejes.zenmotes
 import androidx.compose.ui.graphics.Color
 import android.util.Log
 import kotlin.math.roundToInt
+import kotlin.system.measureTimeMillis
 
 private const val slidingObstacleTransitTimeSeconds = 7.5f
 
@@ -38,25 +39,42 @@ class SandGrid(
     }
     
     fun update(currentTime: Long = System.currentTimeMillis()) {
-        val updateStartTime = System.nanoTime()
-        
-        // Chain all grid modifications together functionally
-        val initialGrid = gridState.createNewGrid()
-        val gridAfterObstacles = updateSlidingObstacles(initialGrid, currentTime)
-        val gridAfterParticles = processMovingParticles(gridAfterObstacles, currentTime)
-        
-        // Update grid state with final result
-        gridState.updateGrid(gridAfterParticles)
-        gridState.clearActiveRegions()
-        
-        // Run cleanup routine periodically
-        if (currentTime - lastCleanupTime >= cleanupIntervalMs) {
-            cleanupInconsistentSettledParticles(currentTime)
-            lastCleanupTime = currentTime
+        // 1. Grid creation
+        var initialGrid: Array<Array<Cell>>
+        val gridCreateTime = measureTimeMillis {
+            initialGrid = gridState.createNewGrid()
         }
         
-        val totalUpdateTime = (System.nanoTime() - updateStartTime) / 1_000_000.0
-        Log.d("SandPerf", "Total update: ${totalUpdateTime}ms, Moving particles: ${gridState.getMovingParticles().size}, Settled particles: ${gridState.getSettledParticles().size}")
+        // 2. Obstacle updates  
+        var gridAfterObstacles: Array<Array<Cell>>
+        val obstacleTime = measureTimeMillis {
+            gridAfterObstacles = updateSlidingObstacles(initialGrid, currentTime)
+        }
+        
+        // 3. Particle physics
+        var gridAfterParticles: Array<Array<Cell>>
+        val particleTime = measureTimeMillis {
+            gridAfterParticles = processMovingParticles(gridAfterObstacles, currentTime)
+        }
+        
+        // 4. Grid state update
+        val updateGridTime = measureTimeMillis {
+            gridState.updateGrid(gridAfterParticles)
+            gridState.clearActiveRegions()
+        }
+        
+        // 5. Cleanup routine (periodic)
+        val cleanupTime = if (currentTime - lastCleanupTime >= cleanupIntervalMs) {
+            measureTimeMillis {
+                cleanupInconsistentSettledParticles(currentTime)
+                lastCleanupTime = currentTime
+            }
+        } else 0L
+        
+        val totalTime = gridCreateTime + obstacleTime + particleTime + updateGridTime + cleanupTime
+        
+        Log.d("SandPerf", "BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
+        Log.d("SandPerf", "TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
     }
     
     private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
