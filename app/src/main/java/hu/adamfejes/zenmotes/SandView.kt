@@ -117,8 +117,7 @@ fun SandView(
                 }
                 lastFrameTime = frameStartTime
 
-                timber.log.Timber.tag("DrawPerf").d(
-                    "TOTAL: ${drawTime}ms +  | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms | FPS: $actualFps"
+                timber.log.Timber.tag("DrawPerf").d("TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: ${1000 / (drawTime + grid.getPerformanceData().updateTime)} | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
                 )
             }
         }
