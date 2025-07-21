@@ -9,6 +9,9 @@ class GridState(
     private val settledParticlesByObstacle = mutableMapOf<String?, MutableSet<ParticlePosition>>()
     private val slidingObstacles = mutableListOf<SlidingObstacle>()
     
+    // Cache active cells to avoid scanning entire grid
+    private val activeCells = mutableListOf<Triple<Int, Int, Cell>>()
+    
     fun getCell(x: Int, y: Int): Cell? {
         return if (x in 0 until width && y in 0 until height) {
             grid[y][x]
@@ -27,20 +30,26 @@ class GridState(
                 grid[y][x] = newGrid[y][x]
             }
         }
+        rebuildActiveCells()
     }
     
     fun getAllCells(): List<Triple<Int, Int, Cell>> {
-        val cells = mutableListOf<Triple<Int, Int, Cell>>()
+        return activeCells.toList()
+    }
+    
+    private fun rebuildActiveCells() {
+        activeCells.clear()
+        // TODO how much time is this?
         for (y in 0 until height) {
             for (x in 0 until width) {
-                if (grid[y][x].type == CellType.SAND || 
-                    grid[y][x].type == CellType.OBSTACLE || 
-                    grid[y][x].type == CellType.SLIDING_OBSTACLE) {
-                    cells.add(Triple(x, y, grid[y][x]))
+                val cell = grid[y][x]
+                if (cell.type == CellType.SAND || 
+                    cell.type == CellType.OBSTACLE || 
+                    cell.type == CellType.SLIDING_OBSTACLE) {
+                    activeCells.add(Triple(x, y, cell))
                 }
             }
         }
-        return cells
     }
     
     // Moving particles management

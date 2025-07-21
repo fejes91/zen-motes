@@ -217,7 +217,16 @@ private fun DrawScope.drawSandGrid(
     var colorCalculationTime = 0.0
     var drawOperationTime = 0.0
 
+    // 1. Get all cells timing - this might be expensive
+    val getAllCellsStartTime = System.nanoTime()
     val allCells = grid.getAllCells()
+    val getAllCellsTime = (System.nanoTime() - getAllCellsStartTime) / 1_000_000.0
+
+    // 2. Break down the cell iteration
+    val cellIterationStartTime = System.nanoTime()
+    var sandDrawTime = 0.0
+    var obstacleDrawTime = 0.0
+    
     val cellIterationTime = measureTimeMillis {
         allCells.forEach { (x, y, cell) ->
             when (cell.type) {
@@ -242,7 +251,9 @@ private fun DrawScope.drawSandGrid(
                             ),
                             size = androidx.compose.ui.geometry.Size(cellSize, cellSize)
                         )
-                        drawOperationTime += (System.nanoTime() - drawOpStartTime) / 1_000_000.0
+                        val drawTime = (System.nanoTime() - drawOpStartTime) / 1_000_000.0
+                        drawOperationTime += drawTime
+                        sandDrawTime += drawTime
                     }
                 }
 
@@ -290,7 +301,11 @@ private fun DrawScope.drawSandGrid(
     )
 
     timber.log.Timber.tag("DrawDetail").d(
-        "TIMING: Total=${totalCellDrawTime}ms | Iteration=${cellIterationTime}ms | Obstacles=${slidingObstacleTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms | Overlay=${overlayTime}ms"
+        "BREAKDOWN: GetCells=${getAllCellsTime}ms | Iteration=${cellIterationTime}ms | SandDraw=${sandDrawTime}ms | SlidingObs=${slidingObstacleTime}ms | Overlay=${overlayTime}ms"
+    )
+    
+    timber.log.Timber.tag("DrawDetail").d(
+        "TIMING: Total=${totalCellDrawTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms"
     )
 }
 
