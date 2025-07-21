@@ -88,7 +88,7 @@ class SandGrid(
         }
         
         Timber.tag("SandPerf").d("BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
-        Timber.tag("SandPerf").d("TOTAL: ${totalTime}ms | FPS: ${1000/totalTime} | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
+        Timber.tag("SandPerf").d("TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
     }
     
     private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
@@ -200,6 +200,7 @@ class SandGrid(
     
     fun getWidth() = width
     fun getHeight() = height
+    fun getSlidingObstacles() = gridState.getSlidingObstacles()
     
     // Performance data access
     fun getPerformanceData(): PerformanceData {

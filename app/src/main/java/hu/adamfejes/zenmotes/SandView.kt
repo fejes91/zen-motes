@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.roundToInt
+import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
 @Composable
@@ -117,7 +118,7 @@ fun SandView(
                 lastFrameTime = frameStartTime
 
                 timber.log.Timber.tag("DrawPerf").d(
-                    "TOTAL: ${drawTime}ms | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms | FPS: $actualFps"
+                    "TOTAL: ${drawTime}ms +  | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms | FPS: $actualFps"
                 )
             }
         }
@@ -214,7 +215,6 @@ private fun DrawScope.drawSandGrid(
     var sandParticlesDrawn = 0
     var settledParticlesDrawn = 0
     var obstaclesDrawn = 0
-    var slidingObstaclesDrawn = 0
     var colorCalculationTime = 0.0
     var drawOperationTime = 0.0
 
@@ -227,6 +227,12 @@ private fun DrawScope.drawSandGrid(
                     if (particle != null) {
                         val colorStartTime = System.nanoTime()
                         colorCalculationTime += (System.nanoTime() - colorStartTime) / 1_000_000.0
+
+                        if (particle.isSettled) {
+                            settledParticlesDrawn++
+                        } else {
+                            sandParticlesDrawn++
+                        }
 
                         val drawOpStartTime = System.nanoTime()
                         drawRect(
@@ -257,22 +263,7 @@ private fun DrawScope.drawSandGrid(
                 }
 
                 CellType.SLIDING_OBSTACLE -> {
-                    slidingObstaclesDrawn++
-                    val colorStartTime = System.nanoTime()
-                    val obstacleColor = cell.slidingObstacle?.color ?: Color(0xFFFF6B6B)
-                    colorCalculationTime += (System.nanoTime() - colorStartTime) / 1_000_000.0
-
-                    val drawOpStartTime = System.nanoTime()
-                    drawRoundRect(
-                        color = obstacleColor, // Use the sliding obstacle's color
-                        topLeft = Offset(
-                            x = x * cellSize,
-                            y = y * cellSize
-                        ),
-                        size = androidx.compose.ui.geometry.Size(cellSize, cellSize),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(3f, 3f)
-                    )
-                    drawOperationTime += (System.nanoTime() - drawOpStartTime) / 1_000_000.0
+                    // Skip - sliding obstacles are drawn separately as single rectangles
                 }
 
                 CellType.EMPTY -> {
@@ -282,21 +273,44 @@ private fun DrawScope.drawSandGrid(
         }
     } / 1000.0 // Convert to ms
 
+    // Draw sliding obstacles as single rectangles (much more efficient)
+    val slidingObstacleTime = measureNanoTime {
+        drawSlidingObstacles(grid, cellSize)
+    } / 1_000_000.0 // Convert to ms
+
     val overlayTime = if (showPerformanceOverlay) {
         val overlayStartTime = System.nanoTime()
         drawPerformanceOverlay(grid = grid, totalDrawTime = totalDrawTime, actualFps = actualFps)
         (System.nanoTime() - overlayStartTime) / 1_000_000.0
     } else 0.0
 
-    val totalDrawTime = (System.nanoTime() - drawCellsStartTime) / 1_000_000.0
+    val totalCellDrawTime = (System.nanoTime() - drawCellsStartTime) / 1_000_000.0
 
     timber.log.Timber.tag("DrawDetail").d(
-        "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn} | Sliding=${slidingObstaclesDrawn}"
+        "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn}"
     )
 
     timber.log.Timber.tag("DrawDetail").d(
-        "TIMING: Total=${totalDrawTime}ms | Iteration=${cellIterationTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms | Overlay=${overlayTime}ms"
+        "TIMING: Total=${totalCellDrawTime}ms | Iteration=${cellIterationTime}ms | Obstacles=${slidingObstacleTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms | Overlay=${overlayTime}ms"
     )
+}
+
+private fun DrawScope.drawSlidingObstacles(grid: SandGrid, cellSize: Float) {
+    // Get sliding obstacles from grid and draw each as a single rectangle
+    val slidingObstacles = grid.getSlidingObstacles()
+    
+    for (obstacle in slidingObstacles) {
+        val size = obstacle.size.toFloat() * cellSize
+        val x = obstacle.x * cellSize - size / 2
+        val y = obstacle.y * cellSize - size / 2
+        
+        drawRoundRect(
+            color = obstacle.color,
+            topLeft = Offset(x, y),
+            size = androidx.compose.ui.geometry.Size(size, size),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(3f, 3f)
+        )
+    }
 }
 
 private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int, actualFps: Int) {
