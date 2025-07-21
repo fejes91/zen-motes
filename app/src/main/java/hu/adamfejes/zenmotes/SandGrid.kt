@@ -93,9 +93,11 @@ class SandGrid(
     
     private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
         // Generate new sliding obstacles if needed
-        obstacleGenerator.generateSlidingObstacle(currentTime)?.let { newObstacle ->
-            gridState.addSlidingObstacle(newObstacle)
-            Timber.tag("SlidingObstacle").d("🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
+        val generationTime = measureTimeMillis {
+            obstacleGenerator.generateSlidingObstacle(currentTime)?.let { newObstacle ->
+                gridState.addSlidingObstacle(newObstacle)
+                Timber.tag("SlidingObstacle").d("🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
+            }
         }
         
         // Update existing sliding obstacles
@@ -105,9 +107,16 @@ class SandGrid(
         // Start with the passed grid
         var workingGrid = grid
         
+        var clearTime = 0L
+        var positionUpdateTime = 0L
+        var particleMoveTime = 0L
+        var gridPlacementTime = 0L
+        
         for (obstacle in currentObstacles) {
             // Clear old obstacle position from working grid
+            val clearStartTime = System.nanoTime()
             workingGrid = clearSlidingObstacleFromGrid(workingGrid, obstacle)
+            clearTime += (System.nanoTime() - clearStartTime)
             
             // Check if obstacle should be destroyed by sand weight
             val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
@@ -121,22 +130,34 @@ class SandGrid(
             }
             
             // Update obstacle position
+            val posUpdateStartTime = System.nanoTime()
             val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, currentTime)
+            positionUpdateTime += (System.nanoTime() - posUpdateStartTime)
 
             // Move settled particles to new position to follow the obstacle
+            val particleMoveStartTime = System.nanoTime()
             workingGrid = updateSettledParticles(workingGrid, obstacle, updatedObstacle)
+            particleMoveTime += (System.nanoTime() - particleMoveStartTime)
             
             // Check if obstacle has moved off screen
             if (!obstacleGenerator.isObstacleOffScreen(updatedObstacle)) {
                 updatedObstacles.add(updatedObstacle)
                 // Place updated obstacle in working grid
+                val placementStartTime = System.nanoTime()
                 workingGrid = placeSlidingObstacleInGrid(workingGrid, updatedObstacle)
+                gridPlacementTime += (System.nanoTime() - placementStartTime)
             }
         }
         
         // Update the sliding obstacles list
         gridState.setSlidingObstacles(updatedObstacles)
         
+        val clearTimeMs = clearTime / 1_000_000.0
+        val positionUpdateTimeMs = positionUpdateTime / 1_000_000.0
+        val particleMoveTimeMs = particleMoveTime / 1_000_000.0
+        val gridPlacementTimeMs = gridPlacementTime / 1_000_000.0
+        
+        Timber.tag("ObstaclePerf").d("SLIDING: Gen=${generationTime}ms | Clear=${clearTimeMs}ms | PosUpdate=${positionUpdateTimeMs}ms | ParticleMove=${particleMoveTimeMs}ms | Placement=${gridPlacementTimeMs}ms")
         Timber.tag("SlidingObstacle").d("🚀 Active sliding obstacles: ${updatedObstacles.size}")
         
         return workingGrid
@@ -266,15 +287,14 @@ class SandGrid(
         // Only process if there's actual movement
         if (deltaX == 0 && deltaY == 0) return grid
 
-        // Filter settled particles that belong to this obstacle
-        val particlesToMove = gridState.getSettledParticles().mapNotNull { settledParticle ->
+        // Get settled particles that belong to this obstacle directly (much faster)
+        val obstacleParticles = gridState.getSettledParticlesByObstacleId(obstacle.id)
+        val particlesToMove = obstacleParticles.mapNotNull { settledParticle ->
             val cell = grid[settledParticle.y][settledParticle.x]
-            if (cell.type == CellType.SAND && 
-                cell.particle?.isSettled == true &&
-                cell.particle.obstacleId == obstacle.id) {
+            if (cell.type == CellType.SAND && cell.particle?.isSettled == true) {
                 Triple(settledParticle.x, settledParticle.y, cell.particle)
             } else {
-                null
+                null // Particle state is inconsistent, skip it
             }
         }
 

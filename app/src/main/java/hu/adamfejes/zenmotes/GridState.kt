@@ -7,7 +7,7 @@ class GridState(
     private val grid = Array(height) { Array(width) { Cell() } }
     private val activeRegions = mutableSetOf<Pair<Int, Int>>()
     private val movingParticles = mutableListOf<MovingParticle>()
-    private val settledParticles = mutableSetOf<ParticlePosition>()
+    private val settledParticlesByObstacle = mutableMapOf<String?, MutableSet<ParticlePosition>>()
     private val slidingObstacles = mutableListOf<SlidingObstacle>()
     
     fun getCell(x: Int, y: Int): Cell? {
@@ -86,17 +86,24 @@ class GridState(
     
     // Settled particles management
     fun addSettledParticle(position: ParticlePosition) {
-        settledParticles.add(position)
+        val obstacleId = position.obstacleId
+        settledParticlesByObstacle.getOrPut(obstacleId) { mutableSetOf() }.add(position)
     }
     
     fun removeSettledParticle(x: Int, y: Int) {
-        settledParticles.removeIf { it.x == x && it.y == y }
+        settledParticlesByObstacle.values.forEach { particles ->
+            particles.removeIf { it.x == x && it.y == y }
+        }
+        // Clean up empty sets to prevent memory leaks
+        settledParticlesByObstacle.entries.removeIf { it.value.isEmpty() }
     }
     
-    fun getSettledParticles(): Set<ParticlePosition> = settledParticles.toSet()
+    fun getSettledParticles(): Set<ParticlePosition> {
+        return settledParticlesByObstacle.values.flatten().toSet()
+    }
     
     fun getSettledParticlesByObstacleId(obstacleId: String): Set<ParticlePosition> {
-        return settledParticles.filter { it.obstacleId == obstacleId }.toSet()
+        return settledParticlesByObstacle[obstacleId]?.toSet() ?: emptySet()
     }
     
     // Sliding obstacles management
