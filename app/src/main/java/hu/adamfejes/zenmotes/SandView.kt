@@ -18,8 +18,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import kotlin.math.roundToInt
 
 @Composable
@@ -29,6 +30,7 @@ fun SandView(
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
+    showPerformanceOverlay: Boolean, // Easy toggle for performance display
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
@@ -64,7 +66,7 @@ fun SandView(
                 if (isAddingSand) {
                     addSandParticles(grid, sandSourceX, cellSize, sandColor, frame, gridDimensions, sandGenerationAmount)
                 }
-                drawSandGrid(grid, cellSize, frame)
+                drawSandGrid(grid, cellSize, frame, showPerformanceOverlay)
             }
         }
     }
@@ -143,7 +145,7 @@ private fun addSandParticles(
     grid.addSand(centerX, 0, color, frame)
 }
 
-private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, @Suppress("UNUSED_PARAMETER") frame: Long) {
+private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, @Suppress("UNUSED_PARAMETER") frame: Long, showPerformanceOverlay: Boolean) {
     grid.getAllCells().forEach { (x, y, cell) ->
         when (cell.type) {
             CellType.SAND -> {
@@ -199,4 +201,45 @@ private fun DrawScope.drawSandGrid(grid: SandGrid, cellSize: Float, @Suppress("U
             }
         }
     }
+    
+    // Draw performance overlay in bottom left corner
+    if (showPerformanceOverlay) {
+        drawPerformanceOverlay(grid)
+    }
+}
+
+private fun DrawScope.drawPerformanceOverlay(grid: SandGrid) {
+    val perfData = grid.getPerformanceData()
+    val textColor = Color.White
+    val backgroundColor = Color.Black.copy(alpha = 0.7f)
+    val textSizePx = 24f
+    val padding = 16f
+    val lineHeight = 28f
+    
+    // Background for text
+    drawRect(
+        color = backgroundColor,
+        topLeft = Offset(padding, size.height - 200f),
+        size = androidx.compose.ui.geometry.Size(240f, 160f)
+    )
+    
+    // Use native Canvas for text drawing
+    val canvas = drawContext.canvas.nativeCanvas
+    val paint = android.graphics.Paint().apply {
+        color = textColor.toArgb()
+        textSize = textSizePx
+        isAntiAlias = true
+        typeface = android.graphics.Typeface.MONOSPACE
+    }
+    
+    var yPos = size.height - 160f
+    canvas.drawText("FPS: ${perfData.fps}", padding + 8f, yPos, paint)
+    yPos += lineHeight
+    canvas.drawText("Update: ${perfData.updateTime}ms", padding + 8f, yPos, paint)
+    yPos += lineHeight  
+    canvas.drawText("Avg: ${perfData.avgUpdateTime}ms", padding + 8f, yPos, paint)
+    yPos += lineHeight
+    canvas.drawText("Moving: ${perfData.movingParticles}", padding + 8f, yPos, paint)
+    yPos += lineHeight
+    canvas.drawText("Settled: ${perfData.settledParticles}", padding + 8f, yPos, paint)
 }

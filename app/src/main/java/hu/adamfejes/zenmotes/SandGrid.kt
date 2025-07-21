@@ -21,6 +21,12 @@ class SandGrid(
     private var lastCleanupTime = 0L
     private val cleanupIntervalMs = 500L
     
+    // Performance tracking
+    private var frameCount = 0
+    private var currentFps = 0
+    private var lastUpdateDuration = 0L
+    private var avgUpdateDuration = 0L
+
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
     private val obstacleGenerator = ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
@@ -73,8 +79,18 @@ class SandGrid(
         
         val totalTime = gridCreateTime + obstacleTime + particleTime + updateGridTime + cleanupTime
         
+        // Update performance tracking
+        frameCount++
+        avgUpdateDuration = (avgUpdateDuration * 0.8 + totalTime * 0.2).toLong()
+
+        // Calculate FPS every 20 frames
+        if (frameCount % 10 == 0) {
+            lastUpdateDuration = totalTime
+            currentFps = if (totalTime > 0) (1000.0 / totalTime).toInt() else 0
+        }
+        
         Timber.tag("SandPerf").d("BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
-        Timber.tag("SandPerf").d("TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
+        Timber.tag("SandPerf").d("TOTAL: ${totalTime}ms | FPS: ${1000/totalTime} | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
     }
     
     private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
@@ -186,6 +202,18 @@ class SandGrid(
     
     fun getWidth() = width
     fun getHeight() = height
+    
+    // Performance data access
+    fun getPerformanceData(): PerformanceData {
+        return PerformanceData(
+            fps = currentFps,
+            updateTime = lastUpdateDuration,
+            avgUpdateTime = avgUpdateDuration,
+            movingParticles = gridState.getMovingParticles().size,
+            settledParticles = gridState.getSettledParticles().size,
+            obstacles = gridState.getSlidingObstacles().size
+        )
+    }
     
     // Helper functions for functional grid manipulation
     

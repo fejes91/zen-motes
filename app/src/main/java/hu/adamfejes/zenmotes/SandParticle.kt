@@ -49,3 +49,12 @@ data class Cell(
     val particle: SandParticle? = null,
     val slidingObstacle: SlidingObstacle? = null
 )
+
+data class PerformanceData(
+    val fps: Int,
+    val updateTime: Long,
+    val avgUpdateTime: Long,
+    val movingParticles: Int,
+    val settledParticles: Int,
+    val obstacles: Int
+)
