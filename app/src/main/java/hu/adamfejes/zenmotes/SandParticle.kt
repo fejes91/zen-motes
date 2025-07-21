@@ -3,7 +3,8 @@ package hu.adamfejes.zenmotes
 import androidx.compose.ui.graphics.Color
 
 data class SandParticle(
-    val color: Color = Color.Yellow,
+    val color: Color = Color.Yellow, // Original color for reference
+    val displayColor: Color = Color.Yellow, // Precalculated color with noise variation applied
     val isActive: Boolean = false,
     val velocityY: Float = 0f,
     val lastUpdateTime: Long = 0L,

@@ -24,6 +24,14 @@ class ParticlePhysics(
         
         return SandParticle(
             color = color,
+            displayColor = color.copy(
+                red = (color.red * noiseVariation).coerceIn(0f, 1f),
+                green = (color.green * noiseVariation).coerceIn(
+                    0f,
+                    1f
+                ),
+                blue = (color.blue * noiseVariation).coerceIn(0f, 1f)
+            ),
             isActive = true,
             velocityY = randomVelocity,
             lastUpdateTime = currentTime,

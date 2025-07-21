@@ -37,11 +37,12 @@ fun SandView(
     var sandSourceX by remember { mutableStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
     var frame by remember { mutableStateOf(0L) }
-    
+
     // Track actual frame timing for real FPS calculation
     var lastFrameTime by remember { mutableStateOf(0L) }
     var frameCount by remember { mutableStateOf(0) }
     var actualFps by remember { mutableStateOf(0) }
+    var totalDrawTime by remember { mutableStateOf(0) }
 
     Box(
         modifier = modifier
@@ -67,7 +68,7 @@ fun SandView(
         ) {
             val frameStartTime = System.currentTimeMillis()
             val drawStartTime = System.nanoTime()
-            
+
             // 1. Grid initialization timing
             val gridInitStartTime = System.nanoTime()
             val gridDimensions = calculateGridDimensions(size, cellSize)
@@ -89,26 +90,34 @@ fun SandView(
                     )
                     (System.nanoTime() - sandAddStartTime) / 1_000_000.0
                 } else 0.0
-                
+
                 // 3. Draw grid timing (this will provide internal breakdown)
                 val drawGridStartTime = System.nanoTime()
-                drawSandGrid(grid, cellSize, frame, showPerformanceOverlay, actualFps)
+                drawSandGrid(
+                    grid = grid,
+                    cellSize = cellSize,
+                    frame = frame,
+                    showPerformanceOverlay = showPerformanceOverlay,
+                    totalDrawTime = totalDrawTime,
+                    actualFps = actualFps
+                )
                 val drawGridTime = (System.nanoTime() - drawGridStartTime) / 1_000_000.0
 
-                val totalDrawTime = (System.nanoTime() - drawStartTime) / 1_000_000.0
-                
+                val drawTime = ((System.nanoTime() - drawStartTime) / 1_000_000.0).roundToInt()
+
                 // Calculate actual FPS including both physics and drawing
                 if (lastFrameTime > 0) {
                     val totalFrameTime = frameStartTime - lastFrameTime
                     frameCount++
                     if (frameCount % 10 == 0) { // Update every 10 frames
                         actualFps = if (totalFrameTime > 0) (1000 / totalFrameTime).toInt() else 0
+                        totalDrawTime = drawTime
                     }
                 }
                 lastFrameTime = frameStartTime
-                
+
                 timber.log.Timber.tag("DrawPerf").d(
-                    "TOTAL: ${totalDrawTime}ms | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms | FPS: $actualFps"
+                    "TOTAL: ${drawTime}ms | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms | FPS: $actualFps"
                 )
             }
         }
@@ -196,10 +205,11 @@ private fun DrawScope.drawSandGrid(
     cellSize: Float,
     @Suppress("UNUSED_PARAMETER") frame: Long,
     showPerformanceOverlay: Boolean,
+    totalDrawTime: Int,
     actualFps: Int
 ) {
     val drawCellsStartTime = System.nanoTime()
-    
+
     // Performance counters for detailed breakdown
     var sandParticlesDrawn = 0
     var settledParticlesDrawn = 0
@@ -216,28 +226,11 @@ private fun DrawScope.drawSandGrid(
                     val particle = cell.particle
                     if (particle != null) {
                         val colorStartTime = System.nanoTime()
-                        
-                        // Show settled particles in magenta for testing
-                        val displayColor = if (particle.isSettled) {
-                            settledParticlesDrawn++
-                            Color.Magenta
-                        } else {
-                            sandParticlesDrawn++
-                            // Apply noise variation to make some particles darker
-                            particle.color.copy(
-                                red = (particle.color.red * particle.noiseVariation).coerceIn(0f, 1f),
-                                green = (particle.color.green * particle.noiseVariation).coerceIn(
-                                    0f,
-                                    1f
-                                ),
-                                blue = (particle.color.blue * particle.noiseVariation).coerceIn(0f, 1f)
-                            )
-                        }
                         colorCalculationTime += (System.nanoTime() - colorStartTime) / 1_000_000.0
 
                         val drawOpStartTime = System.nanoTime()
                         drawRect(
-                            color = displayColor,
+                            color = particle.displayColor,
                             topLeft = Offset(
                                 x = x * cellSize,
                                 y = y * cellSize
@@ -268,7 +261,7 @@ private fun DrawScope.drawSandGrid(
                     val colorStartTime = System.nanoTime()
                     val obstacleColor = cell.slidingObstacle?.color ?: Color(0xFFFF6B6B)
                     colorCalculationTime += (System.nanoTime() - colorStartTime) / 1_000_000.0
-                    
+
                     val drawOpStartTime = System.nanoTime()
                     drawRoundRect(
                         color = obstacleColor, // Use the sliding obstacle's color
@@ -291,7 +284,7 @@ private fun DrawScope.drawSandGrid(
 
     val overlayTime = if (showPerformanceOverlay) {
         val overlayStartTime = System.nanoTime()
-        drawPerformanceOverlay(grid, actualFps)
+        drawPerformanceOverlay(grid = grid, totalDrawTime = totalDrawTime, actualFps = actualFps)
         (System.nanoTime() - overlayStartTime) / 1_000_000.0
     } else 0.0
 
@@ -300,16 +293,16 @@ private fun DrawScope.drawSandGrid(
     timber.log.Timber.tag("DrawDetail").d(
         "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn} | Sliding=${slidingObstaclesDrawn}"
     )
-    
+
     timber.log.Timber.tag("DrawDetail").d(
         "TIMING: Total=${totalDrawTime}ms | Iteration=${cellIterationTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms | Overlay=${overlayTime}ms"
     )
 }
 
-private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, actualFps: Int) {
+private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int, actualFps: Int) {
     val perfData = grid.getPerformanceData()
     val textColor = Color.White
-    val backgroundColor = Color.Black.copy(alpha = 0.7f)
+    val backgroundColor = Color.Black.copy(alpha = 0.6f)
     val textSizePx = 22f
     val padding = 16f
     val lineHeight = 26f
@@ -318,7 +311,7 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, actualFps: Int) {
     drawRect(
         color = backgroundColor,
         topLeft = Offset(padding, size.height - 220f),
-        size = androidx.compose.ui.geometry.Size(260f, 180f)
+        size = androidx.compose.ui.geometry.Size(600f, 180f)
     )
 
     // Use native Canvas for text drawing
@@ -333,7 +326,12 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, actualFps: Int) {
     var yPos = size.height - 180f
     canvas.drawText("Real FPS: $actualFps", padding + 8f, yPos, paint)
     yPos += lineHeight
-    canvas.drawText("Update: ${perfData.updateTime}ms", padding + 8f, yPos, paint)
+    canvas.drawText(
+        "Update + Draw = Total: ${perfData.updateTime}ms + ${totalDrawTime}ms = ${perfData.updateTime + totalDrawTime}ms",
+        padding + 8f,
+        yPos,
+        paint
+    )
     yPos += lineHeight
     canvas.drawText("Avg: ${perfData.avgUpdateTime}ms", padding + 8f, yPos, paint)
     yPos += lineHeight
