@@ -51,7 +51,6 @@ data class Cell(
 )
 
 data class PerformanceData(
-    val fps: Int,
     val updateTime: Long,
     val avgUpdateTime: Long,
     val movingParticles: Int,

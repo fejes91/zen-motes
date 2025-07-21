@@ -39,6 +39,7 @@ fun SandSimulation(
             sandColor = selectedColor,
             hasOwnBackground = true,
             sandGenerationAmount = 60,
+            showPerformanceOverlay = true // Toggle performance overlay for testing
         )
         
         // Top UI overlay - color picker and reset button

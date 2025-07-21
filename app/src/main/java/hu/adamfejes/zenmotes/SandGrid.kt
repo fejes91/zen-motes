@@ -23,7 +23,6 @@ class SandGrid(
     
     // Performance tracking
     private var frameCount = 0
-    private var currentFps = 0
     private var lastUpdateDuration = 0L
     private var avgUpdateDuration = 0L
 
@@ -86,7 +85,6 @@ class SandGrid(
         // Calculate FPS every 20 frames
         if (frameCount % 10 == 0) {
             lastUpdateDuration = totalTime
-            currentFps = if (totalTime > 0) (1000.0 / totalTime).toInt() else 0
         }
         
         Timber.tag("SandPerf").d("BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
@@ -206,7 +204,6 @@ class SandGrid(
     // Performance data access
     fun getPerformanceData(): PerformanceData {
         return PerformanceData(
-            fps = currentFps,
             updateTime = lastUpdateDuration,
             avgUpdateTime = avgUpdateDuration,
             movingParticles = gridState.getMovingParticles().size,
