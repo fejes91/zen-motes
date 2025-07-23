@@ -1,14 +1,29 @@
 package hu.adamfejes.zenmotes
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -23,6 +38,7 @@ fun SandSimulation(
 ) {
     var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
     var isPaused by remember { mutableStateOf(false) }
+    var resetTrigger by remember { mutableStateOf(0) }
     
     val lifecycleOwner = LocalLifecycleOwner.current
     
@@ -54,40 +70,59 @@ fun SandSimulation(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        // Sand simulation view - full edge-to-edge behind everything
-        SandView(
-            modifier = Modifier.fillMaxSize(),
-            sandColor = selectedColor,
-            hasOwnBackground = true,
-            sandGenerationAmount = 60,
-            showPerformanceOverlay = true, // Toggle performance overlay for testing
-            isPaused = isPaused
-        )
-        
-        // Top UI overlay - color picker and reset button
-        LazyRow(
+        // Everything that should be blurred when paused  
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .then(if (isPaused) Modifier.blur(20.dp) else Modifier)
         ) {
-            items(sandColors) { color ->
-                ColorButton(
-                    color = color,
-                    isSelected = color == selectedColor,
-                    onClick = { selectedColor = color }
-                )
-            }
+            // Sand simulation view - full edge-to-edge behind everything
+            SandView(
+                modifier = Modifier.fillMaxSize(),
+                sandColor = selectedColor,
+                hasOwnBackground = true,
+                sandGenerationAmount = 60,
+                showPerformanceOverlay = true, // Toggle performance overlay for testing
+                isPaused = isPaused,
+                resetTrigger = resetTrigger
+            )
             
-            item {
-                // Pause button - circular and same size as color buttons
-                PauseButton(
-                    isPaused = isPaused,
-                    onClick = { isPaused = !isPaused }
-                )
+            // Top UI overlay - color picker and reset button
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items(sandColors) { color ->
+                    ColorButton(
+                        color = color,
+                        isSelected = color == selectedColor,
+                        onClick = { selectedColor = color }
+                    )
+                }
+                
+                item {
+                    // Pause button - circular and same size as color buttons
+                    PauseButton(
+                        isPaused = isPaused,
+                        onClick = { isPaused = !isPaused }
+                    )
+                }
             }
+        }
+        
+        // Pause overlay with blur and menu
+        if (isPaused) {
+            PauseOverlay(
+                onResume = { isPaused = false },
+                onRestart = { 
+                    resetTrigger++
+                    isPaused = false
+                }
+            )
         }
     }
 }

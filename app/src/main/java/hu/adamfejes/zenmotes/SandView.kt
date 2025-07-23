@@ -34,8 +34,14 @@ fun SandView(
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
+    resetTrigger: Int
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
+    
+    // Reset grid when resetTrigger changes
+    LaunchedEffect(resetTrigger) {
+        sandGrid?.reset()
+    }
     var sandSourceX by remember { mutableStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
     var frame by remember { mutableStateOf(0L) }
@@ -87,12 +93,10 @@ fun SandView(
             val frameStartTime = System.currentTimeMillis()
             val drawStartTime = System.nanoTime()
 
-            // 1. Grid initialization timing
-            val gridInitStartTime = System.nanoTime()
+            // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, cellSize)
             sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions)
-            val gridInitTime = (System.nanoTime() - gridInitStartTime) / 1_000_000.0
-
+            
             sandGrid?.let { grid ->
                 // 2. Sand particle addition timing
                 val sandAddTime = if (isAddingSand) {
@@ -142,7 +146,7 @@ fun SandView(
                 }
 
                 timber.log.Timber.tag("DrawPerf").d(
-                    "TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: $fps | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
+                    "TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: $fps | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
                 )
             }
         }

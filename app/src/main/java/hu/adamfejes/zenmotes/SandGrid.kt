@@ -251,6 +251,22 @@ class SandGrid(
             obstacles = gridState.getSlidingObstacles().size
         )
     }
+    
+    fun reset() {
+        // Reset pause tracking
+        pauseStartTime = null
+        totalPausedTime = 0L
+        
+        // Reset performance tracking
+        frameCount = 0
+        lastUpdateDuration = 0L
+        avgUpdateDuration = 0L
+        lastCleanupTime = 0L
+        
+        // Reset all components
+        gridState.reset()
+        obstacleGenerator.reset()
+    }
 
     // Helper functions for functional grid manipulation
 

@@ -101,4 +101,19 @@ class GridState(
     fun getGrid(): Array<Array<Cell>> {
         return grid
     }
+    
+    fun reset() {
+        // Clear all grid cells
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                grid[y][x] = Cell()
+            }
+        }
+        
+        // Clear all collections
+        movingParticles.clear()
+        settledParticlesByObstacle.clear()
+        slidingObstacles.clear()
+        activeCells.clear()
+    }
 }

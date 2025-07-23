@@ -68,4 +68,8 @@ class ObstacleGenerator(
     fun isObstacleOffScreen(obstacle: SlidingObstacle): Boolean {
         return obstacle.x > width + obstacle.size
     }
+    
+    fun reset() {
+        lastSlidingObstacleTime = 0L
+    }
 }
