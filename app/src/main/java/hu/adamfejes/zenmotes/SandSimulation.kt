@@ -10,16 +10,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 
 @Composable
 fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
     var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
+    var isPaused by remember { mutableStateOf(false) }
+    
+    val lifecycleOwner = LocalLifecycleOwner.current
+    
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> isPaused = true
+                Lifecycle.Event.ON_RESUME -> {}
+                else -> {}
+            }
+        }
+        
+        lifecycleOwner.lifecycle.addObserver(observer)
+        
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     
     val sandColors = listOf(
         Color(0xFFFF9BB5), // Saturated Pink
@@ -39,7 +60,8 @@ fun SandSimulation(
             sandColor = selectedColor,
             hasOwnBackground = true,
             sandGenerationAmount = 60,
-            showPerformanceOverlay = true // Toggle performance overlay for testing
+            showPerformanceOverlay = true, // Toggle performance overlay for testing
+            isPaused = isPaused
         )
         
         // Top UI overlay - color picker and reset button
@@ -60,9 +82,10 @@ fun SandSimulation(
             }
             
             item {
-                // Reset button - circular and same size as color buttons
-                ResetButton(
-                    onClick = { /* Reset functionality removed since destroyable obstacles are gone */ }
+                // Pause button - circular and same size as color buttons
+                PauseButton(
+                    isPaused = isPaused,
+                    onClick = { isPaused = !isPaused }
                 )
             }
         }
@@ -102,7 +125,8 @@ private fun ColorButton(
 }
 
 @Composable
-private fun ResetButton(
+private fun PauseButton(
+    isPaused: Boolean,
     onClick: () -> Unit
 ) {
     Box(
@@ -122,8 +146,8 @@ private fun ResetButton(
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = "↻",
-                fontSize = 20.sp,
+                text = if (isPaused) "▶" else "⏸",
+                fontSize = 16.sp,
                 color = Color.Black
             )
         }

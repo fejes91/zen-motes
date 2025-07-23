@@ -33,11 +33,22 @@ fun SandView(
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
+    isPaused: Boolean,
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     var sandSourceX by remember { mutableStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
     var frame by remember { mutableStateOf(0L) }
+    
+    // Clear sand adding state when paused and handle pause/resume
+    LaunchedEffect(isPaused) {
+        if (isPaused) {
+            isAddingSand = false
+            sandGrid?.onPause()
+        } else {
+            sandGrid?.onResume()
+        }
+    }
 
     // Track actual frame timing for real FPS calculation
     var lastFrameTime by remember { mutableStateOf(0L) }
@@ -54,16 +65,22 @@ fun SandView(
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
+                .pointerInput(isPaused) {
                     detectDragGestures(
                         onDragStart = { offset ->
-                            sandSourceX = offset.x
-                            isAddingSand = true
+                            if (!isPaused) {
+                                sandSourceX = offset.x
+                                isAddingSand = true
+                            }
                         },
-                        onDragEnd = { isAddingSand = false }
+                        onDragEnd = { 
+                            isAddingSand = false 
+                        }
                     ) { change, _ ->
-                        sandSourceX = change.position.x
-                        isAddingSand = true
+                        if (!isPaused) {
+                            sandSourceX = change.position.x
+                            isAddingSand = true
+                        }
                     }
                 }
         ) {
@@ -132,17 +149,21 @@ fun SandView(
     }
 
 
-    SandAnimationLoop { frameTime ->
+    SandAnimationLoop(isPaused = isPaused) { frameTime ->
         frame = frameTime
         sandGrid?.update(frameTime)
     }
 }
 
 @Composable
-private fun SandAnimationLoop(onFrame: (Long) -> Unit) {
-    LaunchedEffect(Unit) {
+private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
+    LaunchedEffect(isPaused) {
         while (true) {
-            withFrameMillis(onFrame)
+            withFrameMillis { frameTime ->
+                if (!isPaused) {
+                    onFrame(frameTime)
+                }
+            }
         }
     }
 }

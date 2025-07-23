@@ -25,6 +25,10 @@ class SandGrid(
     private var frameCount = 0
     private var lastUpdateDuration = 0L
     private var avgUpdateDuration = 0L
+    
+    // Pause tracking
+    private var pauseStartTime: Long? = null
+    private var totalPausedTime = 0L
 
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
@@ -40,6 +44,18 @@ class SandGrid(
             val particle = particlePhysics.createSandParticle(color, currentTime)
             setCell(x, y, Cell(CellType.SAND, particle))
             gridState.addMovingParticle(MovingParticle(x, y, particle))
+        }
+    }
+    
+    fun onPause() {
+        pauseStartTime = System.currentTimeMillis()
+    }
+    
+    fun onResume() {
+        pauseStartTime?.let { startTime ->
+            val pauseDuration = System.currentTimeMillis() - startTime
+            totalPausedTime += pauseDuration
+            pauseStartTime = null
         }
     }
 
@@ -91,9 +107,10 @@ class SandGrid(
     }
 
     private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
-        // Generate new sliding obstacles if needed
+        // Generate new sliding obstacles if needed (using adjusted time)
+        val adjustedTime = currentTime - totalPausedTime
         val generationTime = measureTimeMillis {
-            obstacleGenerator.generateSlidingObstacle(currentTime)?.let { newObstacle ->
+            obstacleGenerator.generateSlidingObstacle(adjustedTime)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
                 Timber.tag("SlidingObstacle").d("🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
             }
@@ -130,9 +147,10 @@ class SandGrid(
                 continue
             }
 
-            // Update obstacle position
+            // Update obstacle position with adjusted time (excluding paused time)
             val posUpdateStartTime = System.nanoTime()
-            val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, currentTime)
+            val adjustedTime = currentTime - totalPausedTime
+            val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, adjustedTime)
             positionUpdateTime += (System.nanoTime() - posUpdateStartTime)
 
             // Move settled particles to new position to follow the obstacle

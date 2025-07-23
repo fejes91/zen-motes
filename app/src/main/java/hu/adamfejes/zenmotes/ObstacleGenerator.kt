@@ -21,7 +21,7 @@ class ObstacleGenerator(
         Color(0xFF2196F3)  // Blue
     )
     
-    fun shouldGenerateObstacle(currentTime: Long): Boolean {
+    private fun shouldGenerateObstacle(currentTime: Long): Boolean {
         return currentTime - lastSlidingObstacleTime >= slidingObstacleInterval
     }
     
