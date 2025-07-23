@@ -36,6 +36,7 @@ import androidx.lifecycle.LifecycleEventObserver
 fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
+    var currentTheme by remember { mutableStateOf(Theme.LIGHT) }
     var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableStateOf(0) }
@@ -58,14 +59,9 @@ fun SandSimulation(
         }
     }
     
-    val sandColors = listOf(
-        Color(0xFFFF9BB5), // Saturated Pink
-        Color(0xFF9BCFFF), // Saturated Blue
-        Color(0xFF9BFF9B), // Saturated Green
-        Color(0xFFFFE066), // Saturated Yellow
-        Color(0xFFD99BFF), // Saturated Purple
-        Color(0xFFFF9B66)  // Saturated Orange
-    )
+    // Use current theme colors 
+    val colorScheme = getColorScheme(currentTheme)
+    val sandColors = colorScheme.sandColors
     
     Box(
         modifier = modifier.fillMaxSize()
@@ -84,7 +80,8 @@ fun SandSimulation(
                 sandGenerationAmount = 60,
                 showPerformanceOverlay = true, // Toggle performance overlay for testing
                 isPaused = isPaused,
-                resetTrigger = resetTrigger
+                resetTrigger = resetTrigger,
+                currentTheme = currentTheme
             )
             
             // Top UI overlay - color picker and reset button
@@ -108,7 +105,8 @@ fun SandSimulation(
                     // Pause button - circular and same size as color buttons
                     PauseButton(
                         isPaused = isPaused,
-                        onClick = { isPaused = !isPaused }
+                        onClick = { isPaused = !isPaused },
+                        currentTheme = currentTheme
                     )
                 }
             }
@@ -121,7 +119,9 @@ fun SandSimulation(
                 onRestart = { 
                     resetTrigger++
                     isPaused = false
-                }
+                },
+                currentTheme = currentTheme,
+                onThemeChange = { newTheme -> currentTheme = newTheme }
             )
         }
     }
@@ -162,13 +162,15 @@ private fun ColorButton(
 @Composable
 private fun PauseButton(
     isPaused: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    currentTheme: Theme
 ) {
+    val colorScheme = getColorScheme(currentTheme)
     Box(
         modifier = Modifier
             .size(48.dp)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.9f)),
+            .background(colorScheme.pauseButtonBackground),
         contentAlignment = Alignment.Center
     ) {
         Button(
@@ -176,14 +178,14 @@ private fun PauseButton(
             modifier = Modifier.size(40.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                contentColor = Color.Black
+                contentColor = colorScheme.pauseButtonIcon
             ),
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
                 text = if (isPaused) "▶" else "⏸",
                 fontSize = 16.sp,
-                color = Color.Black
+                color = colorScheme.pauseButtonIcon
             )
         }
     }

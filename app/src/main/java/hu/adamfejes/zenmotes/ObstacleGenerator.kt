@@ -6,20 +6,16 @@ class ObstacleGenerator(
     private val width: Int,
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
-    private val slidingObstacleTransitTimeSeconds: Float
+    private val slidingObstacleTransitTimeSeconds: Float,
+    private val currentTheme: Theme = Theme.LIGHT
 ) {
     private val slidingObstacleInterval = 1000L // 3 seconds between obstacles
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
     
-    private val slidingColors = listOf(
-        Color(0xFF00BCD4), // Cyan
-        Color(0xFF4CAF50), // Green
-        Color(0xFFFF9800), // Orange
-        Color(0xFF9C27B0), // Purple
-        Color(0xFFE91E63), // Pink
-        Color(0xFF2196F3)  // Blue
-    )
+    // Use matching pastel colors from the color scheme
+    private val colorScheme = getColorScheme(currentTheme)
+    private val slidingColors = colorScheme.obstacleColors
     
     private fun shouldGenerateObstacle(currentTime: Long): Boolean {
         return currentTime - lastSlidingObstacleTime >= slidingObstacleInterval

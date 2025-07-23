@@ -34,7 +34,8 @@ fun SandView(
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
-    resetTrigger: Int
+    resetTrigger: Int,
+    currentTheme: Theme = Theme.LIGHT
 ) {
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
     
@@ -65,7 +66,7 @@ fun SandView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .then(if (hasOwnBackground) createBackgroundModifier() else Modifier)
+            .then(if (hasOwnBackground) createBackgroundModifier(currentTheme) else Modifier)
             .clipToBounds()
     ) {
         Canvas(
@@ -172,13 +173,11 @@ private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
     }
 }
 
-private fun createBackgroundModifier(): Modifier {
+private fun createBackgroundModifier(currentTheme: Theme): Modifier {
+    val colorScheme = getColorScheme(currentTheme)
     return Modifier.background(
         Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFFFFEBF0), Color(0xFFEBF0FF), Color(0xFFEBFFEB),
-                Color(0xFFFFF8EB), Color(0xFFF0EBFF), Color(0xFFFFEBEB)
-            ),
+            colors = colorScheme.backgroundColors,
             startY = 0f,
             endY = Float.POSITIVE_INFINITY
         )
