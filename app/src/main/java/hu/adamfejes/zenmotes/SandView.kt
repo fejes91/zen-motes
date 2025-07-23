@@ -117,7 +117,15 @@ fun SandView(
                 }
                 lastFrameTime = frameStartTime
 
-                timber.log.Timber.tag("DrawPerf").d("TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: ${1000 / (drawTime + grid.getPerformanceData().updateTime)} | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
+                val overallDrawTime = drawTime + grid.getPerformanceData().updateTime
+                val fps = if (overallDrawTime > 0) {
+                    1000 / (drawTime + grid.getPerformanceData().updateTime)
+                } else {
+                    0
+                }
+
+                timber.log.Timber.tag("DrawPerf").d(
+                    "TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: $fps | GridInit: ${gridInitTime}ms | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
                 )
             }
         }
@@ -226,7 +234,7 @@ private fun DrawScope.drawSandGrid(
     val cellIterationStartTime = System.nanoTime()
     var sandDrawTime = 0.0
     var obstacleDrawTime = 0.0
-    
+
     val cellIterationTime = measureTimeMillis {
         allCells.forEach { (x, y, cell) ->
             when (cell.type) {
@@ -303,7 +311,7 @@ private fun DrawScope.drawSandGrid(
     timber.log.Timber.tag("DrawDetail").d(
         "BREAKDOWN: GetCells=${getAllCellsTime}ms | Iteration=${cellIterationTime}ms | SandDraw=${sandDrawTime}ms | SlidingObs=${slidingObstacleTime}ms | Overlay=${overlayTime}ms"
     )
-    
+
     timber.log.Timber.tag("DrawDetail").d(
         "TIMING: Total=${totalCellDrawTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms"
     )
@@ -312,12 +320,12 @@ private fun DrawScope.drawSandGrid(
 private fun DrawScope.drawSlidingObstacles(grid: SandGrid, cellSize: Float) {
     // Get sliding obstacles from grid and draw each as a single rectangle
     val slidingObstacles = grid.getSlidingObstacles()
-    
+
     for (obstacle in slidingObstacles) {
         val size = obstacle.size.toFloat() * cellSize
         val x = obstacle.x * cellSize - size / 2
         val y = obstacle.y * cellSize - size / 2
-        
+
         drawRoundRect(
             color = obstacle.color,
             topLeft = Offset(x, y),
