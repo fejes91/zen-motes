@@ -31,7 +31,7 @@ import kotlin.system.measureTimeMillis
 @Composable
 fun SandView(
     modifier: Modifier = Modifier,
-    sandColorType: ObstacleColorType = ObstacleColorType.OBSTACLE_COLOR_1,
+    sandColorType: ColorType = ColorType.OBSTACLE_COLOR_1,
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
@@ -216,7 +216,7 @@ private fun addSandParticles(
     grid: SandGrid,
     sourceX: Float,
     cellSize: Float,
-    colorType: ObstacleColorType,
+    colorType: ColorType,
     frame: Long,
     dimensions: Pair<Int, Int>,
     sandGenerationAmount: Int
@@ -376,14 +376,14 @@ private fun DrawScope.drawSlidingObstacles(
     }
 }
 
-fun mapObstacleColorToTheme(colorType: ObstacleColorType, colorScheme: ColorScheme): Color {
+fun mapObstacleColorToTheme(colorType: ColorType, colorScheme: ColorScheme): Color {
     return when (colorType) {
-        ObstacleColorType.OBSTACLE_COLOR_1 -> colorScheme.obstacleColors[0]
-        ObstacleColorType.OBSTACLE_COLOR_2 -> colorScheme.obstacleColors[1]
-        ObstacleColorType.OBSTACLE_COLOR_3 -> colorScheme.obstacleColors[2]
-        ObstacleColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
-        ObstacleColorType.OBSTACLE_COLOR_5 -> colorScheme.obstacleColors[4]
-        ObstacleColorType.OBSTACLE_COLOR_6 -> colorScheme.obstacleColors[5]
+        ColorType.OBSTACLE_COLOR_1 -> colorScheme.obstacleColors[0]
+        ColorType.OBSTACLE_COLOR_2 -> colorScheme.obstacleColors[1]
+        ColorType.OBSTACLE_COLOR_3 -> colorScheme.obstacleColors[2]
+        ColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
+        ColorType.OBSTACLE_COLOR_5 -> colorScheme.obstacleColors[4]
+        ColorType.OBSTACLE_COLOR_6 -> colorScheme.obstacleColors[5]
     }
 }
 

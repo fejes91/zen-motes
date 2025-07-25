@@ -38,7 +38,7 @@ class SandGrid(
 
     fun setCell(x: Int, y: Int, cell: Cell) = gridState.setCell(x, y, cell)
 
-    fun addSand(x: Int, y: Int, colorType: ObstacleColorType, currentTime: Long = System.currentTimeMillis()) {
+    fun addSand(x: Int, y: Int, colorType: ColorType, currentTime: Long = System.currentTimeMillis()) {
         if (x in 0 until width && y in 0 until height && gridState.getCell(x, y)?.type == CellType.EMPTY) {
             val particle = particlePhysics.createSandParticle(colorType, currentTime)
             setCell(x, y, Cell(CellType.SAND, particle))

@@ -45,7 +45,7 @@ fun SandSimulation(
 ) {
     // TODO store it in shared preferences, after converting to multi-platform
     var currentTheme by remember { mutableStateOf(Theme.DARK) }
-    var selectedColor by remember { mutableStateOf(ObstacleColorType.OBSTACLE_COLOR_1) }
+    var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }
     
@@ -99,7 +99,7 @@ fun SandSimulation(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                items(ObstacleColorType.entries) { colorType ->
+                items(ColorType.entries) { colorType ->
                     ColorButton(
                         colorType = colorType,
                         isSelected = colorType == selectedColor,
@@ -135,7 +135,7 @@ fun SandSimulation(
 
 @Composable
 private fun ColorButton(
-    colorType: ObstacleColorType,
+    colorType: ColorType,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {

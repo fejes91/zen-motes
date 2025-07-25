@@ -1,6 +1,6 @@
 package hu.adamfejes.zenmotes
 
-enum class ObstacleColorType {
+enum class ColorType {
     OBSTACLE_COLOR_1,
     OBSTACLE_COLOR_2,
     OBSTACLE_COLOR_3,
@@ -10,7 +10,7 @@ enum class ObstacleColorType {
 }
 
 data class SandParticle(
-    val colorType: ObstacleColorType, // Domain color type (reusing obstacle colors)
+    val colorType: ColorType, // Domain color type (reusing obstacle colors)
     val isActive: Boolean = false,
     val velocityY: Float = 0f,
     val lastUpdateTime: Long = 0L,
@@ -46,7 +46,7 @@ data class SlidingObstacle(
     val targetX: Float, // Target x position to slide to
     val speed: Float, // Pixels per second
     val size: Int = 12, // Size of the obstacle (width and height)
-    val colorType: ObstacleColorType, // Domain color type
+    val colorType: ColorType, // Domain color type
     val id: String = java.util.UUID.randomUUID().toString(), // Unique identifier
     val lastUpdateTime: Long = 0L // Last time this obstacle was updated (for time-based movement)
 )

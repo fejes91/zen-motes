@@ -11,7 +11,7 @@ class ObstacleGenerator(
     private var lastSlidingObstacleTime = 0L
     
     // Use domain-layer color types
-    private val obstacleColorTypes = ObstacleColorType.entries.toTypedArray()
+    private val colorTypes = ColorType.entries.toTypedArray()
     
     private fun shouldGenerateObstacle(currentTime: Long): Boolean {
         return currentTime - lastSlidingObstacleTime >= slidingObstacleInterval
@@ -39,7 +39,7 @@ class ObstacleGenerator(
             targetX = if (direction == 1) width.toFloat() + obstacleSize else -obstacleSize.toFloat(),
             speed = slidingSpeed * direction,
             size = obstacleSize,
-            colorType = obstacleColorTypes.random(),
+            colorType = colorTypes.random(),
             lastUpdateTime = currentTime
         )
     }

@@ -10,7 +10,7 @@ class ParticlePhysics(
     private val gravity = 0.8f
     private val terminalVelocity = 15f
     
-    fun createSandParticle(colorType: ObstacleColorType, currentTime: Long): SandParticle {
+    fun createSandParticle(colorType: ColorType, currentTime: Long): SandParticle {
         // Add slight random variation to initial velocity for more natural sprinkling
         val randomVelocity = 0.01f + Random.nextFloat() * 0.05f
         
