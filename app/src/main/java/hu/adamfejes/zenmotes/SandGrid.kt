@@ -416,23 +416,34 @@ class SandGrid(
         val halfSize = obstacle.size / 2
 
         // Convert entire obstacle block to sand particles
+        var convertedCells = 0
+        var totalCellsChecked = 0
         for (dy in -halfSize..halfSize) {
             for (dx in -halfSize..halfSize) {
                 val x = centerX + dx
                 val y = centerY + dy
-                if (x in 0 until width && y in 0 until height && grid[y][x].type == CellType.SLIDING_OBSTACLE) {
-                    val sandParticle = particlePhysics.createSandParticle(obstacle.colorType, System.currentTimeMillis()).copy(
-                        velocityY = 0.5f, // Give some initial velocity so they fall immediately
-                        noiseVariation = 0.9f,
-                        isActive = true,
-                        isSettled = false,
-                        used = true // Mark as used so it never settles again
-                    )
-                    grid[y][x] = Cell(CellType.SAND, sandParticle)
-                    gridState.addMovingParticle(MovingParticle(x, y, sandParticle))
+                if (x in 0 until width && y in 0 until height) {
+                    totalCellsChecked++
+                    val cellType = grid[y][x].type
+                    
+                    // Convert any cell within obstacle bounds to sand (not just SLIDING_OBSTACLE)
+                    if (cellType == CellType.SLIDING_OBSTACLE || cellType == CellType.EMPTY) {
+                        val sandParticle = particlePhysics.createSandParticle(obstacle.colorType, System.currentTimeMillis()).copy(
+                            velocityY = 0.5f, // Give some initial velocity so they fall immediately
+                            noiseVariation = 0.9f,
+                            isActive = true,
+                            isSettled = false,
+                            used = true // Mark as used so it never settles again
+                        )
+                        grid[y][x] = Cell(CellType.SAND, sandParticle)
+                        gridState.addMovingParticle(MovingParticle(x, y, sandParticle))
+                        convertedCells++
+                    }
                 }
             }
         }
+        
+        Timber.tag("SlidingObstacle").d("💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.size}x${obstacle.size})")
 
         // Convert all linked settled particles to normal falling sand
         for (settledParticle in gridState.getSettledParticlesByObstacleId(obstacle.id)) {
