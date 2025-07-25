@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,25 +31,26 @@ import kotlin.system.measureTimeMillis
 @Composable
 fun SandView(
     modifier: Modifier = Modifier,
-    sandColor: Color = Color.Yellow,
+    sandColorType: ObstacleColorType = ObstacleColorType.OBSTACLE_COLOR_1,
     cellSize: Float = 6f,
     hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
-    resetTrigger: Int,
-    currentTheme: Theme = Theme.LIGHT
+    resetTrigger: Int
 ) {
+    val colorScheme = LocalColorScheme.current
+
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
-    
+
     // Reset grid when resetTrigger changes
     LaunchedEffect(resetTrigger) {
         sandGrid?.reset()
     }
-    var sandSourceX by remember { mutableStateOf(0f) }
+    var sandSourceX by remember { mutableFloatStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
-    var frame by remember { mutableStateOf(0L) }
-    
+    var frame by remember { mutableLongStateOf(0L) }
+
     // Clear sand adding state when paused and handle pause/resume
     LaunchedEffect(isPaused) {
         if (isPaused) {
@@ -58,15 +62,15 @@ fun SandView(
     }
 
     // Track actual frame timing for real FPS calculation
-    var lastFrameTime by remember { mutableStateOf(0L) }
-    var frameCount by remember { mutableStateOf(0) }
-    var actualFps by remember { mutableStateOf(0) }
-    var totalDrawTime by remember { mutableStateOf(0) }
+    var lastFrameTime by remember { mutableLongStateOf(0L) }
+    var frameCount by remember { mutableIntStateOf(0) }
+    var actualFps by remember { mutableIntStateOf(0) }
+    var totalDrawTime by remember { mutableIntStateOf(0) }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .then(if (hasOwnBackground) createBackgroundModifier(currentTheme) else Modifier)
+            .then(if (hasOwnBackground) createBackgroundModifier() else Modifier)
             .clipToBounds()
     ) {
         Canvas(
@@ -80,8 +84,8 @@ fun SandView(
                                 isAddingSand = true
                             }
                         },
-                        onDragEnd = { 
-                            isAddingSand = false 
+                        onDragEnd = {
+                            isAddingSand = false
                         }
                     ) { change, _ ->
                         if (!isPaused) {
@@ -97,7 +101,7 @@ fun SandView(
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, cellSize)
             sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions)
-            
+
             sandGrid?.let { grid ->
                 // 2. Sand particle addition timing
                 val sandAddTime = if (isAddingSand) {
@@ -106,7 +110,7 @@ fun SandView(
                         grid,
                         sandSourceX,
                         cellSize,
-                        sandColor,
+                        sandColorType,
                         frame,
                         gridDimensions,
                         sandGenerationAmount
@@ -122,7 +126,8 @@ fun SandView(
                     frame = frame,
                     showPerformanceOverlay = showPerformanceOverlay,
                     totalDrawTime = totalDrawTime,
-                    actualFps = actualFps
+                    actualFps = actualFps,
+                    colorScheme = colorScheme
                 )
                 val drawGridTime = (System.nanoTime() - drawGridStartTime) / 1_000_000.0
 
@@ -173,8 +178,9 @@ private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
     }
 }
 
-private fun createBackgroundModifier(currentTheme: Theme): Modifier {
-    val colorScheme = getColorScheme(currentTheme)
+@Composable
+private fun createBackgroundModifier(): Modifier {
+    val colorScheme = LocalColorScheme.current
     return Modifier.background(
         Brush.verticalGradient(
             colors = colorScheme.backgroundColors,
@@ -210,7 +216,7 @@ private fun addSandParticles(
     grid: SandGrid,
     sourceX: Float,
     cellSize: Float,
-    color: Color,
+    colorType: ObstacleColorType,
     frame: Long,
     dimensions: Pair<Int, Int>,
     sandGenerationAmount: Int
@@ -224,12 +230,12 @@ private fun addSandParticles(
         val spreadY = 0 // Always spawn at the top of the screen
 
         if (spreadX in 0 until width) {
-            grid.addSand(spreadX, spreadY, color, frame)
+            grid.addSand(spreadX, spreadY, colorType, frame)
         }
     }
 
     // Always add one at the center of the top
-    grid.addSand(centerX, 0, color, frame)
+    grid.addSand(centerX, 0, colorType, frame)
 }
 
 private fun DrawScope.drawSandGrid(
@@ -238,7 +244,8 @@ private fun DrawScope.drawSandGrid(
     @Suppress("UNUSED_PARAMETER") frame: Long,
     showPerformanceOverlay: Boolean,
     totalDrawTime: Int,
-    actualFps: Int
+    actualFps: Int,
+    colorScheme: ColorScheme
 ) {
     val drawCellsStartTime = System.nanoTime()
 
@@ -275,8 +282,14 @@ private fun DrawScope.drawSandGrid(
                         }
 
                         val drawOpStartTime = System.nanoTime()
+                        val baseColor = mapObstacleColorToTheme(particle.colorType, colorScheme)
+                        val displayColor = baseColor.copy(
+                            red = (baseColor.red * particle.noiseVariation).coerceIn(0f, 1f),
+                            green = (baseColor.green * particle.noiseVariation).coerceIn(0f, 1f),
+                            blue = (baseColor.blue * particle.noiseVariation).coerceIn(0f, 1f)
+                        )
                         drawRect(
-                            color = particle.displayColor,
+                            color = displayColor,
                             topLeft = Offset(
                                 x = x * cellSize,
                                 y = y * cellSize
@@ -317,7 +330,7 @@ private fun DrawScope.drawSandGrid(
 
     // Draw sliding obstacles as single rectangles (much more efficient)
     val slidingObstacleTime = measureNanoTime {
-        drawSlidingObstacles(grid, cellSize)
+        drawSlidingObstacles(grid, cellSize, colorScheme)
     } / 1_000_000.0 // Convert to ms
 
     val overlayTime = if (showPerformanceOverlay) {
@@ -341,7 +354,11 @@ private fun DrawScope.drawSandGrid(
     )
 }
 
-private fun DrawScope.drawSlidingObstacles(grid: SandGrid, cellSize: Float) {
+private fun DrawScope.drawSlidingObstacles(
+    grid: SandGrid,
+    cellSize: Float,
+    colorScheme: ColorScheme
+) {
     // Get sliding obstacles from grid and draw each as a single rectangle
     val slidingObstacles = grid.getSlidingObstacles()
 
@@ -351,11 +368,22 @@ private fun DrawScope.drawSlidingObstacles(grid: SandGrid, cellSize: Float) {
         val y = obstacle.y * cellSize - size / 2
 
         drawRoundRect(
-            color = obstacle.color,
+            color = mapObstacleColorToTheme(obstacle.colorType, colorScheme),
             topLeft = Offset(x, y),
             size = androidx.compose.ui.geometry.Size(size, size),
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(3f, 3f)
         )
+    }
+}
+
+fun mapObstacleColorToTheme(colorType: ObstacleColorType, colorScheme: ColorScheme): Color {
+    return when (colorType) {
+        ObstacleColorType.OBSTACLE_COLOR_1 -> colorScheme.obstacleColors[0]
+        ObstacleColorType.OBSTACLE_COLOR_2 -> colorScheme.obstacleColors[1]
+        ObstacleColorType.OBSTACLE_COLOR_3 -> colorScheme.obstacleColors[2]
+        ObstacleColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
+        ObstacleColorType.OBSTACLE_COLOR_5 -> colorScheme.obstacleColors[4]
+        ObstacleColorType.OBSTACLE_COLOR_6 -> colorScheme.obstacleColors[5]
     }
 }
 

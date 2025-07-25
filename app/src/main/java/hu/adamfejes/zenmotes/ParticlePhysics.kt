@@ -1,6 +1,5 @@
 package hu.adamfejes.zenmotes
 
-import androidx.compose.ui.graphics.Color
 import kotlin.random.Random
 
 class ParticlePhysics(
@@ -11,7 +10,7 @@ class ParticlePhysics(
     private val gravity = 0.8f
     private val terminalVelocity = 15f
     
-    fun createSandParticle(color: Color, currentTime: Long): SandParticle {
+    fun createSandParticle(colorType: ObstacleColorType, currentTime: Long): SandParticle {
         // Add slight random variation to initial velocity for more natural sprinkling
         val randomVelocity = 0.01f + Random.nextFloat() * 0.05f
         
@@ -23,15 +22,7 @@ class ParticlePhysics(
         }
         
         return SandParticle(
-            color = color,
-            displayColor = color.copy(
-                red = (color.red * noiseVariation).coerceIn(0f, 1f),
-                green = (color.green * noiseVariation).coerceIn(
-                    0f,
-                    1f
-                ),
-                blue = (color.blue * noiseVariation).coerceIn(0f, 1f)
-            ),
+            colorType = colorType,
             isActive = true,
             velocityY = randomVelocity,
             lastUpdateTime = currentTime,

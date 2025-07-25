@@ -1,9 +1,8 @@
 package hu.adamfejes.zenmotes
 
-import androidx.compose.ui.graphics.Color
+import timber.log.Timber
 import kotlin.math.roundToInt
 import kotlin.system.measureTimeMillis
-import timber.log.Timber
 
 private const val slidingObstacleTransitTimeSeconds = 7.5f
 
@@ -39,9 +38,9 @@ class SandGrid(
 
     fun setCell(x: Int, y: Int, cell: Cell) = gridState.setCell(x, y, cell)
 
-    fun addSand(x: Int, y: Int, color: Color, currentTime: Long = System.currentTimeMillis()) {
+    fun addSand(x: Int, y: Int, colorType: ObstacleColorType, currentTime: Long = System.currentTimeMillis()) {
         if (x in 0 until width && y in 0 until height && gridState.getCell(x, y)?.type == CellType.EMPTY) {
-            val particle = particlePhysics.createSandParticle(color, currentTime)
+            val particle = particlePhysics.createSandParticle(colorType, currentTime)
             setCell(x, y, Cell(CellType.SAND, particle))
             gridState.addMovingParticle(MovingParticle(x, y, particle))
         }
@@ -410,7 +409,7 @@ class SandGrid(
                 val x = centerX + dx
                 val y = centerY + dy
                 if (x in 0 until width && y in 0 until height && grid[y][x].type == CellType.SLIDING_OBSTACLE) {
-                    val sandParticle = particlePhysics.createSandParticle(obstacle.color, System.currentTimeMillis()).copy(
+                    val sandParticle = particlePhysics.createSandParticle(obstacle.colorType, System.currentTimeMillis()).copy(
                         velocityY = 0.5f, // Give some initial velocity so they fall immediately
                         noiseVariation = 0.9f,
                         isActive = true,

@@ -1,10 +1,16 @@
 package hu.adamfejes.zenmotes
 
-import androidx.compose.ui.graphics.Color
+enum class ObstacleColorType {
+    OBSTACLE_COLOR_1,
+    OBSTACLE_COLOR_2,
+    OBSTACLE_COLOR_3,
+    OBSTACLE_COLOR_4,
+    OBSTACLE_COLOR_5,
+    OBSTACLE_COLOR_6
+}
 
 data class SandParticle(
-    val color: Color, // Original color for reference
-    val displayColor: Color, // Precalculated color with noise variation applied
+    val colorType: ObstacleColorType, // Domain color type (reusing obstacle colors)
     val isActive: Boolean = false,
     val velocityY: Float = 0f,
     val lastUpdateTime: Long = 0L,
@@ -40,7 +46,7 @@ data class SlidingObstacle(
     val targetX: Float, // Target x position to slide to
     val speed: Float, // Pixels per second
     val size: Int = 12, // Size of the obstacle (width and height)
-    val color: Color = Color(0xFFFF6B6B), // Color for rendering
+    val colorType: ObstacleColorType, // Domain color type
     val id: String = java.util.UUID.randomUUID().toString(), // Unique identifier
     val lastUpdateTime: Long = 0L // Last time this obstacle was updated (for time-based movement)
 )

@@ -16,12 +16,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -33,13 +35,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
+val LocalColorScheme = staticCompositionLocalOf {
+    getColorScheme(Theme.LIGHT) 
+}
+
 @Composable
 fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
-    // TODO store it in shared preferences
+    // TODO store it in shared preferences, after converting to multi-platform
     var currentTheme by remember { mutableStateOf(Theme.LIGHT) }
-    var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
+    var selectedColor by remember { mutableStateOf(ObstacleColorType.OBSTACLE_COLOR_1) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }
     
@@ -61,14 +67,12 @@ fun SandSimulation(
         }
     }
     
-    // Use current theme colors
-    // TODO distribute selected colorscheme via local composition
     val colorScheme = getColorScheme(currentTheme)
-    val sandColors = colorScheme.sandColors
-    
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
+
+    CompositionLocalProvider(LocalColorScheme provides colorScheme) {
+        Box(
+            modifier = modifier.fillMaxSize()
+        ) {
         // Everything that should be blurred when paused  
         Box(
             modifier = Modifier
@@ -78,13 +82,12 @@ fun SandSimulation(
             // Sand simulation view - full edge-to-edge behind everything
             SandView(
                 modifier = Modifier.fillMaxSize(),
-                sandColor = selectedColor,
+                sandColorType = selectedColor,
                 hasOwnBackground = true,
                 sandGenerationAmount = 60,
                 showPerformanceOverlay = true, // Toggle performance overlay for testing
                 isPaused = isPaused,
-                resetTrigger = resetTrigger,
-                currentTheme = currentTheme
+                resetTrigger = resetTrigger
             )
             
             // Top UI overlay - color picker and reset button
@@ -96,11 +99,11 @@ fun SandSimulation(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                items(sandColors) { color ->
+                items(ObstacleColorType.entries) { colorType ->
                     ColorButton(
-                        color = color,
-                        isSelected = color == selectedColor,
-                        onClick = { selectedColor = color }
+                        colorType = colorType,
+                        isSelected = colorType == selectedColor,
+                        onClick = { selectedColor = colorType }
                     )
                 }
                 
@@ -108,8 +111,7 @@ fun SandSimulation(
                     // Pause button - circular and same size as color buttons
                     PauseButton(
                         isPaused = isPaused,
-                        onClick = { isPaused = !isPaused },
-                        currentTheme = currentTheme
+                        onClick = { isPaused = !isPaused }
                     )
                 }
             }
@@ -128,19 +130,21 @@ fun SandSimulation(
             )
         }
     }
+    }
 }
 
 @Composable
 private fun ColorButton(
-    color: Color,
+    colorType: ObstacleColorType,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = LocalColorScheme.current
     Box(
         modifier = Modifier
             .size(48.dp)
             .clip(CircleShape)
-            .background(color)
+            .background(mapObstacleColorToTheme(colorType, colorScheme))
             .then(
                 if (isSelected) {
                     Modifier.background(Color.White.copy(alpha = 0.3f))
@@ -165,10 +169,9 @@ private fun ColorButton(
 @Composable
 private fun PauseButton(
     isPaused: Boolean,
-    onClick: () -> Unit,
-    currentTheme: Theme
+    onClick: () -> Unit
 ) {
-    val colorScheme = getColorScheme(currentTheme)
+    val colorScheme = LocalColorScheme.current
     Box(
         modifier = Modifier
             .size(48.dp)

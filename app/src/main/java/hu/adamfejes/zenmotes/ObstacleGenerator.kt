@@ -1,21 +1,17 @@
 package hu.adamfejes.zenmotes
 
-import androidx.compose.ui.graphics.Color
-
 class ObstacleGenerator(
     private val width: Int,
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
-    private val slidingObstacleTransitTimeSeconds: Float,
-    private val currentTheme: Theme = Theme.LIGHT
+    private val slidingObstacleTransitTimeSeconds: Float
 ) {
     private val slidingObstacleInterval = 1000L // 3 seconds between obstacles
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
     
-    // Use matching pastel colors from the color scheme
-    private val colorScheme = getColorScheme(currentTheme)
-    private val slidingColors = colorScheme.obstacleColors
+    // Use domain-layer color types
+    private val obstacleColorTypes = ObstacleColorType.entries.toTypedArray()
     
     private fun shouldGenerateObstacle(currentTime: Long): Boolean {
         return currentTime - lastSlidingObstacleTime >= slidingObstacleInterval
@@ -43,7 +39,7 @@ class ObstacleGenerator(
             targetX = if (direction == 1) width.toFloat() + obstacleSize else -obstacleSize.toFloat(),
             speed = slidingSpeed * direction,
             size = obstacleSize,
-            color = slidingColors.random(),
+            colorType = obstacleColorTypes.random(),
             lastUpdateTime = currentTime
         )
     }
