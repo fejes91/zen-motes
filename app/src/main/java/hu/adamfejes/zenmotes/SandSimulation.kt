@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,10 +37,11 @@ import androidx.lifecycle.LifecycleEventObserver
 fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
+    // TODO store it in shared preferences
     var currentTheme by remember { mutableStateOf(Theme.LIGHT) }
     var selectedColor by remember { mutableStateOf(Color(0xFFFF9BB5)) }
     var isPaused by remember { mutableStateOf(false) }
-    var resetTrigger by remember { mutableStateOf(0) }
+    var resetTrigger by remember { mutableIntStateOf(0) }
     
     val lifecycleOwner = LocalLifecycleOwner.current
     
@@ -59,7 +61,8 @@ fun SandSimulation(
         }
     }
     
-    // Use current theme colors 
+    // Use current theme colors
+    // TODO distribute selected colorscheme via local composition
     val colorScheme = getColorScheme(currentTheme)
     val sandColors = colorScheme.sandColors
     

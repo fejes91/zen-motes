@@ -35,11 +35,13 @@ class ObstacleGenerator(
         val obstacleY = (minY..maxY).random()
         val obstacleSize = listOf(14, 16, 20, 26).random()
         
+        val direction = if (kotlin.random.Random.nextBoolean()) 1 else -1
+        
         return SlidingObstacle(
-            x = -obstacleSize.toFloat(), // Start just off screen to the left
+            x = if (direction == 1) -obstacleSize.toFloat() else width.toFloat() + obstacleSize,
             y = obstacleY,
-            targetX = width.toFloat() + obstacleSize, // Target is off screen to the right
-            speed = slidingSpeed,
+            targetX = if (direction == 1) width.toFloat() + obstacleSize else -obstacleSize.toFloat(),
+            speed = slidingSpeed * direction,
             size = obstacleSize,
             color = slidingColors.random(),
             lastUpdateTime = currentTime
@@ -62,7 +64,7 @@ class ObstacleGenerator(
     }
     
     fun isObstacleOffScreen(obstacle: SlidingObstacle): Boolean {
-        return obstacle.x > width + obstacle.size
+        return obstacle.x > width + obstacle.size || obstacle.x < -obstacle.size
     }
     
     fun reset() {
