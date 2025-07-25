@@ -36,7 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
 val LocalColorScheme = staticCompositionLocalOf {
-    getColorScheme(Theme.LIGHT) 
+    getColorScheme(Theme.DARK)
 }
 
 @Composable
@@ -44,7 +44,7 @@ fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
     // TODO store it in shared preferences, after converting to multi-platform
-    var currentTheme by remember { mutableStateOf(Theme.LIGHT) }
+    var currentTheme by remember { mutableStateOf(Theme.DARK) }
     var selectedColor by remember { mutableStateOf(ObstacleColorType.OBSTACLE_COLOR_1) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }

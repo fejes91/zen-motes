@@ -137,7 +137,7 @@ class SandGrid(
 
             // Check if obstacle should be destroyed by sand weight
             val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
-            val weightThreshold = obstacle.size / 2 // Threshold based on obstacle size
+            val weightThreshold = obstacle.size * obstacle.size / 2f // Threshold based on obstacle size
 
             if (sandHeight >= weightThreshold) {
                 Timber.tag("SlidingObstacle").d("💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
@@ -380,22 +380,34 @@ class SandGrid(
     }
 
     private fun calculateSandHeightAboveSlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Int {
-        val centerX = obstacle.x.roundToInt()
-        val centerY = obstacle.y
-        val halfSize = obstacle.size / 2
-        val topOfObstacle = centerY - halfSize
-
-        // Check for sand directly above the center of the obstacle
-        var maxHeight = 0
-        for (checkY in topOfObstacle - 1 downTo 0) {
-            if (centerX in 0 until width && checkY >= 0 && grid[checkY][centerX].type == CellType.SAND) {
-                maxHeight++
-            } else {
-                break // Stop when we hit empty space or other obstacle
+        val startTime = System.nanoTime()
+        
+        // Get all particles tied to this obstacle
+        val fetchStartTime = System.nanoTime()
+        val obstacleParticles = gridState.getSettledParticlesByObstacleId(obstacle.id)
+        val fetchTime = (System.nanoTime() - fetchStartTime) / 1_000_000.0
+        
+        var totalWeight = 0
+        var particleCount = 0
+        
+        val calculationStartTime = System.nanoTime()
+        for (settledParticle in obstacleParticles) {
+            val cell = grid[settledParticle.y][settledParticle.x]
+            if (cell.type == CellType.SAND && cell.particle != null) {
+                // Double weight if color matches obstacle color
+                val weight = if (cell.particle.colorType == obstacle.colorType) 2 else 1
+                totalWeight += weight
+                particleCount++
             }
         }
-
-        return maxHeight
+        val calculationTime = (System.nanoTime() - calculationStartTime) / 1_000_000.0
+        
+        val totalTime = (System.nanoTime() - startTime) / 1_000_000.0
+        
+        Timber.tag("SandWeight").d("Obstacle ${obstacle.id}: ${particleCount} particles, weight: ${totalWeight} | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms")
+        
+        // Return the weighted count as an integer (rounded down)
+        return totalWeight
     }
 
     private fun destroySlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Array<Array<Cell>> {
