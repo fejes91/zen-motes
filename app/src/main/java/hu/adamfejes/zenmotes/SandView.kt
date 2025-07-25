@@ -381,9 +381,9 @@ fun mapObstacleColorToTheme(colorType: ColorType, colorScheme: ColorScheme): Col
         ColorType.OBSTACLE_COLOR_1 -> colorScheme.obstacleColors[0]
         ColorType.OBSTACLE_COLOR_2 -> colorScheme.obstacleColors[1]
         ColorType.OBSTACLE_COLOR_3 -> colorScheme.obstacleColors[2]
-        ColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
-        ColorType.OBSTACLE_COLOR_5 -> colorScheme.obstacleColors[4]
-        ColorType.OBSTACLE_COLOR_6 -> colorScheme.obstacleColors[5]
+         ColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
+        // ColorType.OBSTACLE_COLOR_5 -> colorScheme.obstacleColors[4]
+        // ColorType.OBSTACLE_COLOR_6 -> colorScheme.obstacleColors[5]
     }
 }
 
