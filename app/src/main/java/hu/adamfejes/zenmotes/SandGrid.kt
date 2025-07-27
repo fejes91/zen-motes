@@ -8,7 +8,8 @@ private const val slidingObstacleTransitTimeSeconds = 7.5f
 
 class SandGrid(
     private val width: Int,
-    private val height: Int
+    private val height: Int,
+    private val maxMovingParticles: Int = 1000 // Parameterized limit for moving particles
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
@@ -225,8 +226,32 @@ class SandGrid(
             particleCount++
         }
 
-        // Update moving particles list
-        gridState.setMovingParticles(newMovingParticles)
+        // Apply particle limit and clean up excess particles from grid
+        val limitedParticles = if (newMovingParticles.size > maxMovingParticles) {
+            val shuffledMovingParticles = newMovingParticles.shuffled()
+            val particlesToRemove = shuffledMovingParticles.drop(maxMovingParticles)
+            val cleanupStartTime = System.nanoTime()
+            
+            // Remove excess particles from the grid
+            for (particle in particlesToRemove) {
+                if (particle.x in 0 until width && particle.y in 0 until height) {
+                    val cell = grid[particle.y][particle.x]
+                    if (cell.type == CellType.SAND && cell.particle == particle.particle) {
+                        grid[particle.y][particle.x] = Cell(CellType.EMPTY)
+                    }
+                }
+            }
+            
+            val cleanupTime = (System.nanoTime() - cleanupStartTime) / 1_000_000.0
+            Timber.tag("ParticleLimit").d("⚡ Removed ${particlesToRemove.size} excess particles (${newMovingParticles.size} → $maxMovingParticles) in ${cleanupTime}ms")
+
+            shuffledMovingParticles.take(maxMovingParticles)
+        } else {
+            newMovingParticles
+        }
+
+        // Update moving particles list with limited particles
+        gridState.setMovingParticles(limitedParticles)
 
         val physicsTime = (System.nanoTime() - physicsStartTime) / 1_000_000.0
         Timber.tag("SandPerf").d("Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
