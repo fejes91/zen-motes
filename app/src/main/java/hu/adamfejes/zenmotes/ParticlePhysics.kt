@@ -35,7 +35,7 @@ class ParticlePhysics(
         y: Int,
         particle: SandParticle,
         newGrid: Array<Array<Cell>>,
-        currentTime: Long
+        frameTime: Long
     ): MovementResult {
         // Update velocity with gravity
         val newVelocityY = (particle.velocityY + gravity).coerceAtMost(terminalVelocity)
@@ -44,21 +44,21 @@ class ParticlePhysics(
         val cellsToMove = calculateCellsToMove(newVelocityY)
         
         // Try direct downward movement first
-        val downwardResult = tryDirectDownwardMovement(x, y, particle, newGrid, currentTime, cellsToMove, newVelocityY)
+        val downwardResult = tryDirectDownwardMovement(x, y, particle, newGrid, frameTime, cellsToMove, newVelocityY)
         if (downwardResult.moved) return downwardResult
         
         // Try diagonal movement
-        val diagonalResult = tryDiagonalMovement(x, y, particle, newGrid, currentTime, cellsToMove, newVelocityY)
+        val diagonalResult = tryDiagonalMovement(x, y, particle, newGrid, frameTime, newVelocityY)
         if (diagonalResult.moved) return diagonalResult
         
         // Try multi-step diagonal for fast particles
-        val multiStepResult = tryMultiStepDiagonal(x, y, particle, newGrid, currentTime, cellsToMove, newVelocityY)
+        val multiStepResult = tryMultiStepDiagonal(x, y, particle, newGrid, frameTime, cellsToMove, newVelocityY)
         if (multiStepResult.moved) return multiStepResult
 
 
         // Particle cannot move - settle it
         val obstacleId = determineObstacleId(x, y, newGrid)
-        return settleParticle(x, y, particle, newGrid, currentTime, obstacleId)
+        return settleParticle(x, y, particle, newGrid, frameTime, obstacleId)
     }
     
     private fun calculateCellsToMove(velocityY: Float): Int {
@@ -75,7 +75,7 @@ class ParticlePhysics(
         y: Int,
         particle: SandParticle,
         newGrid: Array<Array<Cell>>,
-        currentTime: Long,
+        frameTime: Long,
         cellsToMove: Int,
         newVelocityY: Float
     ): MovementResult {
@@ -103,7 +103,7 @@ class ParticlePhysics(
             
             val updatedParticle = particle.copy(
                 velocityY = newVelocityY,
-                lastUpdateTime = currentTime
+                lastUpdateTime = frameTime
             )
             newGrid[finalY][x] = Cell(CellType.SAND, updatedParticle)
             return MovementResult(true, MovingParticle(x, finalY, updatedParticle))
@@ -117,8 +117,7 @@ class ParticlePhysics(
         y: Int,
         particle: SandParticle,
         newGrid: Array<Array<Cell>>,
-        currentTime: Long,
-        cellsToMove: Int,
+        frameTime: Long,
         newVelocityY: Float
     ): MovementResult {
         val directions = listOf(-1, 1).shuffled() // Randomize left/right preference
@@ -137,7 +136,7 @@ class ParticlePhysics(
                 
                 val updatedParticle = particle.copy(
                     velocityY = newVelocityY * 0.8f, // Keep most velocity when sliding
-                    lastUpdateTime = currentTime
+                    lastUpdateTime = frameTime
                 )
                 newGrid[newY][newX] = Cell(CellType.SAND, updatedParticle)
                 return MovementResult(true, MovingParticle(newX, newY, updatedParticle))
@@ -152,7 +151,7 @@ class ParticlePhysics(
         y: Int,
         particle: SandParticle,
         newGrid: Array<Array<Cell>>,
-        currentTime: Long,
+        frameTime: Long,
         cellsToMove: Int,
         newVelocityY: Float
     ): MovementResult {
@@ -174,7 +173,7 @@ class ParticlePhysics(
                     
                     val updatedParticle = particle.copy(
                         velocityY = newVelocityY * 0.7f, // Reduce velocity more for multi-step slides
-                        lastUpdateTime = currentTime
+                        lastUpdateTime = frameTime
                     )
                     newGrid[newY][newX] = Cell(CellType.SAND, updatedParticle)
                     return MovementResult(true, MovingParticle(newX, newY, updatedParticle))
@@ -190,7 +189,7 @@ class ParticlePhysics(
         y: Int,
         particle: SandParticle,
         newGrid: Array<Array<Cell>>,
-        currentTime: Long,
+        frameTime: Long,
         obstacleId: String?
     ): MovementResult {
         // If sand buildup is disabled and particle reaches bottom, remove it
@@ -202,12 +201,15 @@ class ParticlePhysics(
         // Check if particle should settle
         val isSurrounded = checkIfSurrounded(x, y, newGrid)
         val isInNonSettleZone = y < nonSettleZoneHeight
-        
+        val currentTime = System.currentTimeMillis()
+        val canSettle = currentTime >= particle.unsettlingUntil
+
         val stoppedParticle = particle.copy(
             velocityY = 0f,
-            lastUpdateTime = currentTime,
-            isSettled = (obstacleId != null || isSurrounded) && !isInNonSettleZone && !particle.used, // TODO let it to settle but needs to fix instant settling
-            obstacleId = obstacleId
+            lastUpdateTime = frameTime,
+            isSettled = (obstacleId != null || isSurrounded) && !isInNonSettleZone && canSettle,
+            obstacleId = obstacleId,
+            unsettlingUntil = if (canSettle) 0L else particle.unsettlingUntil
         )
         newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
         

@@ -18,7 +18,7 @@ class SandGrid(
 
     // Cleanup routine timing - run every 2 seconds
     private var lastCleanupTime = 0L
-    private val cleanupIntervalMs = 500L
+    private val cleanupIntervalMs = 100L
 
     // Performance tracking
     private var frameCount = 0
@@ -58,7 +58,7 @@ class SandGrid(
         }
     }
 
-    fun update(currentTime: Long = System.currentTimeMillis()) {
+    fun update(frameTime: Long) {
         // 1. Grid creation
         var initialGrid: Array<Array<Cell>>
         val gridCreateTime = measureTimeMillis {
@@ -68,13 +68,13 @@ class SandGrid(
         // 2. Obstacle updates  
         var gridAfterObstacles: Array<Array<Cell>>
         val obstacleTime = measureTimeMillis {
-            gridAfterObstacles = updateSlidingObstacles(initialGrid, currentTime)
+            gridAfterObstacles = updateSlidingObstacles(initialGrid, frameTime)
         }
 
         // 3. Particle physics
         var gridAfterParticles: Array<Array<Cell>>
         val particleTime = measureTimeMillis {
-            gridAfterParticles = processMovingParticles(gridAfterObstacles, currentTime)
+            gridAfterParticles = processMovingParticles(gridAfterObstacles, frameTime)
         }
 
         // 4. Grid state update
@@ -83,10 +83,10 @@ class SandGrid(
         }
 
         // 5. Cleanup routine (periodic)
-        val cleanupTime = if (currentTime - lastCleanupTime >= cleanupIntervalMs) {
+        val cleanupTime = if (frameTime - lastCleanupTime >= cleanupIntervalMs) {
             measureTimeMillis {
-                cleanupInconsistentSettledParticles(currentTime)
-                lastCleanupTime = currentTime
+                cleanupInconsistentSettledParticles()
+                lastCleanupTime = frameTime
             }
         } else 0L
 
@@ -105,9 +105,9 @@ class SandGrid(
         Timber.tag("SandPerf").d("TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
     }
 
-    private fun updateSlidingObstacles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
+    private fun updateSlidingObstacles(grid: Array<Array<Cell>>, frameTime: Long): Array<Array<Cell>> {
         // Generate new sliding obstacles if needed (using adjusted time)
-        val adjustedTime = currentTime - totalPausedTime
+        val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTimeMillis {
             obstacleGenerator.generateSlidingObstacle(adjustedTime)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
@@ -148,7 +148,7 @@ class SandGrid(
 
             // Update obstacle position with adjusted time (excluding paused time)
             val posUpdateStartTime = System.nanoTime()
-            val adjustedTime = currentTime - totalPausedTime
+            val adjustedTime = frameTime - totalPausedTime
             val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, adjustedTime)
             positionUpdateTime += (System.nanoTime() - posUpdateStartTime)
 
@@ -181,7 +181,7 @@ class SandGrid(
         return workingGrid
     }
 
-    private fun processMovingParticles(grid: Array<Array<Cell>>, currentTime: Long): Array<Array<Cell>> {
+    private fun processMovingParticles(grid: Array<Array<Cell>>, frameTime: Long): Array<Array<Cell>> {
         val physicsStartTime = System.nanoTime()
         val newMovingParticles = mutableListOf<MovingParticle>()
 
@@ -204,7 +204,7 @@ class SandGrid(
             }
 
             val particleStartTime = System.nanoTime()
-            val result = particlePhysics.tryMoveSandWithGravity(x, y, particle, grid, currentTime)
+            val result = particlePhysics.tryMoveSandWithGravity(x, y, particle, grid, frameTime)
             val particleTime = (System.nanoTime() - particleStartTime) / 1_000_000.0
 
             if (result.moved) {
@@ -428,12 +428,12 @@ class SandGrid(
                     
                     // Convert any cell within obstacle bounds to sand (not just SLIDING_OBSTACLE)
                     if (cellType == CellType.SLIDING_OBSTACLE || cellType == CellType.EMPTY) {
+                        val unsettlingDelay = 300L // 500ms delay before particles can settle again
                         val sandParticle = particlePhysics.createSandParticle(obstacle.colorType, System.currentTimeMillis()).copy(
                             velocityY = 0.5f, // Give some initial velocity so they fall immediately
-                            noiseVariation = 0.9f,
                             isActive = true,
                             isSettled = false,
-                            used = true // Mark as used so it never settles again
+                            unsettlingUntil = System.currentTimeMillis() + unsettlingDelay
                         )
                         grid[y][x] = Cell(CellType.SAND, sandParticle)
                         gridState.addMovingParticle(MovingParticle(x, y, sandParticle))
@@ -442,7 +442,7 @@ class SandGrid(
                 }
             }
         }
-        
+
         Timber.tag("SlidingObstacle").d("💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.size}x${obstacle.size})")
 
         // Convert all linked settled particles to normal falling sand
@@ -452,12 +452,13 @@ class SandGrid(
             val cell = grid[y][x]
 
             if (cell.type == CellType.SAND && cell.particle != null) {
+                val unsettlingDelay = 300L // Shorter delay for reactivated particles (300ms)
                 val reactivatedParticle = cell.particle.copy(
                     isActive = true,
                     velocityY = 0.5f, // Give some initial velocity to start falling
                     isSettled = false, // No longer settled since support is gone
                     obstacleId = null, // No longer associated with the destroyed obstacle
-                    used = true // Mark as used so it never settles again
+                    unsettlingUntil = System.currentTimeMillis() + unsettlingDelay
                 )
                 grid[y][x] = Cell(CellType.SAND, reactivatedParticle)
                 gridState.addMovingParticle(MovingParticle(x, y, reactivatedParticle))
@@ -470,7 +471,7 @@ class SandGrid(
         return grid
     }
 
-    private fun cleanupInconsistentSettledParticles(currentTime: Long) {
+    private fun cleanupInconsistentSettledParticles() {
         val grid = gridState.getGrid()
         val settledParticles = gridState.getSettledParticles()
         val particlesToReactivate = mutableListOf<ParticlePosition>()
@@ -486,36 +487,55 @@ class SandGrid(
                 if (!hasProperSupport(x, y, grid)) {
                     particlesToReactivate.add(settledParticle)
                 }
-            } else {
-                // Particle position doesn't match - remove from settled list
-                particlesToReactivate.add(settledParticle)
             }
+//            else {
+//                // Particle position doesn't match - remove from settled list
+//                particlesToReactivate.add(settledParticle)
+//            }
         }
 
         if (particlesToReactivate.isNotEmpty()) {
             Timber.tag("SandCleanup").d("🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
 
             for (particlePos in particlesToReactivate) {
-                val x = particlePos.x
-                val y = particlePos.y
-                val cell = grid[y][x]
-
-                if (cell.type == CellType.SAND && cell.particle != null) {
-                    // Convert to normal falling sand
-                    val reactivatedParticle = cell.particle.copy(
-                        isActive = true,
-                        velocityY = 0.2f, // Give gentle initial velocity
-                        isSettled = false,
-                        obstacleId = null // Clear obstacle link
-                    )
-                    gridState.setCell(x, y, Cell(CellType.SAND, reactivatedParticle))
-                    gridState.addMovingParticle(MovingParticle(x, y, reactivatedParticle))
-                }
-
-                // Remove from settled particles list
-                gridState.removeSettledParticle(x, y)
+                reactivateParticleColumn(particlePos.x, particlePos.y, grid)
             }
         }
+    }
+    
+    private fun reactivateParticleColumn(startX: Int, startY: Int, grid: Array<Array<Cell>>) {
+        // Reactivate particles starting from the given position upward until we hit empty space
+        var currentY = startY
+        var reactivatedCount = 0
+        
+        while (currentY >= 0) {
+            val cell = grid[currentY][startX]
+            
+            if (cell.type == CellType.SAND && cell.particle != null) {
+                // Convert to normal falling sand
+                val reactivatedParticle = cell.particle.copy(
+                    isActive = true,
+                    velocityY = 0.2f, // Give gentle initial velocity
+                    isSettled = false,
+                    obstacleId = null // Clear obstacle link
+                )
+                gridState.setCell(startX, currentY, Cell(CellType.SAND, reactivatedParticle))
+                gridState.addMovingParticle(MovingParticle(startX, currentY, reactivatedParticle))
+                
+                // Remove from settled particles list if it was settled
+                if (cell.particle.isSettled) {
+                    gridState.removeSettledParticle(startX, currentY)
+                }
+                
+                reactivatedCount++
+                currentY-- // Move up to check the next particle
+            } else {
+                // Hit empty space or non-sand cell, stop the chain
+                break
+            }
+        }
+        
+        Timber.tag("SandCleanup").d("🔗 Reactivated $reactivatedCount particles in column at x=$startX, starting from y=$startY")
     }
 
     private fun hasProperSupport(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
