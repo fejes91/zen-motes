@@ -126,8 +126,6 @@ class SandGrid(
         var positionUpdateTime = 0L
         var particleMoveTime = 0L
         var gridPlacementTime = 0L
-        var gridClearTime = 0L
-        var gridPlaceTime = 0L
 
         for (obstacle in currentObstacles) {
             // Clear old obstacle position from working grid

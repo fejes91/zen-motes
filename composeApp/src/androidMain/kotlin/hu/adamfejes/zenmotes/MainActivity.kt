@@ -14,7 +14,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 /*
     * ZenMotes
     * TODOs
-    * Fix pause bug in generator
     * Enable Logging only in debug builds
     * Color picker selected state + redesign?
     * Decorated obstacles, built up from sand with shading
