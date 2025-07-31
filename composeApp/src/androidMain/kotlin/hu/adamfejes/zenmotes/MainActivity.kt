@@ -10,15 +10,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
-//import timber.log.Timber
+
+/*
+    * ZenMotes
+    * TODOs
+    * Fix pause bug in generator
+    * Enable Logging only in debug builds
+    * Color picker selected state + redesign?
+    * Decorated obstacles, built up from sand with shading
+    * Settings, shared preferences
+    *   Theme
+    *   Game mode: Zen / Time attack?
+    *   High Score
+    * Scoring
+    * Continously changing sand color?
+    * More obstacle designs?
+ */
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Initialize Timber for logging
-        // TODO Buildconfig: Enable Timber only in debug builds
-//        Timber.plant(Timber.DebugTree())
         
         enableEdgeToEdge()
         setContent {
