@@ -340,17 +340,9 @@ private fun DrawScope.drawSandGrid(
 
     val totalCellDrawTime = (TimeUtils.nanoTime() - drawCellsStartTime) / 1_000_000.0
 
-//    timber.log.Timber.tag("DrawDetail").d(
-//        "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn}"
-//    )
-//
-//    timber.log.Timber.tag("DrawDetail").d(
-//        "BREAKDOWN: GetCells=${getAllCellsTime}ms | Iteration=${cellIterationTime}ms | SandDraw=${sandDrawTime}ms | SlidingObs=${slidingObstacleTime}ms | Overlay=${overlayTime}ms"
-//    )
-//
-//    timber.log.Timber.tag("DrawDetail").d(
-//        "TIMING: Total=${totalCellDrawTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms"
-//    )
+    Logger.d("DrawDetail", "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn}")
+    Logger.d("DrawDetail", "BREAKDOWN: GetCells=${getAllCellsTime}ms | Iteration=${cellIterationTime}ms | SandDraw=${sandDrawTime}ms | SlidingObs=${slidingObstacleTime}ms | Overlay=${overlayTime}ms")
+    Logger.d("DrawDetail", "TIMING: Total=${totalCellDrawTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms")
 }
 
 private fun DrawScope.drawSlidingObstacles(

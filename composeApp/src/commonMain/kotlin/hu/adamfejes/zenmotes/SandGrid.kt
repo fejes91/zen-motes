@@ -111,7 +111,7 @@ class SandGrid(
         val generationTime = measureTime {
             obstacleGenerator.generateSlidingObstacle(adjustedTime)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
-//                Timber.tag("SlidingObstacle").d("🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
+                Logger.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
             }
         }.inWholeMilliseconds
 
@@ -140,7 +140,7 @@ class SandGrid(
             val weightThreshold = obstacle.size * obstacle.size / 2f // Threshold based on obstacle size
 
             if (sandHeight >= weightThreshold) {
-//                Timber.tag("SlidingObstacle").d("💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
+                Logger.d("SlidingObstacle", "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
                 // Convert obstacle to sand particles instead of updating position
                 workingGrid = destroySlidingObstacle(workingGrid, obstacle)
                 continue
@@ -175,8 +175,8 @@ class SandGrid(
         val particleMoveTimeMs = particleMoveTime / 1_000_000.0
         val gridPlacementTimeMs = gridPlacementTime / 1_000_000.0
 
-//        Timber.tag("ObstaclePerf").d("SLIDING: Gen=${generationTime}ms | Clear=${clearTimeMs}ms | PosUpdate=${positionUpdateTimeMs}ms | ParticleMove=${particleMoveTimeMs}ms | Placement=${gridPlacementTimeMs}ms")
-//        Timber.tag("SlidingObstacle").d("🚀 Active sliding obstacles: ${updatedObstacles.size}")
+        Logger.d("ObstaclePerf", "SLIDING: Gen=${generationTime}ms | Clear=${clearTimeMs}ms | PosUpdate=${positionUpdateTimeMs}ms | ParticleMove=${particleMoveTimeMs}ms | Placement=${gridPlacementTimeMs}ms")
+        Logger.d("SlidingObstacle", "🚀 Active sliding obstacles: ${updatedObstacles.size}")
 
         return workingGrid
     }
@@ -242,7 +242,7 @@ class SandGrid(
             }
             
             val cleanupTime = (TimeUtils.nanoTime() - cleanupStartTime) / 1_000_000.0
-//            Timber.tag("ParticleLimit").d("⚡ Removed ${particlesToRemove.size} excess particles (${newMovingParticles.size} → $maxMovingParticles) in ${cleanupTime}ms")
+            Logger.d("ParticleLimit", "⚡ Removed ${particlesToRemove.size} excess particles (${newMovingParticles.size} → $maxMovingParticles) in ${cleanupTime}ms")
 
             shuffledMovingParticles.take(maxMovingParticles)
         } else {
@@ -253,7 +253,7 @@ class SandGrid(
         gridState.setMovingParticles(limitedParticles)
 
         val physicsTime = (TimeUtils.nanoTime() - physicsStartTime) / 1_000_000.0
-//        Timber.tag("SandPerf").d("Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
+        Logger.d("SandPerf", "Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
 
         return grid
     }
@@ -314,7 +314,7 @@ class SandGrid(
         }
 
         val elapsedMs = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
-//        Timber.tag("GridPerf").d("CLEAR: ${elapsedMs}ms for ${cellsCleared} cells (${obstacle.size}x${obstacle.size})")
+        Logger.d("GridPerf", "CLEAR: ${elapsedMs}ms for ${cellsCleared} cells (${obstacle.size}x${obstacle.size})")
 
         return grid
     }
@@ -340,7 +340,7 @@ class SandGrid(
         }
 
         val elapsedMs = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
-//        Timber.tag("GridPerf").d("PLACE: ${elapsedMs}ms for ${cellsPlaced} cells (${obstacle.size}x${obstacle.size})")
+        Logger.d("GridPerf", "PLACE: ${elapsedMs}ms for ${cellsPlaced} cells (${obstacle.size}x${obstacle.size})")
 
 
         return grid
@@ -398,7 +398,7 @@ class SandGrid(
             gridState.addSettledParticle(movedParticle)
         }
 
-//        Timber.tag("SlidingObstacle").d("🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}")
+        Logger.d("SlidingObstacle", "🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}")
 
         return grid
     }
@@ -428,7 +428,7 @@ class SandGrid(
         
         val totalTime = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
         
-//        Timber.tag("SandWeight").d("Obstacle ${obstacle.id}: ${particleCount} particles, weight: ${totalWeight} | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms")
+        Logger.d("SandWeight", "Obstacle ${obstacle.id}: ${particleCount} particles, weight: ${totalWeight} | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms")
         
         // Return the weighted count as an integer (rounded down)
         return totalWeight
@@ -467,7 +467,7 @@ class SandGrid(
             }
         }
 
-//        Timber.tag("SlidingObstacle").d("💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.size}x${obstacle.size})")
+        Logger.d("SlidingObstacle", "💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.size}x${obstacle.size})")
 
         // Convert all linked settled particles to normal falling sand
         for (settledParticle in gridState.getSettledParticlesByObstacleId(obstacle.id)) {
@@ -512,14 +512,10 @@ class SandGrid(
                     particlesToReactivate.add(settledParticle)
                 }
             }
-//            else {
-//                // Particle position doesn't match - remove from settled list
-//                particlesToReactivate.add(settledParticle)
-//            }
         }
 
         if (particlesToReactivate.isNotEmpty()) {
-//            Timber.tag("SandCleanup").d("🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
+            Logger.d("SandCleanup", "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
 
             for (particlePos in particlesToReactivate) {
                 reactivateParticleColumn(particlePos.x, particlePos.y, grid)
@@ -559,7 +555,7 @@ class SandGrid(
             }
         }
         
-//        Timber.tag("SandCleanup").d("🔗 Reactivated $reactivatedCount particles in column at x=$startX, starting from y=$startY")
+        Logger.d("SandCleanup", "🔗 Reactivated $reactivatedCount particles in column at x=$startX, starting from y=$startY")
     }
 
     private fun hasProperSupport(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
