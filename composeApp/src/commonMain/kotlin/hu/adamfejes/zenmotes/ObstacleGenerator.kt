@@ -33,17 +33,19 @@ class ObstacleGenerator(
 
         val obstacleY = (minY..maxY).random()
         
-        // Use bitmap dimensions if available, otherwise fallback to default size
-        val obstacleSize = maxOf(sampleBitmap.width, sampleBitmap.height)
+        // Use bitmap dimensions directly
+        val obstacleWidth = sampleBitmap.width
+        val obstacleHeight = sampleBitmap.height
 
         val direction = if (Random.nextBoolean()) 1 else -1
 
         return SlidingObstacle(
-            x = if (direction == 1) -obstacleSize.toFloat() else width.toFloat() + obstacleSize,
+            x = if (direction == 1) -obstacleWidth.toFloat() else width.toFloat() + obstacleWidth,
             y = obstacleY,
-            targetX = if (direction == 1) width.toFloat() + obstacleSize else -obstacleSize.toFloat(),
+            targetX = if (direction == 1) width.toFloat() + obstacleWidth else -obstacleWidth.toFloat(),
             speed = slidingSpeed * direction,
-            size = obstacleSize,
+            width = obstacleWidth,
+            height = obstacleHeight,
             colorType = colorTypes.random(),
             lastUpdateTime = frameTime,
             bitmapShape = sampleBitmap
@@ -66,7 +68,7 @@ class ObstacleGenerator(
     }
 
     fun isObstacleOffScreen(obstacle: SlidingObstacle): Boolean {
-        return obstacle.x > width + obstacle.size || obstacle.x < -obstacle.size
+        return obstacle.x > width + obstacle.width || obstacle.x < -obstacle.width
     }
 
     fun reset() {

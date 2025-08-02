@@ -47,7 +47,8 @@ data class SlidingObstacle(
     val y: Int, // Y position (fixed during slide)
     val targetX: Float, // Target x position to slide to
     val speed: Float, // Pixels per second
-    val size: Int = 12, // Size of the obstacle (width and height)
+    val width: Int, // Width of the obstacle
+    val height: Int, // Height of the obstacle
     val colorType: ColorType, // Domain color type
     val id: String = UuidGenerator.randomUUID(), // Unique identifier
     val lastUpdateTime: Long = 0L, // Last time this obstacle was updated (for time-based movement)

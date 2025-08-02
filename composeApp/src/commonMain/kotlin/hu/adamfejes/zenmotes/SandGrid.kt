@@ -119,7 +119,7 @@ class SandGrid(
         val generationTime = measureTime {
             obstacleGenerator.generateSlidingObstacle(adjustedTime, sampleBitmap)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
-                Logger.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
+                Logger.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.width}x${newObstacle.height} at y=${newObstacle.y}")
             }
         }.inWholeMilliseconds
 
@@ -143,7 +143,7 @@ class SandGrid(
 
             // Check if obstacle should be destroyed by sand weight
             val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
-            val weightThreshold = obstacle.size * obstacle.size / 2f // Threshold based on obstacle size
+            val weightThreshold = obstacle.width * obstacle.height / 2f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
                 Logger.d("SlidingObstacle", "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
@@ -303,14 +303,13 @@ class SandGrid(
         val startTime = TimeUtils.nanoTime()
         val centerX = obstacle.x.toInt()
         val centerY = obstacle.y
-        val size = obstacle.size
         var cellsCleared = 0
 
-        for (dy in -size/2..size/2) {
-            for (dx in -size/2..size/2) {
+        for (dy in -obstacle.height/2..obstacle.height/2) {
+            for (dx in -obstacle.width/2..obstacle.width/2) {
                 val x = centerX + dx
                 val y = centerY + dy
-                if (x in 0 until width && y in 0 until height) {
+                if (x in 0 until this.width && y in 0 until this.height) {
                     if (grid[y][x].type == CellType.SLIDING_OBSTACLE) {
                         grid[y][x] = Cell(CellType.EMPTY)
                         cellsCleared++
@@ -320,7 +319,7 @@ class SandGrid(
         }
 
         val elapsedMs = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
-        Logger.d("GridPerf", "CLEAR: ${elapsedMs}ms for ${cellsCleared} cells (${obstacle.size}x${obstacle.size})")
+        Logger.d("GridPerf", "CLEAR: ${elapsedMs}ms for ${cellsCleared} cells (${obstacle.width}x${obstacle.height})")
 
         return grid
     }
@@ -329,14 +328,13 @@ class SandGrid(
         val startTime = TimeUtils.nanoTime()
         val centerX = obstacle.x.toInt()
         val centerY = obstacle.y
-        val size = obstacle.size
         var cellsPlaced = 0
 
-        for (dy in -size/2..size/2) {
-            for (dx in -size/2..size/2) {
+        for (dy in -obstacle.height/2..obstacle.height/2) {
+            for (dx in -obstacle.width/2..obstacle.width/2) {
                 val x = centerX + dx
                 val y = centerY + dy
-                if (x in 0 until width && y in 0 until height) {
+                if (x in 0 until this.width && y in 0 until this.height) {
                     if (grid[y][x].type == CellType.EMPTY) {
                         grid[y][x] = Cell(CellType.SLIDING_OBSTACLE, null, obstacle)
                         cellsPlaced++
@@ -346,7 +344,7 @@ class SandGrid(
         }
 
         val elapsedMs = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
-        Logger.d("GridPerf", "PLACE: ${elapsedMs}ms for ${cellsPlaced} cells (${obstacle.size}x${obstacle.size})")
+        Logger.d("GridPerf", "PLACE: ${elapsedMs}ms for ${cellsPlaced} cells (${obstacle.width}x${obstacle.height})")
 
 
         return grid
@@ -443,13 +441,14 @@ class SandGrid(
     private fun destroySlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Array<Array<Cell>> {
         val centerX = obstacle.x.roundToInt()
         val centerY = obstacle.y
-        val halfSize = obstacle.size / 2
+        val halfWidth = obstacle.width / 2
+        val halfHeight = obstacle.height / 2
 
         // Convert entire obstacle block to sand particles
         var convertedCells = 0
         var totalCellsChecked = 0
-        for (dy in -halfSize..halfSize) {
-            for (dx in -halfSize..halfSize) {
+        for (dy in -halfHeight..halfHeight) {
+            for (dx in -halfWidth..halfWidth) {
                 val x = centerX + dx
                 val y = centerY + dy
                 if (x in 0 until width && y in 0 until height) {
@@ -473,7 +472,7 @@ class SandGrid(
             }
         }
 
-        Logger.d("SlidingObstacle", "💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.size}x${obstacle.size})")
+        Logger.d("SlidingObstacle", "💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.width}x${obstacle.height})")
 
         // Convert all linked settled particles to normal falling sand
         for (settledParticle in gridState.getSettledParticlesByObstacleId(obstacle.id)) {

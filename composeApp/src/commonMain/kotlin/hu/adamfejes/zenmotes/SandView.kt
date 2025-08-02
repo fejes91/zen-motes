@@ -371,14 +371,15 @@ private fun DrawScope.drawSlidingObstacles(
     val slidingObstacles = grid.getSlidingObstacles()
 
     for (obstacle in slidingObstacles) {
-        val size = obstacle.size * cellSize.toInt()
-        val x = obstacle.x * cellSize - size / 2
-        val y = obstacle.y * cellSize - size / 2
+        val width = obstacle.width * cellSize.toInt()
+        val height = obstacle.height * cellSize.toInt()
+        val x = obstacle.x * cellSize - width / 2
+        val y = obstacle.y * cellSize - height / 2
 
         drawImage(
             image = obstacle.bitmapShape,
             dstOffset = IntOffset(x.toInt(), y.toInt()),
-            dstSize = IntSize(size, size),
+            dstSize = IntSize(width, height),
             filterQuality = FilterQuality.None, // Pixelated scaling
             colorFilter = ColorFilter.tint(
                 color = mapObstacleColorToTheme(obstacle.colorType, colorScheme),
