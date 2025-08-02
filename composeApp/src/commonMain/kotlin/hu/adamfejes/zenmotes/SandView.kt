@@ -20,10 +20,19 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import org.jetbrains.compose.resources.imageResource
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.tower
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
@@ -66,6 +75,9 @@ fun SandView(
     var actualFps by remember { mutableIntStateOf(0) }
     var totalDrawTime by remember { mutableIntStateOf(0) }
 
+    // Load sample image for obstacles and testing
+    val sampleImage = imageResource(Res.drawable.tower)
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -99,7 +111,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, cellSize)
-            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions)
+            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, sampleImage)
 
             sandGrid?.let { grid ->
                 // 2. Sand particle addition timing
@@ -201,12 +213,17 @@ private fun calculateGridDimensions(
 
 private fun initializeGridIfNeeded(
     currentGrid: SandGrid?,
-    dimensions: Pair<Int, Int>
+    dimensions: Pair<Int, Int>,
+    sampleBitmap: ImageBitmap
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        SandGrid(width = width, height = height)
+        val newGrid = SandGrid(width = width, height = height)
+        newGrid.setSampleBitmap(sampleBitmap)
+        newGrid
     } else {
+        // Update bitmap if it's changed
+        currentGrid.setSampleBitmap(sampleBitmap)
         currentGrid
     }
 }
@@ -354,15 +371,19 @@ private fun DrawScope.drawSlidingObstacles(
     val slidingObstacles = grid.getSlidingObstacles()
 
     for (obstacle in slidingObstacles) {
-        val size = obstacle.size.toFloat() * cellSize
+        val size = obstacle.size * cellSize.toInt()
         val x = obstacle.x * cellSize - size / 2
         val y = obstacle.y * cellSize - size / 2
 
-        drawRoundRect(
-            color = mapObstacleColorToTheme(obstacle.colorType, colorScheme),
-            topLeft = Offset(x, y),
-            size = Size(size, size),
-            cornerRadius = CornerRadius(3f, 3f)
+        drawImage(
+            image = obstacle.bitmapShape,
+            dstOffset = IntOffset(x.toInt(), y.toInt()),
+            dstSize = IntSize(size, size),
+            filterQuality = FilterQuality.None, // Pixelated scaling
+            colorFilter = ColorFilter.tint(
+                color = mapObstacleColorToTheme(obstacle.colorType, colorScheme),
+                blendMode = BlendMode.Multiply
+            ),
         )
     }
 }

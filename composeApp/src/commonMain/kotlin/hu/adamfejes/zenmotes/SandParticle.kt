@@ -1,5 +1,7 @@
 package hu.adamfejes.zenmotes
 
+import androidx.compose.ui.graphics.ImageBitmap
+
 enum class ColorType {
     OBSTACLE_COLOR_1,
     OBSTACLE_COLOR_2,
@@ -48,7 +50,8 @@ data class SlidingObstacle(
     val size: Int = 12, // Size of the obstacle (width and height)
     val colorType: ColorType, // Domain color type
     val id: String = UuidGenerator.randomUUID(), // Unique identifier
-    val lastUpdateTime: Long = 0L // Last time this obstacle was updated (for time-based movement)
+    val lastUpdateTime: Long = 0L, // Last time this obstacle was updated (for time-based movement)
+    val bitmapShape: ImageBitmap // Bitmap pattern for complex shapes
 )
 
 data class Cell(

@@ -1,5 +1,6 @@
 package hu.adamfejes.zenmotes
 
+import androidx.compose.ui.graphics.ImageBitmap
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
@@ -33,6 +34,13 @@ class SandGrid(
     private val gridState = GridState(width, height)
     private val obstacleGenerator = ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
     private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
+    
+    // Sample bitmap for obstacle shapes
+    private lateinit var sampleBitmap: ImageBitmap
+    
+    fun setSampleBitmap(bitmap: ImageBitmap) {
+        sampleBitmap = bitmap
+    }
 
     fun getCell(x: Int, y: Int): Cell? = gridState.getCell(x, y)
 
@@ -109,7 +117,7 @@ class SandGrid(
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTime {
-            obstacleGenerator.generateSlidingObstacle(adjustedTime)?.let { newObstacle ->
+            obstacleGenerator.generateSlidingObstacle(adjustedTime, sampleBitmap)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
                 Logger.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.size}x${newObstacle.size} at y=${newObstacle.y}")
             }

@@ -1,5 +1,6 @@
 package hu.adamfejes.zenmotes
 
+import androidx.compose.ui.graphics.ImageBitmap
 import kotlin.random.Random
 
 class ObstacleGenerator(
@@ -19,7 +20,7 @@ class ObstacleGenerator(
         return TimeUtils.currentTimeMillis() - lastSlidingObstacleTime >= slidingObstacleInterval
     }
 
-    fun generateSlidingObstacle(frameTime: Long): SlidingObstacle? {
+    fun generateSlidingObstacle(frameTime: Long, sampleBitmap: ImageBitmap): SlidingObstacle? {
         if (!shouldGenerateObstacle()) return null
 
         lastSlidingObstacleTime = TimeUtils.currentTimeMillis()
@@ -31,7 +32,9 @@ class ObstacleGenerator(
         if (minY >= maxY) return null // Not enough space to place obstacle
 
         val obstacleY = (minY..maxY).random()
-        val obstacleSize = listOf(14, 16, 20, 26).random()
+        
+        // Use bitmap dimensions if available, otherwise fallback to default size
+        val obstacleSize = maxOf(sampleBitmap.width, sampleBitmap.height)
 
         val direction = if (Random.nextBoolean()) 1 else -1
 
@@ -42,7 +45,8 @@ class ObstacleGenerator(
             speed = slidingSpeed * direction,
             size = obstacleSize,
             colorType = colorTypes.random(),
-            lastUpdateTime = frameTime
+            lastUpdateTime = frameTime,
+            bitmapShape = sampleBitmap
         )
     }
 
