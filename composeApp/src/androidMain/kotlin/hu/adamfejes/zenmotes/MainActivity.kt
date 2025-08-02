@@ -14,12 +14,13 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Enable Logging only in debug builds
     * Color picker selected state + redesign?
     * Decorated obstacles, built up from sand with shading
+    * Fix obstacle generator to not generate obstacles on each other
     * Settings, shared preferences
     *   Theme
     *   Game mode: Zen / Time attack?
     *   High Score
     * Scoring
-    * Continously changing sand color?
+    * Continuously changing sand color?
     * More obstacle designs?
  */
 
