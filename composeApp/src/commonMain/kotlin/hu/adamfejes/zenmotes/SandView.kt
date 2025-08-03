@@ -1,7 +1,6 @@
 package hu.adamfejes.zenmotes
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,15 +20,22 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import org.jetbrains.compose.resources.painterResource
+import zenmotescmp.composeapp.generated.resources.background_night
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.imageResource
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.tower
@@ -41,7 +47,6 @@ fun SandView(
     modifier: Modifier = Modifier,
     sandColorType: ColorType = ColorType.OBSTACLE_COLOR_1,
     cellSize: Float = 6f,
-    hasOwnBackground: Boolean = true,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
@@ -81,9 +86,10 @@ fun SandView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .then(if (hasOwnBackground) createBackgroundModifier() else Modifier)
             .clipToBounds()
     ) {
+        BackgroundImage()
+
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -162,7 +168,8 @@ fun SandView(
                     0
                 }
 
-                Logger.d("DrawPerf", 
+                Logger.d(
+                    "DrawPerf",
                     "TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: $fps | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
                 )
             }
@@ -190,14 +197,18 @@ private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
 }
 
 @Composable
-private fun createBackgroundModifier(): Modifier {
-    val colorScheme = LocalColorScheme.current
-    return Modifier.background(
-        Brush.verticalGradient(
-            colors = colorScheme.backgroundColors,
-            startY = 0f,
-            endY = Float.POSITIVE_INFINITY
-        )
+private fun BackgroundImage() {
+    // Get current theme from SandSimulation component
+    // For now, always use the night background, but structure is ready for light theme
+
+    Image(
+        painter = painterResource(Res.drawable.background_night),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .alpha(0.6f),
+        contentScale = ContentScale.Crop
     )
 }
 
@@ -357,9 +368,18 @@ private fun DrawScope.drawSandGrid(
 
     val totalCellDrawTime = (TimeUtils.nanoTime() - drawCellsStartTime) / 1_000_000.0
 
-    Logger.d("DrawDetail", "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn}")
-    Logger.d("DrawDetail", "BREAKDOWN: GetCells=${getAllCellsTime}ms | Iteration=${cellIterationTime}ms | SandDraw=${sandDrawTime}ms | SlidingObs=${slidingObstacleTime}ms | Overlay=${overlayTime}ms")
-    Logger.d("DrawDetail", "TIMING: Total=${totalCellDrawTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms")
+    Logger.d(
+        "DrawDetail",
+        "CELLS: Total=${allCells.size} | Sand=${sandParticlesDrawn} | Settled=${settledParticlesDrawn} | Obstacles=${obstaclesDrawn}"
+    )
+    Logger.d(
+        "DrawDetail",
+        "BREAKDOWN: GetCells=${getAllCellsTime}ms | Iteration=${cellIterationTime}ms | SandDraw=${sandDrawTime}ms | SlidingObs=${slidingObstacleTime}ms | Overlay=${overlayTime}ms"
+    )
+    Logger.d(
+        "DrawDetail",
+        "TIMING: Total=${totalCellDrawTime}ms | Color=${colorCalculationTime}ms | DrawOps=${drawOperationTime}ms"
+    )
 }
 
 private fun DrawScope.drawSlidingObstacles(
@@ -394,7 +414,7 @@ fun mapObstacleColorToTheme(colorType: ColorType, colorScheme: ColorScheme): Col
         ColorType.OBSTACLE_COLOR_1 -> colorScheme.obstacleColors[0]
         ColorType.OBSTACLE_COLOR_2 -> colorScheme.obstacleColors[1]
         ColorType.OBSTACLE_COLOR_3 -> colorScheme.obstacleColors[2]
-         ColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
+        ColorType.OBSTACLE_COLOR_4 -> colorScheme.obstacleColors[3]
         // ColorType.OBSTACLE_COLOR_5 -> colorScheme.obstacleColors[4]
         // ColorType.OBSTACLE_COLOR_6 -> colorScheme.obstacleColors[5]
     }
@@ -423,7 +443,7 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int,
         "Moving: ${perfData.movingParticles}",
         "Settled: ${perfData.settledParticles}"
     )
-    
+
     drawTextLines(
         lines = lines,
         color = textColor,

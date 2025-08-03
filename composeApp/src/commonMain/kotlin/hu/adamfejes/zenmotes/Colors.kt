@@ -25,15 +25,6 @@ object ZenColors {
             Color(0xFFFF8533)  // Slightly deeper orange
         )
         
-        // Background gradient colors
-        internal val backgroundColors = listOf(
-            Color(0xFFFFEBF0), // Light pink tint
-            Color(0xFFEBF0FF), // Light blue tint
-            Color(0xFFEBFFEB), // Light green tint
-            Color(0xFFFFF8EB), // Light yellow tint
-            Color(0xFFF0EBFF), // Light purple tint
-            Color(0xFFFFEBEB)  // Light orange tint
-        )
         
         // UI element colors
         internal val pauseButtonBackground = Color(0xFFF5F5F5) // Light gray with pastel feel
@@ -73,15 +64,6 @@ object ZenColors {
             Color(0xFFD15220)  // Deeper muted orange
         )
         
-        // Background gradient colors - dark theme
-        internal val backgroundColors = listOf(
-            Color(0xFF2D1A20), // Dark pink tint
-            Color(0xFF1A202D), // Dark blue tint
-            Color(0xFF1A2D1A), // Dark green tint
-            Color(0xFF2D2A1A), // Dark yellow tint
-            Color(0xFF201A2D), // Dark purple tint
-            Color(0xFF2D1A1A)  // Dark orange tint
-        )
         
         // UI element colors - dark theme
         internal val pauseButtonBackground = Color(0xFF2A2A2A) // Dark gray
@@ -109,7 +91,6 @@ enum class Theme {
 data class ColorScheme(
     val sandColors: List<Color>,
     val obstacleColors: List<Color>,
-    val backgroundColors: List<Color>,
     val pauseButtonBackground: Color,
     val pauseButtonIcon: Color,
     val pauseOverlayBackground: Color,
@@ -127,7 +108,6 @@ fun getColorScheme(theme: Theme): ColorScheme {
         Theme.LIGHT -> ColorScheme(
             sandColors = ZenColors.Light.sandColors,
             obstacleColors = ZenColors.Light.obstacleColors,
-            backgroundColors = ZenColors.Light.backgroundColors,
             pauseButtonBackground = ZenColors.Light.pauseButtonBackground,
             pauseButtonIcon = ZenColors.Light.pauseButtonIcon,
             pauseOverlayBackground = ZenColors.Light.pauseOverlayBackground,
@@ -142,7 +122,6 @@ fun getColorScheme(theme: Theme): ColorScheme {
         Theme.DARK -> ColorScheme(
             sandColors = ZenColors.Dark.sandColors,
             obstacleColors = ZenColors.Dark.obstacleColors,
-            backgroundColors = ZenColors.Dark.backgroundColors,
             pauseButtonBackground = ZenColors.Dark.pauseButtonBackground,
             pauseButtonIcon = ZenColors.Dark.pauseButtonIcon,
             pauseOverlayBackground = ZenColors.Dark.pauseOverlayBackground,

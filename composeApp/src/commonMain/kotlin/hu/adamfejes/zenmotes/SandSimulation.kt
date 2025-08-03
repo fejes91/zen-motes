@@ -84,7 +84,6 @@ fun SandSimulation(
             SandView(
                 modifier = Modifier.fillMaxSize(),
                 sandColorType = selectedColor,
-                hasOwnBackground = true,
                 sandGenerationAmount = 60,
                 showPerformanceOverlay = true, // Toggle performance overlay for testing
                 isPaused = isPaused,
