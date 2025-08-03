@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
@@ -35,10 +34,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.imageResource
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.tower
+import zenmotescmp.composeapp.generated.resources.wider_tower
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
@@ -81,7 +80,10 @@ fun SandView(
     var totalDrawTime by remember { mutableIntStateOf(0) }
 
     // Load sample image for obstacles and testing
-    val sampleImage = imageResource(Res.drawable.tower)
+    val images = listOf(
+        imageResource(Res.drawable.tower),
+        imageResource(Res.drawable.wider_tower)
+    )
 
     Box(
         modifier = modifier
@@ -117,7 +119,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, cellSize)
-            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, sampleImage)
+            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, images)
 
             sandGrid?.let { grid ->
                 // 2. Sand particle addition timing
@@ -225,16 +227,16 @@ private fun calculateGridDimensions(
 private fun initializeGridIfNeeded(
     currentGrid: SandGrid?,
     dimensions: Pair<Int, Int>,
-    sampleBitmap: ImageBitmap
+    images: List<ImageBitmap>
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
         val newGrid = SandGrid(width = width, height = height)
-        newGrid.setSampleBitmap(sampleBitmap)
+        newGrid.setImages(images)
         newGrid
     } else {
         // Update bitmap if it's changed
-        currentGrid.setSampleBitmap(sampleBitmap)
+        currentGrid.setImages(images)
         currentGrid
     }
 }
@@ -403,7 +405,7 @@ private fun DrawScope.drawSlidingObstacles(
             filterQuality = FilterQuality.None, // Pixelated scaling
             colorFilter = ColorFilter.tint(
                 color = mapObstacleColorToTheme(obstacle.colorType, colorScheme),
-                blendMode = BlendMode.Multiply
+                blendMode = BlendMode.Modulate
             ),
         )
     }

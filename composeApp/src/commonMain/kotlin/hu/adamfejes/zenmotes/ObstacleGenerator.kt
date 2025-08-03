@@ -20,7 +20,7 @@ class ObstacleGenerator(
         return TimeUtils.currentTimeMillis() - lastSlidingObstacleTime >= slidingObstacleInterval
     }
 
-    fun generateSlidingObstacle(frameTime: Long, sampleBitmap: ImageBitmap): SlidingObstacle? {
+    fun generateSlidingObstacle(frameTime: Long, images: List<ImageBitmap>): SlidingObstacle? {
         if (!shouldGenerateObstacle()) return null
 
         lastSlidingObstacleTime = TimeUtils.currentTimeMillis()
@@ -32,10 +32,11 @@ class ObstacleGenerator(
         if (minY >= maxY) return null // Not enough space to place obstacle
 
         val obstacleY = (minY..maxY).random()
+        val bitmap = images.randomOrNull() ?: return null
         
         // Use bitmap dimensions directly
-        val obstacleWidth = sampleBitmap.width
-        val obstacleHeight = sampleBitmap.height
+        val obstacleWidth = bitmap.width
+        val obstacleHeight = bitmap.height
 
         val direction = if (Random.nextBoolean()) 1 else -1
 
@@ -48,7 +49,7 @@ class ObstacleGenerator(
             height = obstacleHeight,
             colorType = colorTypes.random(),
             lastUpdateTime = frameTime,
-            bitmapShape = sampleBitmap
+            bitmapShape = bitmap
         )
     }
 

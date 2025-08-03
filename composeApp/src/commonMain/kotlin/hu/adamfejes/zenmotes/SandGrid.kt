@@ -36,10 +36,10 @@ class SandGrid(
     private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
     
     // Sample bitmap for obstacle shapes
-    private lateinit var sampleBitmap: ImageBitmap
+    private lateinit var images: List<ImageBitmap>
     
-    fun setSampleBitmap(bitmap: ImageBitmap) {
-        sampleBitmap = bitmap
+    fun setImages(bitmap: List<ImageBitmap>) {
+        images = bitmap
     }
 
     fun getCell(x: Int, y: Int): Cell? = gridState.getCell(x, y)
@@ -117,7 +117,7 @@ class SandGrid(
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTime {
-            obstacleGenerator.generateSlidingObstacle(adjustedTime, sampleBitmap)?.let { newObstacle ->
+            obstacleGenerator.generateSlidingObstacle(adjustedTime, images)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
                 Logger.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.width}x${newObstacle.height} at y=${newObstacle.y}")
             }
