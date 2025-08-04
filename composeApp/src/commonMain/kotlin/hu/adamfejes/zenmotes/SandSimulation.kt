@@ -1,6 +1,7 @@
 package hu.adamfejes.zenmotes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
-val LocalTheme =  staticCompositionLocalOf {
+val LocalTheme = staticCompositionLocalOf {
     Theme.DARK
 }
 
@@ -49,9 +50,9 @@ fun SandSimulation(
     var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }
-    
+
     val lifecycleOwner = LocalLifecycleOwner.current
-    
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -60,76 +61,76 @@ fun SandSimulation(
                 else -> {}
             }
         }
-        
+
         lifecycleOwner.lifecycle.addObserver(observer)
-        
+
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-    
+
     val colorScheme = getColorScheme(currentTheme)
 
     CompositionLocalProvider(LocalTheme provides currentTheme) {
         Box(
             modifier = modifier.fillMaxSize()
         ) {
-        // Everything that should be blurred when paused  
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(if (isPaused) Modifier.blur(20.dp) else Modifier)
-        ) {
-            // Sand simulation view - full edge-to-edge behind everything
-            SandView(
-                modifier = Modifier.fillMaxSize(),
-                sandColorType = selectedColor,
-                sandGenerationAmount = 60,
-                showPerformanceOverlay = false, // Toggle performance overlay for testing
-                isPaused = isPaused,
-                resetTrigger = resetTrigger
-            )
-            
-            // Top UI overlay - color picker and reset button
-            LazyRow(
+            // Everything that should be blurred when paused
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .then(if (isPaused) Modifier.blur(20.dp) else Modifier)
             ) {
-                items(ColorType.entries) { colorType ->
-                    ColorButton(
-                        colorType = colorType,
-                        isSelected = colorType == selectedColor,
-                        onClick = { selectedColor = colorType }
-                    )
-                }
-                
-                item {
-                    // Pause button - circular and same size as color buttons
-                    PauseButton(
-                        isPaused = isPaused,
-                        onClick = { isPaused = !isPaused }
-                    )
+                // Sand simulation view - full edge-to-edge behind everything
+                SandView(
+                    modifier = Modifier.fillMaxSize(),
+                    sandColorType = selectedColor,
+                    sandGenerationAmount = 60,
+                    showPerformanceOverlay = false, // Toggle performance overlay for testing
+                    isPaused = isPaused,
+                    resetTrigger = resetTrigger
+                )
+
+                // Top UI overlay - color picker and reset button
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(ColorType.entries) { colorType ->
+                        ColorButton(
+                            colorType = colorType,
+                            isSelected = colorType == selectedColor,
+                            onClick = { selectedColor = colorType }
+                        )
+                    }
+
+                    item {
+                        // Pause button - circular and same size as color buttons
+                        PauseButton(
+                            isPaused = isPaused,
+                            onClick = { isPaused = !isPaused }
+                        )
+                    }
                 }
             }
+
+            // Pause overlay with blur and menu
+            if (isPaused) {
+                PauseOverlay(
+                    onResume = { isPaused = false },
+                    onRestart = {
+                        resetTrigger++
+                        isPaused = false
+                    },
+                    currentTheme = currentTheme,
+                    onThemeChange = { newTheme -> currentTheme = newTheme }
+                )
+            }
         }
-        
-        // Pause overlay with blur and menu
-        if (isPaused) {
-            PauseOverlay(
-                onResume = { isPaused = false },
-                onRestart = { 
-                    resetTrigger++
-                    isPaused = false
-                },
-                currentTheme = currentTheme,
-                onThemeChange = { newTheme -> currentTheme = newTheme }
-            )
-        }
-    }
     }
 }
 
@@ -139,31 +140,55 @@ private fun ColorButton(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val colorScheme = LocalTheme.current.toColorScheme()
+    val theme = LocalTheme.current
+    val colorScheme = theme.toColorScheme()
+    val color = mapObstacleColorToTheme(colorType, colorScheme)
     Box(
         modifier = Modifier
             .size(48.dp)
-            .clip(CircleShape)
-            .background(mapObstacleColorToTheme(colorType, colorScheme))
             .then(
                 if (isSelected) {
-                    Modifier.background(Color.White.copy(alpha = 0.3f))
+                    Modifier.border(
+                        width = 6.dp,
+                        color = if(theme == Theme.DARK) {
+                            color.lighten(0.5f)
+                        } else {
+                            color.darken(0.5f)
+                        },
+                    )
                 } else {
                     Modifier
                 }
-            ),
+            )
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Button(
             onClick = onClick,
-            modifier = Modifier.size(40.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.Transparent
-            ),
-            contentPadding = PaddingValues(0.dp)
+            )
         ) {}
     }
+}
+
+private fun Color.darken(f: Float): Color {
+    return Color(
+        red = (red * f).coerceIn(0f, 1f),
+        green = (green * f).coerceIn(0f, 1f),
+        blue = (blue * f).coerceIn(0f, 1f),
+        alpha = alpha
+    )
+}
+
+private fun Color.lighten(f: Float): Color {
+    return Color(
+        red = (red + (1f - red) * f).coerceIn(0f, 1f),
+        green = (green + (1f - green) * f).coerceIn(0f, 1f),
+        blue = (blue + (1f - blue) * f).coerceIn(0f, 1f),
+        alpha = alpha
+    )
 }
 
 @Composable

@@ -29,6 +29,7 @@ object ZenColors {
         
         
         // UI element colors
+        internal val paletteBorder = Color(0xFF333333) // Dark gray for palette border
         internal val pauseButtonBackground = Color(0xFFF5F5F5) // Light gray with pastel feel
         internal val pauseButtonIcon = Color(0xFF6B6B6B) // Soft gray for icons
         internal val pauseOverlayBackground = Color(0x80FFFFFF) // Semi-transparent white
@@ -70,6 +71,7 @@ object ZenColors {
         
         
         // UI element colors - dark theme
+        internal val paletteBorder = Color(0xFFCCCCCC) // Light gray for palette border
         internal val pauseButtonBackground = Color(0xFF2A2A2A) // Dark gray
         internal val pauseButtonIcon = Color(0xFFB0B0B0) // Light gray for icons
         internal val pauseOverlayBackground = Color(0x80000000) // Semi-transparent black
@@ -100,6 +102,7 @@ data class ColorScheme(
     val background: Color,
     val sandColors: List<Color>,
     val obstacleColors: List<Color>,
+    val paletteBorder: Color,
     val pauseButtonBackground: Color,
     val pauseButtonIcon: Color,
     val pauseOverlayBackground: Color,
@@ -118,6 +121,7 @@ fun getColorScheme(theme: Theme): ColorScheme {
             background = ZenColors.Light.background,
             sandColors = ZenColors.Light.sandColors,
             obstacleColors = ZenColors.Light.obstacleColors,
+            paletteBorder = ZenColors.Light.paletteBorder,
             pauseButtonBackground = ZenColors.Light.pauseButtonBackground,
             pauseButtonIcon = ZenColors.Light.pauseButtonIcon,
             pauseOverlayBackground = ZenColors.Light.pauseOverlayBackground,
@@ -132,6 +136,7 @@ fun getColorScheme(theme: Theme): ColorScheme {
         Theme.DARK -> ColorScheme(
             background = ZenColors.Dark.background,
             sandColors = ZenColors.Dark.sandColors,
+            paletteBorder = ZenColors.Dark.paletteBorder,
             obstacleColors = ZenColors.Dark.obstacleColors,
             pauseButtonBackground = ZenColors.Dark.pauseButtonBackground,
             pauseButtonIcon = ZenColors.Dark.pauseButtonIcon,
