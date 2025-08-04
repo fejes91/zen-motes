@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -113,6 +114,17 @@ fun SandView(
                             isAddingSand = true
                         }
                     }
+                }
+                .pointerInput(isPaused) {
+                    detectTapGestures(onPress = { offset ->
+                        if (!isPaused) {
+                            sandSourceX = offset.x
+                            isAddingSand = true
+
+                            awaitRelease()
+                            isAddingSand = false
+                        }
+                    })
                 }
         ) {
             val frameStartTime = TimeUtils.currentTimeMillis()
