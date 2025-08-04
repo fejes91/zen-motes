@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
-val LocalColorScheme = staticCompositionLocalOf {
-    getColorScheme(Theme.DARK)
+val LocalTheme =  staticCompositionLocalOf {
+    Theme.DARK
 }
 
 @Composable
@@ -70,7 +70,7 @@ fun SandSimulation(
     
     val colorScheme = getColorScheme(currentTheme)
 
-    CompositionLocalProvider(LocalColorScheme provides colorScheme) {
+    CompositionLocalProvider(LocalTheme provides currentTheme) {
         Box(
             modifier = modifier.fillMaxSize()
         ) {
@@ -85,7 +85,7 @@ fun SandSimulation(
                 modifier = Modifier.fillMaxSize(),
                 sandColorType = selectedColor,
                 sandGenerationAmount = 60,
-                showPerformanceOverlay = true, // Toggle performance overlay for testing
+                showPerformanceOverlay = false, // Toggle performance overlay for testing
                 isPaused = isPaused,
                 resetTrigger = resetTrigger
             )
@@ -139,7 +139,7 @@ private fun ColorButton(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val colorScheme = LocalColorScheme.current
+    val colorScheme = LocalTheme.current.toColorScheme()
     Box(
         modifier = Modifier
             .size(48.dp)
@@ -171,7 +171,7 @@ private fun PauseButton(
     isPaused: Boolean,
     onClick: () -> Unit
 ) {
-    val colorScheme = LocalColorScheme.current
+    val colorScheme = LocalTheme.current.toColorScheme()
     Box(
         modifier = Modifier
             .size(48.dp)

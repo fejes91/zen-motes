@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 object ZenColors {
     
     object Light {
+        internal val background = Color.White
+
         // Sand colors - soft pastels
         internal val sandColors = listOf(
             Color(0xFFFF9BB5), // Saturated Pink
@@ -44,6 +46,8 @@ object ZenColors {
     }
     
     object Dark {
+        internal val background = Color.Black
+
         // Sand colors - brighter pastels for dark theme
         internal val sandColors = listOf(
             Color(0xFFFF85B5), // Bright pink
@@ -88,7 +92,12 @@ enum class Theme {
     DARK
 }
 
+fun Theme.toColorScheme(): ColorScheme {
+    return getColorScheme(this)
+}
+
 data class ColorScheme(
+    val background: Color,
     val sandColors: List<Color>,
     val obstacleColors: List<Color>,
     val pauseButtonBackground: Color,
@@ -106,6 +115,7 @@ data class ColorScheme(
 fun getColorScheme(theme: Theme): ColorScheme {
     return when (theme) {
         Theme.LIGHT -> ColorScheme(
+            background = ZenColors.Light.background,
             sandColors = ZenColors.Light.sandColors,
             obstacleColors = ZenColors.Light.obstacleColors,
             pauseButtonBackground = ZenColors.Light.pauseButtonBackground,
@@ -120,6 +130,7 @@ fun getColorScheme(theme: Theme): ColorScheme {
             themeSwitchText = ZenColors.Light.themeSwitchText
         )
         Theme.DARK -> ColorScheme(
+            background = ZenColors.Dark.background,
             sandColors = ZenColors.Dark.sandColors,
             obstacleColors = ZenColors.Dark.obstacleColors,
             pauseButtonBackground = ZenColors.Dark.pauseButtonBackground,

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import org.jetbrains.compose.resources.painterResource
 import zenmotescmp.composeapp.generated.resources.background_night
+import zenmotescmp.composeapp.generated.resources.background_daylight
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
@@ -51,7 +52,7 @@ fun SandView(
     isPaused: Boolean,
     resetTrigger: Int
 ) {
-    val colorScheme = LocalColorScheme.current
+    val colorScheme = LocalTheme.current.toColorScheme()
 
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
 
@@ -200,16 +201,22 @@ private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
 
 @Composable
 private fun BackgroundImage() {
-    // Get current theme from SandSimulation component
-    // For now, always use the night background, but structure is ready for light theme
+    val currentTheme = LocalTheme.current
+    val colorScheme = currentTheme.toColorScheme()
+
+    val backgroundImageRes = if (currentTheme == Theme.DARK) {
+        Res.drawable.background_night
+    } else {
+        Res.drawable.background_daylight
+    }
 
     Image(
-        painter = painterResource(Res.drawable.background_night),
+        painter = painterResource(backgroundImageRes),
         contentDescription = null,
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
-            .alpha(0.6f),
+            .background(colorScheme.background)
+            .alpha(0.8f),
         contentScale = ContentScale.Crop
     )
 }

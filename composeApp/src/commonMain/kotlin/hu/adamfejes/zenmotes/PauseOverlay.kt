@@ -30,7 +30,7 @@ fun PauseOverlay(
     currentTheme: Theme,
     onThemeChange: (Theme) -> Unit
 ) {
-    val colorScheme = LocalColorScheme.current
+    val colorScheme = LocalTheme.current.toColorScheme()
 
     Box(
         modifier = Modifier
