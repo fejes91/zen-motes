@@ -300,7 +300,6 @@ private fun DrawScope.drawSandGrid(
     // 2. Break down the cell iteration
     val cellIterationStartTime = TimeUtils.nanoTime()
     var sandDrawTime = 0.0
-    var obstacleDrawTime = 0.0
 
     val cellIterationTime = measureTime {
         allCells.forEach { (x, y, cell) ->
