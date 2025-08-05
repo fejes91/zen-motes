@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,7 @@ import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.getColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import org.koin.compose.koinInject
 
 val LocalTheme = staticCompositionLocalOf {
     Theme.DARK
@@ -48,6 +51,9 @@ val LocalTheme = staticCompositionLocalOf {
 fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
+    val viewModel: SandSimulationViewModel = koinInject()
+    val score by viewModel.score.collectAsState(0)
+    
     // TODO store it in shared preferences, after converting to multi-platform
     var currentTheme by remember { mutableStateOf(Theme.DARK) }
     var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
@@ -94,12 +100,34 @@ fun SandSimulation(
                     resetTrigger = resetTrigger
                 )
 
+                // Score display at the top center
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(top = 16.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Text(
+                        text = "Score: $score",
+                        color = Color.White, // todo
+                        fontSize = 24.sp,
+                        modifier = Modifier
+                            .background(
+                                color = Color.Black, // todo
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                }
+
                 // Top UI overlay - color picker and reset button
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                        .padding(top = 56.dp), // Add padding to not overlap with score
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -127,6 +155,7 @@ fun SandSimulation(
                     onResume = { isPaused = false },
                     onRestart = {
                         resetTrigger++
+                        viewModel.resetScore()
                         isPaused = false
                     },
                     currentTheme = currentTheme,

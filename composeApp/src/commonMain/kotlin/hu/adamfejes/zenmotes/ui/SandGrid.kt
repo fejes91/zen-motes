@@ -10,6 +10,7 @@ import hu.adamfejes.zenmotes.logic.ObstacleGenerator
 import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
+import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
@@ -21,7 +22,8 @@ private const val slidingObstacleTransitTimeSeconds = 7.5f
 class SandGrid(
     private val width: Int,
     private val height: Int,
-    private val maxMovingParticles: Int = 1000 // Parameterized limit for moving particles
+    private val maxMovingParticles: Int, // Parameterized limit for moving particles
+    private val scoreHolder: ScoreHolder
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
@@ -160,6 +162,8 @@ class SandGrid(
 
             if (sandHeight >= weightThreshold) {
                 Logger.d("SlidingObstacle", "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
+                // Add score for destroying obstacle
+                scoreHolder.addScore(obstacle.width * obstacle.height)
                 // Convert obstacle to sand particles instead of updating position
                 workingGrid = destroySlidingObstacle(workingGrid, obstacle)
                 continue

@@ -1,7 +1,10 @@
 package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -15,36 +18,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import org.jetbrains.compose.resources.painterResource
-import zenmotescmp.composeapp.generated.resources.background_night
-import zenmotescmp.composeapp.generated.resources.background_daylight
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
 import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.painterResource
+import org.koin.mp.KoinPlatformTools
 import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.background_daylight
+import zenmotescmp.composeapp.generated.resources.background_night
 import zenmotescmp.composeapp.generated.resources.tower
 import zenmotescmp.composeapp.generated.resources.wider_tower
 import kotlin.math.roundToInt
@@ -257,7 +259,8 @@ private fun initializeGridIfNeeded(
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        val newGrid = SandGrid(width = width, height = height)
+        val scoreHolder: ScoreHolder = KoinPlatformTools.defaultContext().get().get<ScoreHolder>()
+        val newGrid = SandGrid(width, height, 1000, scoreHolder)
         newGrid.setImages(images)
         newGrid
     } else {
