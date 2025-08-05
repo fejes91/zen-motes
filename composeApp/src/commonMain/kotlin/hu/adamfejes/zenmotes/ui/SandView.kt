@@ -1,4 +1,4 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -36,6 +36,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import hu.adamfejes.zenmotes.logic.CellType
+import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.ui.theme.ColorScheme
+import hu.adamfejes.zenmotes.ui.theme.Theme
+import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import hu.adamfejes.zenmotes.utils.Logger
+import hu.adamfejes.zenmotes.utils.TimeUtils
 import org.jetbrains.compose.resources.imageResource
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.tower

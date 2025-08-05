@@ -1,4 +1,4 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.ui.window.ComposeUIViewController
 

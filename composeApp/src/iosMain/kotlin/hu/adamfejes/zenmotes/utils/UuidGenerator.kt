@@ -1,3 +1,5 @@
+package hu.adamfejes.zenmotes.utils
+
 import platform.Foundation.NSUUID
 
 actual object UuidGenerator {

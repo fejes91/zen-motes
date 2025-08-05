@@ -1,4 +1,4 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,6 +15,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Color picker selected state + redesign?
     *   Colors are randomly changing. Next one is show on the top in a colorbar and warns about the change
     * Go full screen, immersive mode
+    * Play sounds for: sea, sand, obstacle destruction, score change?
     * Fix obstacle generator to not generate obstacles on each other
     * Settings, shared preferences
     *   Theme

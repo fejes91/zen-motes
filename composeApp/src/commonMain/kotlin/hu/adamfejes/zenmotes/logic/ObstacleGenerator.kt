@@ -1,6 +1,7 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.logic
 
 import androidx.compose.ui.graphics.ImageBitmap
+import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.random.Random
 
 class ObstacleGenerator(
@@ -33,12 +34,12 @@ class ObstacleGenerator(
 
         val obstacleY = (minY..maxY).random()
         val bitmap = images.randomOrNull() ?: return null
-        
+
         // Use bitmap dimensions directly
         val obstacleWidth = bitmap.width
         val obstacleHeight = bitmap.height
 
-        val direction = if (Random.nextBoolean()) 1 else -1
+        val direction = if (Random.Default.nextBoolean()) 1 else -1
 
         return SlidingObstacle(
             x = if (direction == 1) -obstacleWidth.toFloat() else width.toFloat() + obstacleWidth,

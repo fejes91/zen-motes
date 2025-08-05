@@ -1,6 +1,7 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.logic
 
 import androidx.compose.ui.graphics.ImageBitmap
+import hu.adamfejes.zenmotes.utils.UuidGenerator
 
 enum class ColorType {
     OBSTACLE_COLOR_1,

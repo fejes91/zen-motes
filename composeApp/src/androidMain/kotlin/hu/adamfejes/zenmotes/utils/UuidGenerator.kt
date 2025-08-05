@@ -1,3 +1,5 @@
+package hu.adamfejes.zenmotes.utils
+
 import java.util.UUID
 
 actual object UuidGenerator {

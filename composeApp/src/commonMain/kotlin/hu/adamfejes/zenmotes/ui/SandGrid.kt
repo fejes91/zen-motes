@@ -1,6 +1,18 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.ui.graphics.ImageBitmap
+import hu.adamfejes.zenmotes.logic.Cell
+import hu.adamfejes.zenmotes.logic.CellType
+import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.logic.GridState
+import hu.adamfejes.zenmotes.logic.MovingParticle
+import hu.adamfejes.zenmotes.logic.ObstacleGenerator
+import hu.adamfejes.zenmotes.logic.ParticlePhysics
+import hu.adamfejes.zenmotes.logic.ParticlePosition
+import hu.adamfejes.zenmotes.logic.PerformanceData
+import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.utils.Logger
+import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
@@ -32,7 +44,8 @@ class SandGrid(
 
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
-    private val obstacleGenerator = ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
+    private val obstacleGenerator =
+        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
     private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
     
     // Sample bitmap for obstacle shapes

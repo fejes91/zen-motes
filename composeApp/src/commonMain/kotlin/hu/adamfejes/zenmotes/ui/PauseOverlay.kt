@@ -1,4 +1,4 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.ui.theme.Theme
+import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
 @Composable
 fun PauseOverlay(

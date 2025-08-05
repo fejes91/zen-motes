@@ -1,5 +1,7 @@
-package hu.adamfejes.zenmotes
+package hu.adamfejes.zenmotes.ui
 
+import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
@@ -14,11 +16,11 @@ actual fun DrawScope.drawTextLines(
     lineHeight: Float
 ) {
     val canvas = drawContext.canvas.nativeCanvas
-    val paint = android.graphics.Paint().apply {
+    val paint = Paint().apply {
         this.color = color.toArgb()
         this.textSize = textSize
         isAntiAlias = true
-        typeface = android.graphics.Typeface.MONOSPACE
+        typeface = Typeface.MONOSPACE
     }
 
     var yPos = startOffset.y
