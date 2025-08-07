@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -39,7 +38,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.ui.theme.Theme
-import hu.adamfejes.zenmotes.ui.theme.getColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.koin.compose.koinInject
 
@@ -78,8 +76,6 @@ fun SandSimulation(
         }
     }
 
-    val colorScheme = getColorScheme(currentTheme)
-
     CompositionLocalProvider(LocalTheme provides currentTheme) {
         Box(
             modifier = modifier.fillMaxSize()
@@ -101,25 +97,7 @@ fun SandSimulation(
                 )
 
                 // Score display at the top center
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(top = 16.dp),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    Text(
-                        text = "Score: $score",
-                        color = Color.White, // todo
-                        fontSize = 24.sp,
-                        modifier = Modifier
-                            .background(
-                                color = Color.Black, // todo
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                }
+                ScoreDisplay(score = score)
 
                 // Top UI overlay - color picker and reset button
                 LazyRow(
