@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -42,18 +43,21 @@ fun AnimatedScoreLabel(
     val animatedY = remember(scoreEvent.obstacleId) { Animatable(startY.value) }
     val animatedAlpha = remember(scoreEvent.obstacleId) { Animatable(1f) }
 
-    LaunchedEffect(scoreEvent.obstacleId) {
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
         // Start animations in parallel
         val animationDuration = 2000 // 2 seconds
 
         // Launch position animations concurrently
-        launch {
+        scope.launch {
             animatedX.animateTo(
                 targetValue = targetX.value,
                 animationSpec = tween(durationMillis = animationDuration)
             )
         }
-        launch {
+
+        scope.launch {
             animatedY.animateTo(
                 targetValue = targetY.value,
                 animationSpec = tween(durationMillis = animationDuration )

@@ -22,6 +22,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,10 +57,11 @@ fun SandSimulation(
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
 
     // Manage active score events for animation
-    var activeScoreEvents by remember { mutableStateOf<List<ScoreEvent>>(emptyList()) }
+    var activeScoreEvents by remember { mutableStateOf<Set<ScoreEvent>>(emptySet()) }
 
     // Add new score events to the active list
     LaunchedEffect(scoreEvent?.obstacleId) {
+        println("!!!! New score event: ${scoreEvent?.obstacleId}, current active events: ${activeScoreEvents.size}")
         scoreEvent?.let { event ->
             activeScoreEvents = activeScoreEvents + event
         }
@@ -113,14 +115,17 @@ fun SandSimulation(
 
                 // Animated score event labels
                 activeScoreEvents.forEach { event ->
-                    AnimatedScoreLabel(
-                        scoreEvent = event,
-                        modifier = Modifier.fillMaxSize(),
-                        onAnimationComplete = {
-                            activeScoreEvents = activeScoreEvents.toMutableList()
-                                .apply { removeAll { it.obstacleId == event.obstacleId } }
-                        }
-                    )
+                    key(event.obstacleId) {
+                        AnimatedScoreLabel(
+                            scoreEvent = event,
+                            modifier = Modifier.fillMaxSize(),
+                            onAnimationComplete = {
+                                activeScoreEvents =
+                                    activeScoreEvents.filter { it.obstacleId != event.obstacleId }
+                                        .toSet()
+                            }
+                        )
+                    }
                 }
 
                 // Score display at the top center
