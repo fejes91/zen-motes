@@ -38,6 +38,7 @@ import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -58,7 +59,6 @@ import kotlin.time.measureTime
 fun SandView(
     modifier: Modifier = Modifier,
     sandColorType: ColorType = ColorType.OBSTACLE_COLOR_1,
-    cellSize: Float = 6f,
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
@@ -144,7 +144,7 @@ fun SandView(
             val drawStartTime = TimeUtils.nanoTime()
 
             // Initialize grid if needed using actual screen dimensions
-            val gridDimensions = calculateGridDimensions(size, cellSize)
+            val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
             sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, images)
 
             sandGrid?.let { grid ->
@@ -154,7 +154,7 @@ fun SandView(
                     addSandParticles(
                         grid,
                         sandSourceX,
-                        cellSize,
+                        CELL_SIZE,
                         sandColorType,
                         frame,
                         gridDimensions,
@@ -167,7 +167,7 @@ fun SandView(
                 val drawGridStartTime = TimeUtils.nanoTime()
                 drawSandGrid(
                     grid = grid,
-                    cellSize = cellSize,
+                    cellSize = CELL_SIZE,
                     frame = frame,
                     showPerformanceOverlay = showPerformanceOverlay,
                     totalDrawTime = totalDrawTime,

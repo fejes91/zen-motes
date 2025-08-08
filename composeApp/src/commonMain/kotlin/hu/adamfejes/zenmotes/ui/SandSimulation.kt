@@ -111,9 +111,6 @@ fun SandSimulation(
                     decreaseScore = viewModel::decreaseScore
                 )
 
-                // Score display at the top center
-                ScoreDisplay(score = score)
-                
                 // Animated score event labels
                 activeScoreEvents.forEach { event ->
                     AnimatedScoreLabel(
@@ -124,6 +121,9 @@ fun SandSimulation(
                         }
                     )
                 }
+
+                // Score display at the top center
+                ScoreDisplay(score = score)
 
                 // Top UI overlay - color picker and reset button
                 LazyRow(

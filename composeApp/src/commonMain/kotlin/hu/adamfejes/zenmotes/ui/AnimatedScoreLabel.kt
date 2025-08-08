@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.getScreenWidth
 import hu.adamfejes.zenmotes.logic.ScoreEvent
+import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -32,12 +34,11 @@ fun AnimatedScoreLabel(
     val colorScheme = LocalTheme.current.toColorScheme()
 
     // Convert pixel coordinates to dp coordinates
-    val startX = with(density) { scoreEvent.x.toDp() }
-    val startY = with(density) { scoreEvent.y.toDp() }
+    val startX = with(density) { (scoreEvent.x * CELL_SIZE).toDp() }
+    val startY = with(density) { (scoreEvent.y * CELL_SIZE).toDp() }
 
-    // Target position (top center of screen, approximated)
-    val targetX = 0.dp // Center horizontally
-    val targetY = with(density) { 60.toDp() } // Top of screen with some padding
+    val targetX = with(density) { (getScreenWidth() / 2).toDp() }
+    val targetY = with(density) { 180.toDp() } // Top of screen with some padding, matching ScoreDisplay
 
     // Animation state
     val animatedX = remember { Animatable(startX.value) }
@@ -46,7 +47,7 @@ fun AnimatedScoreLabel(
 
     LaunchedEffect(scoreEvent.obstacleId) {
         // Start animations in parallel
-        val animationDuration = 2000 // 2 seconds
+        val animationDuration = 1000 // 2 seconds
 
         // Launch position animations concurrently
         launch {
@@ -58,7 +59,7 @@ fun AnimatedScoreLabel(
         launch {
             animatedY.animateTo(
                 targetValue = targetY.value,
-                animationSpec = tween(durationMillis = animationDuration)
+                animationSpec = tween(durationMillis = animationDuration )
             )
         }
 
@@ -79,7 +80,7 @@ fun AnimatedScoreLabel(
         Text(
             text = if (scoreEvent.score > 0) "+${scoreEvent.score}" else "${scoreEvent.score}",
             color = if (scoreEvent.score > 0) colorScheme.textColor else Color.Red,
-            fontSize = 20.sp,
+            fontSize = 12.sp,
             modifier = Modifier
                 .offset(
                     x = animatedX.value.dp,

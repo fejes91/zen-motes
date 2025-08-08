@@ -6,14 +6,16 @@ import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.logic.getBallparkScore
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class SandSimulationViewModel(
     private val scoreHolder: ScoreHolder
 ) : ViewModel() {
-    
+
     val score: StateFlow<Int> = scoreHolder.getScore() as StateFlow<Int>
 
     val scoreEvent: StateFlow<ScoreEvent?> = scoreHolder.getScoreEvent().stateIn(
@@ -24,16 +26,30 @@ class SandSimulationViewModel(
 
     fun increaseScore(slidingObstacle: SlidingObstacle) {
         viewModelScope.launch {
-            scoreHolder.increaseScore(slidingObstacle)
+            scoreHolder.increaseScore(
+                ScoreEvent(
+                    x = slidingObstacle.x.roundToInt(),
+                    y = slidingObstacle.y,
+                    score = slidingObstacle.getBallparkScore(),
+                    obstacleId = slidingObstacle.id
+                )
+            )
         }
     }
 
     fun decreaseScore(slidingObstacle: SlidingObstacle) {
         viewModelScope.launch {
-            scoreHolder.decreaseScore(slidingObstacle)
+            scoreHolder.decreaseScore(
+                ScoreEvent(
+                    x = slidingObstacle.x.roundToInt(),
+                    y = slidingObstacle.y,
+                    score = (-slidingObstacle.getBallparkScore() / 4f).roundToInt(),
+                    obstacleId = slidingObstacle.id
+                )
+            )
         }
     }
-    
+
     fun resetScore() {
         scoreHolder.resetScore()
     }

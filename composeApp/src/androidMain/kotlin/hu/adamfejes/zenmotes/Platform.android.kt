@@ -1,5 +1,6 @@
 package hu.adamfejes.zenmotes
 
+import android.content.res.Resources
 import android.os.Build
 
 class AndroidPlatform : Platform {
@@ -7,3 +8,7 @@ class AndroidPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
+
+actual fun getScreenWidth(): Int {
+    return Resources.getSystem().displayMetrics.widthPixels
+}

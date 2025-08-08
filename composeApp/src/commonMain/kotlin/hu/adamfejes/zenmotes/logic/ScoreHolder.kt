@@ -16,9 +16,9 @@ interface ScoreHolder {
 
     fun getScoreEvent(): Flow<ScoreEvent>
 
-    suspend fun increaseScore(slidingObstacle: SlidingObstacle)
+    suspend fun increaseScore(scoreEvent: ScoreEvent)
 
-    suspend fun decreaseScore(slidingObstacle: SlidingObstacle)
+    suspend fun decreaseScore(scoreEvent: ScoreEvent)
 
     fun resetScore()
 }
@@ -33,29 +33,15 @@ class ScoreHolderImpl : ScoreHolder {
 
     override fun getScoreEvent(): Flow<ScoreEvent> = _scoreEventFlow.filterNotNull()
 
-    override suspend fun increaseScore(slidingObstacle: SlidingObstacle) = withContext(Dispatchers.Default){
-        _scoreEventFlow.emit(
-            ScoreEvent(
-                x = slidingObstacle.x.roundToInt(),
-                y = slidingObstacle.y,
-                score = slidingObstacle.getBallparkScore(),
-                obstacleId = slidingObstacle.id
-            )
-        )
-        val newScore = _score.addAndGet(slidingObstacle.getBallparkScore())
+    override suspend fun increaseScore(scoreEvent: ScoreEvent) = withContext(Dispatchers.Default){
+        _scoreEventFlow.emit(scoreEvent)
+        val newScore = _score.addAndGet(scoreEvent.score)
         _scoreFlow.value = newScore
     }
     
-    override suspend fun decreaseScore(slidingObstacle: SlidingObstacle) = withContext(Dispatchers.Default) {
-        _scoreEventFlow.emit(
-            ScoreEvent(
-                x = slidingObstacle.x.roundToInt(),
-                y = slidingObstacle.y,
-                score = (-slidingObstacle.getBallparkScore() / 4f).roundToInt(),
-                obstacleId = slidingObstacle.id
-            )
-        )
-        val newScore = _score.addAndGet((-slidingObstacle.getBallparkScore() /4f).roundToInt())
+    override suspend fun decreaseScore(scoreEvent: ScoreEvent) = withContext(Dispatchers.Default) {
+        _scoreEventFlow.emit(scoreEvent)
+        val newScore = _score.addAndGet(scoreEvent.score)
         _scoreFlow.value = newScore
     }
     
