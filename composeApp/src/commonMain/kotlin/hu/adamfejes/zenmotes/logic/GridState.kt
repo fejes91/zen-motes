@@ -20,14 +20,14 @@ class GridState(
 
     fun setCell(x: Int, y: Int, cell: Cell) {
         if (x in 0 until width && y in 0 until height) {
-            grid[y][x] = cell
+            grid.setCell(x, y, cell)
         }
     }
 
     fun updateGrid(newGrid: Array<Array<Cell>>) {
         for (y in 0 until height) {
             for (x in 0 until width) {
-                grid[y][x] = newGrid[y][x]
+                grid.setCell(x, y, newGrid[y][x])
             }
         }
         rebuildActiveCells()
@@ -109,7 +109,7 @@ class GridState(
         // Clear all grid cells
         for (y in 0 until height) {
             for (x in 0 until width) {
-                grid[y][x] = Cell()
+                grid.setCell(x, y, Cell())
             }
         }
 

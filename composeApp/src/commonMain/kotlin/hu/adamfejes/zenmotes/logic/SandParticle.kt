@@ -59,7 +59,7 @@ data class SlidingObstacle(
 data class Cell(
     val type: CellType = CellType.EMPTY,
     val particle: SandParticle? = null,
-    val slidingObstacle: SlidingObstacle? = null
+    val slidingObstacles: List<SlidingObstacle> = emptyList()
 )
 
 data class PerformanceData(
@@ -69,3 +69,9 @@ data class PerformanceData(
     val settledParticles: Int,
     val obstacles: Int
 )
+
+fun Array<Array<Cell>>.setCell(x: Int, y: Int, cell: Cell) {
+    if (x in indices && y in indices) {
+        this[y][x] = cell
+    }
+}

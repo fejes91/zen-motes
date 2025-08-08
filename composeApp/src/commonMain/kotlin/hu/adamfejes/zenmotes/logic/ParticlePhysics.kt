@@ -95,7 +95,7 @@ class ParticlePhysics(
 
         // If we can move down, do it
         if (finalY > y) {
-            newGrid[y][x] = Cell()
+            newGrid.setCell(x, y, Cell())
 
             // If sand buildup is disabled and particle reaches bottom, remove it
             if (finalY >= height - 3) {
@@ -128,7 +128,7 @@ class ParticlePhysics(
             val newX = x + dx
             val newY = y + 1
             if (newX in 0 until width && newY < height && canMoveToPosition(newX, newY, newGrid)) {
-                newGrid[y][x] = Cell()
+                newGrid.setCell(x, y, Cell())
 
                 // If sand buildup is disabled and particle reaches bottom, remove it
                 if (newY >= height - 3) {
@@ -165,7 +165,7 @@ class ParticlePhysics(
                 val newX = x + dx
                 val newY = y + step
                 if (newX in 0 until width && newY < height && canMoveToPosition(newX, newY, newGrid)) {
-                    newGrid[y][x] = Cell()
+                    newGrid.setCell(x, y, Cell())
 
                     // If sand buildup is disabled and particle reaches bottom, remove it
                     if (newY >= height - 3) {
@@ -195,7 +195,7 @@ class ParticlePhysics(
     ): MovementResult {
         // If sand buildup is disabled and particle reaches bottom, remove it
         if (y >= height - 3) {
-            newGrid[y][x] = Cell() // Remove particle
+            newGrid.setCell(x, y, Cell())// Remove particle
             return MovementResult(true, null)
         }
 
@@ -212,7 +212,7 @@ class ParticlePhysics(
             obstacleId = obstacleId,
             unsettlingUntil = if (canSettle) 0L else particle.unsettlingUntil
         )
-        newGrid[y][x] = Cell(CellType.SAND, stoppedParticle)
+        newGrid.setCell(x, y, Cell(CellType.SAND, stoppedParticle))
 
         return MovementResult(
             moved = false,
@@ -261,7 +261,7 @@ class ParticlePhysics(
 
             // If there's a sliding obstacle below, use its ID
             if (cellBelow.type == CellType.SLIDING_OBSTACLE) {
-                return cellBelow.slidingObstacle?.id
+                return cellBelow.slidingObstacles.firstOrNull()?.id
             }
 
             // If there's a sand particle below, inherit its obstacle ID
@@ -273,7 +273,7 @@ class ParticlePhysics(
         // Check current cell if it's a sliding obstacle
         val currentCell = grid[y][x]
         if (currentCell.type == CellType.SLIDING_OBSTACLE) {
-            return currentCell.slidingObstacle?.id
+            return currentCell.slidingObstacles.firstOrNull()?.id
         }
 
         // No obstacle found

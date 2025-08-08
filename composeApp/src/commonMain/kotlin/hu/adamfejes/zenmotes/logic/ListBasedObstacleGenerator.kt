@@ -2,6 +2,7 @@ package hu.adamfejes.zenmotes.logic
 
 import androidx.compose.ui.graphics.ImageBitmap
 import hu.adamfejes.zenmotes.utils.TimeUtils
+import hu.adamfejes.zenmotes.utils.UuidGenerator
 
 class ListBasedObstacleGenerator(
     private val width: Int,
@@ -14,6 +15,7 @@ class ListBasedObstacleGenerator(
     private var currentObstacleIndex = 0
 
     data class ObstacleDefinition(
+        val id: String = UuidGenerator.randomUUID(),
         val y: Int,
         val direction: Int, // 1 for left to right, -1 for right to left
         val colorType: ColorType
@@ -21,12 +23,14 @@ class ListBasedObstacleGenerator(
 
     private fun getObstacleList(): List<ObstacleDefinition> {
         return listOf(
-            ListBasedObstacleGenerator.ObstacleDefinition(
+            ObstacleDefinition(
+                id = "red",
                 y = height / 3,
                 direction = 1, // left to right
                 colorType = ColorType.OBSTACLE_COLOR_1,
             ),
-            ListBasedObstacleGenerator.ObstacleDefinition(
+            ObstacleDefinition(
+                id = "blue",
                 y = height / 3 - 20,
                 direction = -1, // right to left
                 colorType = ColorType.OBSTACLE_COLOR_2,
@@ -57,6 +61,7 @@ class ListBasedObstacleGenerator(
         val direction = obstacleDefinition.direction
 
         return SlidingObstacle(
+            id = obstacleDefinition.id,
             x = if (direction == 1) -obstacleWidth.toFloat() else width.toFloat() + obstacleWidth,
             y = obstacleDefinition.y,
             targetX = if (direction == 1) width.toFloat() + obstacleWidth else -obstacleWidth.toFloat(),
