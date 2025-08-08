@@ -61,7 +61,6 @@ fun SandSimulation(
 
     // Add new score events to the active list
     LaunchedEffect(scoreEvent?.obstacleId) {
-        println("!!!! New score event: ${scoreEvent?.obstacleId}, current active events: ${activeScoreEvents.size}")
         scoreEvent?.let { event ->
             activeScoreEvents = activeScoreEvents + event
         }

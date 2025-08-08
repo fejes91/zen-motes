@@ -43,21 +43,19 @@ fun AnimatedScoreLabel(
     val animatedY = remember(scoreEvent.obstacleId) { Animatable(startY.value) }
     val animatedAlpha = remember(scoreEvent.obstacleId) { Animatable(1f) }
 
-    val scope = rememberCoroutineScope()
-
     LaunchedEffect(Unit) {
         // Start animations in parallel
         val animationDuration = 2000 // 2 seconds
 
         // Launch position animations concurrently
-        scope.launch {
+        launch {
             animatedX.animateTo(
                 targetValue = targetX.value,
                 animationSpec = tween(durationMillis = animationDuration)
             )
         }
 
-        scope.launch {
+        launch {
             animatedY.animateTo(
                 targetValue = targetY.value,
                 animationSpec = tween(durationMillis = animationDuration )
