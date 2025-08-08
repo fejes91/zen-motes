@@ -7,6 +7,9 @@ import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.GridState
 import hu.adamfejes.zenmotes.logic.MovingParticle
 import hu.adamfejes.zenmotes.logic.ObstacleGenerator
+import hu.adamfejes.zenmotes.logic.ListBasedObstacleGenerator
+import hu.adamfejes.zenmotes.logic.IObstacleGenerator
+import hu.adamfejes.zenmotes.logic.ObstacleAnimator
 import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
@@ -46,8 +49,11 @@ class SandGrid(
 
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
-    private val obstacleGenerator =
-        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
+    private val obstacleGenerator = ListBasedObstacleGenerator(
+        width = width,
+        height = height
+    )
+    private val obstacleAnimator = ObstacleAnimator(width)
     private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
     
     // Sample bitmap for obstacle shapes
@@ -172,7 +178,7 @@ class SandGrid(
             // Update obstacle position with adjusted time (excluding paused time)
             val posUpdateStartTime = TimeUtils.nanoTime()
             val adjustedTime = frameTime - totalPausedTime
-            val updatedObstacle = obstacleGenerator.updateObstaclePosition(obstacle, adjustedTime)
+            val updatedObstacle = obstacleAnimator.updateObstaclePosition(obstacle, adjustedTime)
             positionUpdateTime += (TimeUtils.nanoTime() - posUpdateStartTime)
 
             // Move settled particles to new position to follow the obstacle
@@ -181,7 +187,7 @@ class SandGrid(
             particleMoveTime += (TimeUtils.nanoTime() - particleMoveStartTime)
 
             // Check if obstacle has moved off screen
-            if (!obstacleGenerator.isObstacleOffScreen(updatedObstacle)) {
+            if (!obstacleAnimator.isObstacleOffScreen(updatedObstacle)) {
                 updatedObstacles.add(updatedObstacle)
                 // Place updated obstacle in working grid
                 val placementStartTime = TimeUtils.nanoTime()
@@ -537,7 +543,7 @@ class SandGrid(
         }
 
         if (particlesToReactivate.isNotEmpty()) {
-            Logger.d("SandCleanup", "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles")
+            Logger.d("SandCleanup", "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles at y=${particlesToReactivate.map { it.y }}")
 
             for (particlePos in particlesToReactivate) {
                 reactivateParticleColumn(particlePos.x, particlePos.y, grid)

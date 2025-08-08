@@ -9,7 +9,7 @@ class ObstacleGenerator(
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
     private val slidingObstacleTransitTimeSeconds: Float
-) {
+) : IObstacleGenerator {
     private val slidingObstacleInterval = 500L // 3 seconds between obstacles
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
@@ -21,7 +21,7 @@ class ObstacleGenerator(
         return TimeUtils.currentTimeMillis() - lastSlidingObstacleTime >= slidingObstacleInterval
     }
 
-    fun generateSlidingObstacle(frameTime: Long, images: List<ImageBitmap>): SlidingObstacle? {
+    override fun generateSlidingObstacle(frameTime: Long, images: List<ImageBitmap>): SlidingObstacle? {
         if (!shouldGenerateObstacle()) return null
 
         lastSlidingObstacleTime = TimeUtils.currentTimeMillis()
@@ -54,26 +54,8 @@ class ObstacleGenerator(
         )
     }
 
-    fun updateObstaclePosition(obstacle: SlidingObstacle, currentTime: Long): SlidingObstacle {
-        // Calculate time delta in seconds
-        val deltaTimeMs = currentTime - obstacle.lastUpdateTime
-        val deltaTimeSeconds = deltaTimeMs / 1000f
 
-        // Calculate movement based on speed (pixels per second) and time delta
-        val movement = obstacle.speed * deltaTimeSeconds
-
-        // Keep float position for smooth movement, rounding only happens during grid placement
-        return obstacle.copy(
-            x = obstacle.x + movement,
-            lastUpdateTime = currentTime
-        )
-    }
-
-    fun isObstacleOffScreen(obstacle: SlidingObstacle): Boolean {
-        return obstacle.x > width + obstacle.width || obstacle.x < -obstacle.width
-    }
-
-    fun reset() {
+    override fun reset() {
         lastSlidingObstacleTime = 0L
     }
 }
