@@ -120,3 +120,9 @@ class GridState(
         activeCells.clear()
     }
 }
+
+fun Array<Array<Cell>>.setCell(x: Int, y: Int, cell: Cell) {
+    if (x in indices && y in indices) {
+        this[y][x] = cell
+    }
+}

@@ -33,9 +33,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.ScoreHolder
+import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -60,7 +62,9 @@ fun SandView(
     sandGenerationAmount: Int = 8, // Higher value for performance testing
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
-    resetTrigger: Int
+    resetTrigger: Int,
+    increaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
+    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
 
@@ -203,7 +207,7 @@ fun SandView(
 
     SandAnimationLoop(isPaused = isPaused) { frameTime ->
         frame = frameTime
-        sandGrid?.update(frameTime)
+        sandGrid?.update(frameTime, increaseScore, decreaseScore)
     }
 }
 

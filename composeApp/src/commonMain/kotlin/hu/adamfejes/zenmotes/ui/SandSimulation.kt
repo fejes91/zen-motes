@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import hu.adamfejes.zenmotes.logic.ScoreEvent
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -51,6 +53,17 @@ fun SandSimulation(
 ) {
     val viewModel: SandSimulationViewModel = koinInject()
     val score by viewModel.score.collectAsState(0)
+    val scoreEvent by viewModel.scoreEvent.collectAsState(null)
+    
+    // Manage active score events for animation
+    val activeScoreEvents = remember { mutableListOf<ScoreEvent>() }
+    
+    // Add new score events to the active list
+    LaunchedEffect(scoreEvent) {
+        scoreEvent?.let { event ->
+            activeScoreEvents.add(event)
+        }
+    }
     
     // TODO store it in shared preferences, after converting to multi-platform
     var currentTheme by remember { mutableStateOf(Theme.DARK) }
@@ -93,11 +106,24 @@ fun SandSimulation(
                     sandGenerationAmount = 60,
                     showPerformanceOverlay = true, // Toggle performance overlay for testing
                     isPaused = isPaused,
-                    resetTrigger = resetTrigger
+                    resetTrigger = resetTrigger,
+                    increaseScore = viewModel::increaseScore,
+                    decreaseScore = viewModel::decreaseScore
                 )
 
                 // Score display at the top center
                 ScoreDisplay(score = score)
+                
+                // Animated score event labels
+                activeScoreEvents.forEach { event ->
+                    AnimatedScoreLabel(
+                        scoreEvent = event,
+                        modifier = Modifier.fillMaxSize(),
+                        onAnimationComplete = {
+                            activeScoreEvents.removeAll { it.obstacleId == event.obstacleId }
+                        }
+                    )
+                }
 
                 // Top UI overlay - color picker and reset button
                 LazyRow(

@@ -70,8 +70,13 @@ data class PerformanceData(
     val obstacles: Int
 )
 
-fun Array<Array<Cell>>.setCell(x: Int, y: Int, cell: Cell) {
-    if (x in indices && y in indices) {
-        this[y][x] = cell
+fun SlidingObstacle.getArea() = width * height
+
+fun SlidingObstacle.getBallparkScore(): Int {
+    return getArea().run {
+        when {
+            this < 100 -> (this / 10) * 10
+            else -> (this / 100) * 100
+        }
     }
 }

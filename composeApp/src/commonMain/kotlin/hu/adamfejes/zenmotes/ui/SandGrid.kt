@@ -13,6 +13,7 @@ import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.logic.setCell
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
@@ -95,7 +96,11 @@ class SandGrid(
         }
     }
 
-    fun update(frameTime: Long) {
+    fun update(
+        frameTime: Long,
+        increaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
+        decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit
+    ) {
         // 1. Grid creation
         var initialGrid: Array<Array<Cell>>
         val gridCreateTime = measureTime {
@@ -105,7 +110,8 @@ class SandGrid(
         // 2. Obstacle updates  
         var gridAfterObstacles: Array<Array<Cell>>
         val obstacleTime = measureTime {
-            gridAfterObstacles = updateSlidingObstacles(initialGrid, frameTime)
+            gridAfterObstacles =
+                updateSlidingObstacles(initialGrid, frameTime, increaseScore, decreaseScore)
         }.inWholeMilliseconds
 
         // 3. Particle physics
@@ -150,7 +156,9 @@ class SandGrid(
 
     private fun updateSlidingObstacles(
         grid: Array<Array<Cell>>,
-        frameTime: Long
+        frameTime: Long,
+        increaseScore: (SlidingObstacle) -> Unit,
+        decreaseScore: (SlidingObstacle) -> Unit
     ): Array<Array<Cell>> {
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
@@ -185,7 +193,7 @@ class SandGrid(
             // Check if obstacle should be destroyed by sand weight
             val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
             val weightThreshold =
-                obstacle.width * obstacle.height / 2f // Threshold based on obstacle area
+                obstacle.width * obstacle.height / 6f //2f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
                 Logger.d(
@@ -193,7 +201,7 @@ class SandGrid(
                     "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold"
                 )
                 // Add score for destroying obstacle
-                scoreHolder.increaseScore(obstacle.getBallparkScore())
+                increaseScore(obstacle)
                 // Convert obstacle to sand particles instead of updating position
                 workingGrid = destroySlidingObstacle(workingGrid, obstacle)
                 continue
@@ -223,7 +231,7 @@ class SandGrid(
                     "🚫 Obstacle off screen, removing: ${updatedObstacle.id} at x=${updatedObstacle.x}, y=${updatedObstacle.y}"
                 )
                 // Add score for obstacle removal
-                scoreHolder.decreaseScore((obstacle.getBallparkScore() / 4f).roundToInt())
+                decreaseScore(obstacle)
             }
         }
 
@@ -707,17 +715,6 @@ class SandGrid(
             CellType.OBSTACLE -> true
             CellType.SLIDING_OBSTACLE -> true
             CellType.EMPTY -> false
-        }
-    }
-}
-
-
-private fun SlidingObstacle.getArea() = width * height
-private fun SlidingObstacle.getBallparkScore(): Int {
-    return getArea().run {
-        when {
-            this < 100 -> (this / 10) * 10
-            else -> (this / 100) * 100
         }
     }
 }
