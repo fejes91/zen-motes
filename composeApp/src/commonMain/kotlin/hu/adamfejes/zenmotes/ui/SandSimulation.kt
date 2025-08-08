@@ -54,17 +54,17 @@ fun SandSimulation(
     val viewModel: SandSimulationViewModel = koinInject()
     val score by viewModel.score.collectAsState(0)
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
-    
+
     // Manage active score events for animation
-    val activeScoreEvents = remember { mutableListOf<ScoreEvent>() }
-    
+    var activeScoreEvents by remember { mutableStateOf<List<ScoreEvent>>(emptyList()) }
+
     // Add new score events to the active list
-    LaunchedEffect(scoreEvent) {
+    LaunchedEffect(scoreEvent?.obstacleId) {
         scoreEvent?.let { event ->
-            activeScoreEvents.add(event)
+            activeScoreEvents = activeScoreEvents + event
         }
     }
-    
+
     // TODO store it in shared preferences, after converting to multi-platform
     var currentTheme by remember { mutableStateOf(Theme.DARK) }
     var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
@@ -117,7 +117,8 @@ fun SandSimulation(
                         scoreEvent = event,
                         modifier = Modifier.fillMaxSize(),
                         onAnimationComplete = {
-                            activeScoreEvents.removeAll { it.obstacleId == event.obstacleId }
+                            activeScoreEvents = activeScoreEvents.toMutableList()
+                                .apply { removeAll { it.obstacleId == event.obstacleId } }
                         }
                     )
                 }
@@ -186,7 +187,7 @@ private fun ColorButton(
                 if (isSelected) {
                     Modifier.border(
                         width = 6.dp,
-                        color = if(theme == Theme.DARK) {
+                        color = if (theme == Theme.DARK) {
                             color.lighten(0.5f)
                         } else {
                             color.darken(0.5f)

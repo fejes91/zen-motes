@@ -2,11 +2,8 @@ package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,13 +38,13 @@ fun AnimatedScoreLabel(
     val targetY = with(density) { 180.toDp() } // Top of screen with some padding, matching ScoreDisplay
 
     // Animation state
-    val animatedX = remember { Animatable(startX.value) }
-    val animatedY = remember { Animatable(startY.value) }
-    val animatedAlpha = remember { Animatable(1f) }
+    val animatedX = remember(scoreEvent.obstacleId) { Animatable(startX.value) }
+    val animatedY = remember(scoreEvent.obstacleId) { Animatable(startY.value) }
+    val animatedAlpha = remember(scoreEvent.obstacleId) { Animatable(1f) }
 
     LaunchedEffect(scoreEvent.obstacleId) {
         // Start animations in parallel
-        val animationDuration = 1000 // 2 seconds
+        val animationDuration = 2000 // 2 seconds
 
         // Launch position animations concurrently
         launch {
@@ -87,15 +84,6 @@ fun AnimatedScoreLabel(
                     y = animatedY.value.dp
                 )
                 .alpha(animatedAlpha.value)
-                .background(
-                    color = if (scoreEvent.score > 0) {
-                        colorScheme.positiveBackground.copy(alpha = 0.8f)
-                    } else {
-                        colorScheme.negativeBackground.copy(alpha = 0.8f)
-                    },
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }
