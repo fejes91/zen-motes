@@ -91,7 +91,7 @@ fun SandSimulation(
                     modifier = Modifier.fillMaxSize(),
                     sandColorType = selectedColor,
                     sandGenerationAmount = 60,
-                    showPerformanceOverlay = false, // Toggle performance overlay for testing
+                    showPerformanceOverlay = true, // Toggle performance overlay for testing
                     isPaused = isPaused,
                     resetTrigger = resetTrigger
                 )

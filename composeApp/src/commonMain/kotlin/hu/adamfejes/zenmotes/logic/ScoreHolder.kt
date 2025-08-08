@@ -8,7 +8,7 @@ import kotlinx.atomicfu.atomic
 interface ScoreHolder {
     fun getScore(): Flow<Int>
 
-    fun addScore(score: Int)
+    fun increaseScore(score: Int)
 
     fun decreaseScore(score: Int)
 
@@ -21,7 +21,7 @@ class ScoreHolderImpl : ScoreHolder {
     
     override fun getScore(): Flow<Int> = _scoreFlow.asStateFlow()
     
-    override fun addScore(score: Int) {
+    override fun increaseScore(score: Int) {
         val newScore = _score.addAndGet(score)
         _scoreFlow.value = newScore
     }

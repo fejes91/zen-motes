@@ -10,7 +10,7 @@ class ObstacleGenerator(
     private val nonObstacleZoneHeight: Int,
     private val slidingObstacleTransitTimeSeconds: Float
 ) : IObstacleGenerator {
-    private val slidingObstacleInterval = 500L // 3 seconds between obstacles
+    private val slidingObstacleInterval = 2500L // 3 seconds between obstacles
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
 

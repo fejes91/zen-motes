@@ -44,6 +44,10 @@ object ZenColors {
         // Theme switch colors
         internal val themeSwitchBackground = Color(0xFFF0F0F0) // Light gray background
         internal val themeSwitchText = Color(0xFF6B6B6B) // Soft gray text
+
+        internal val positiveBackground = Color(0xFFE8F8E8) // Light green pastel for positive actions
+
+        internal val negativeBackground = Color(0xFFFFE8E8) // Light pink pastel for negative actions
     }
     
     object Dark {
@@ -86,6 +90,10 @@ object ZenColors {
         // Theme switch colors - dark theme
         internal val themeSwitchBackground = Color(0xFF3A3A3A) // Dark gray background
         internal val themeSwitchText = Color(0xFFB0B0B0) // Light gray text
+
+        internal val positiveBackground = Color(0xFF1A2D1A) // Dark green pastel for positive actions
+
+        internal val negativeBackground = Color(0xFF2D1A1A) // Dark pink pastel for negative actions
     }
 }
 
@@ -111,8 +119,10 @@ data class ColorScheme(
     val primaryButtonText: Color,
     val secondaryButtonBackground: Color,
     val secondaryButtonText: Color,
-    val themeSwitchBackground: Color,
-    val themeSwitchText: Color
+    val textBackground: Color,
+    val textColor: Color,
+    val positiveBackground: Color,
+    val negativeBackground: Color
 )
 
 fun getColorScheme(theme: Theme): ColorScheme {
@@ -130,8 +140,10 @@ fun getColorScheme(theme: Theme): ColorScheme {
             primaryButtonText = ZenColors.Light.primaryButtonText,
             secondaryButtonBackground = ZenColors.Light.secondaryButtonBackground,
             secondaryButtonText = ZenColors.Light.secondaryButtonText,
-            themeSwitchBackground = ZenColors.Light.themeSwitchBackground,
-            themeSwitchText = ZenColors.Light.themeSwitchText
+            textBackground = ZenColors.Light.themeSwitchBackground,
+            textColor = ZenColors.Light.themeSwitchText,
+            positiveBackground = ZenColors.Light.positiveBackground,
+            negativeBackground = ZenColors.Light.negativeBackground
         )
         Theme.DARK -> ColorScheme(
             background = ZenColors.Dark.background,
@@ -146,8 +158,10 @@ fun getColorScheme(theme: Theme): ColorScheme {
             primaryButtonText = ZenColors.Dark.primaryButtonText,
             secondaryButtonBackground = ZenColors.Dark.secondaryButtonBackground,
             secondaryButtonText = ZenColors.Dark.secondaryButtonText,
-            themeSwitchBackground = ZenColors.Dark.themeSwitchBackground,
-            themeSwitchText = ZenColors.Dark.themeSwitchText
+            textBackground = ZenColors.Dark.themeSwitchBackground,
+            textColor = ZenColors.Dark.themeSwitchText,
+            positiveBackground = ZenColors.Dark.positiveBackground,
+            negativeBackground = ZenColors.Dark.negativeBackground
         )
     }
 }

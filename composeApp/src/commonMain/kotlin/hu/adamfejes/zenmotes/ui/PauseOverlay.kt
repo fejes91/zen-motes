@@ -107,7 +107,7 @@ fun PauseOverlay(
                         text = "Light",
                         fontSize = if (currentTheme == Theme.LIGHT) 16.sp else 14.sp,
                         fontWeight = if (currentTheme == Theme.LIGHT) FontWeight.SemiBold else FontWeight.Normal,
-                        color = colorScheme.themeSwitchText,
+                        color = colorScheme.textColor,
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     Switch(
@@ -126,7 +126,7 @@ fun PauseOverlay(
                         text = "Dark",
                         fontSize = if (currentTheme == Theme.DARK) 16.sp else 14.sp,
                         fontWeight = if (currentTheme == Theme.DARK) FontWeight.SemiBold else FontWeight.Normal,
-                        color = colorScheme.themeSwitchText,
+                        color = colorScheme.textColor,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }

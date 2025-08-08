@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -41,7 +42,8 @@ fun ScoreDisplay(
     
     // Update the displayed score with the animated value
     currentAnimatedScore = scoreAnimatable.value
-    
+
+    val colorScheme = LocalTheme.current.toColorScheme()
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -51,11 +53,15 @@ fun ScoreDisplay(
     ) {
         Text(
             text = "Score: ${currentAnimatedScore.roundToInt()}",
-            color = Color.White,
+            color = colorScheme.textColor,
             fontSize = 24.sp,
             modifier = Modifier
                 .background(
-                    color = Color.Black,
+                    color = if(currentAnimatedScore >= 0) {
+                        colorScheme.positiveBackground
+                    } else {
+                        colorScheme.negativeBackground
+                    },
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 8.dp)

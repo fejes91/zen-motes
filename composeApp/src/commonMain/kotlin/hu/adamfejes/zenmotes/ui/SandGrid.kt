@@ -6,7 +6,6 @@ import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.GridState
 import hu.adamfejes.zenmotes.logic.MovingParticle
-import hu.adamfejes.zenmotes.logic.ListBasedObstacleGenerator
 import hu.adamfejes.zenmotes.logic.ObstacleAnimator
 import hu.adamfejes.zenmotes.logic.ObstacleGenerator
 import hu.adamfejes.zenmotes.logic.ParticlePhysics
@@ -49,7 +48,9 @@ class SandGrid(
 
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
-    private val obstacleGenerator = ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
+    private val obstacleGenerator =
+        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
+
     //ListBasedObstacleGenerator(width = width, height = height)
     private val obstacleAnimator = ObstacleAnimator(width)
     private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
@@ -65,8 +66,17 @@ class SandGrid(
 
     fun setCell(x: Int, y: Int, cell: Cell) = gridState.setCell(x, y, cell)
 
-    fun addSand(x: Int, y: Int, colorType: ColorType, currentTime: Long = TimeUtils.currentTimeMillis()) {
-        if (x in 0 until width && y in 0 until height && gridState.getCell(x, y)?.type == CellType.EMPTY) {
+    fun addSand(
+        x: Int,
+        y: Int,
+        colorType: ColorType,
+        currentTime: Long = TimeUtils.currentTimeMillis()
+    ) {
+        if (x in 0 until width && y in 0 until height && gridState.getCell(
+                x,
+                y
+            )?.type == CellType.EMPTY
+        ) {
             val particle = particlePhysics.createSandParticle(colorType, currentTime)
             setCell(x, y, Cell(CellType.SAND, particle))
             gridState.addMovingParticle(MovingParticle(x, y, particle))
@@ -128,17 +138,29 @@ class SandGrid(
             lastUpdateDuration = totalTime
         }
 
-        Logger.d("SandPerf", "BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms")
-        Logger.d("SandPerf", "TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}")
+        Logger.d(
+            "SandPerf",
+            "BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms"
+        )
+        Logger.d(
+            "SandPerf",
+            "TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}"
+        )
     }
 
-    private fun updateSlidingObstacles(grid: Array<Array<Cell>>, frameTime: Long): Array<Array<Cell>> {
+    private fun updateSlidingObstacles(
+        grid: Array<Array<Cell>>,
+        frameTime: Long
+    ): Array<Array<Cell>> {
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTime {
             obstacleGenerator.generateSlidingObstacle(adjustedTime, images)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
-                Logger.d("SlidingObstacle", "🎯 Generated sliding obstacle: ${newObstacle.width}x${newObstacle.height} at y=${newObstacle.y}")
+                Logger.d(
+                    "SlidingObstacle",
+                    "🎯 Generated sliding obstacle: ${newObstacle.width}x${newObstacle.height} at y=${newObstacle.y}"
+                )
             }
         }.inWholeMilliseconds
 
@@ -157,17 +179,21 @@ class SandGrid(
         for (obstacle in currentObstacles) {
             // Clear old obstacle position from working grid
             val clearStartTime = TimeUtils.nanoTime()
-            workingGrid = clearSlidingObstacleFromGrid(workingGrid, obstacle, frameTime)
+            workingGrid = clearSlidingObstacleFromGrid(workingGrid, obstacle)
             clearTime += (TimeUtils.nanoTime() - clearStartTime)
 
             // Check if obstacle should be destroyed by sand weight
             val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
-            val weightThreshold = obstacle.width * obstacle.height / 2f // Threshold based on obstacle area
+            val weightThreshold =
+                obstacle.width * obstacle.height / 2f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
-                Logger.d("SlidingObstacle", "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold")
+                Logger.d(
+                    "SlidingObstacle",
+                    "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold"
+                )
                 // Add score for destroying obstacle
-                scoreHolder.addScore(obstacle.width * obstacle.height)
+                scoreHolder.increaseScore(obstacle.getBallparkScore())
                 // Convert obstacle to sand particles instead of updating position
                 workingGrid = destroySlidingObstacle(workingGrid, obstacle)
                 continue
@@ -191,6 +217,13 @@ class SandGrid(
                 val placementStartTime = TimeUtils.nanoTime()
                 workingGrid = placeSlidingObstacleInGrid(workingGrid, updatedObstacle)
                 gridPlacementTime += (TimeUtils.nanoTime() - placementStartTime)
+            } else {
+                Logger.d(
+                    "SlidingObstacle",
+                    "🚫 Obstacle off screen, removing: ${updatedObstacle.id} at x=${updatedObstacle.x}, y=${updatedObstacle.y}"
+                )
+                // Add score for obstacle removal
+                scoreHolder.decreaseScore((obstacle.getBallparkScore() / 4f).roundToInt())
             }
         }
 
@@ -202,13 +235,19 @@ class SandGrid(
         val particleMoveTimeMs = particleMoveTime / 1_000_000.0
         val gridPlacementTimeMs = gridPlacementTime / 1_000_000.0
 
-        Logger.d("ObstaclePerf", "SLIDING: Gen=${generationTime}ms | Clear=${clearTimeMs}ms | PosUpdate=${positionUpdateTimeMs}ms | ParticleMove=${particleMoveTimeMs}ms | Placement=${gridPlacementTimeMs}ms")
+        Logger.d(
+            "ObstaclePerf",
+            "SLIDING: Gen=${generationTime}ms | Clear=${clearTimeMs}ms | PosUpdate=${positionUpdateTimeMs}ms | ParticleMove=${particleMoveTimeMs}ms | Placement=${gridPlacementTimeMs}ms"
+        )
         Logger.d("SlidingObstacle", "🚀 Active sliding obstacles: ${updatedObstacles.size}")
 
         return workingGrid
     }
 
-    private fun processMovingParticles(grid: Array<Array<Cell>>, frameTime: Long): Array<Array<Cell>> {
+    private fun processMovingParticles(
+        grid: Array<Array<Cell>>,
+        frameTime: Long
+    ): Array<Array<Cell>> {
         val physicsStartTime = TimeUtils.nanoTime()
         val newMovingParticles = mutableListOf<MovingParticle>()
 
@@ -269,7 +308,10 @@ class SandGrid(
             }
 
             val cleanupTime = (TimeUtils.nanoTime() - cleanupStartTime) / 1_000_000.0
-            Logger.d("ParticleLimit", "⚡ Removed ${particlesToRemove.size} excess particles (${newMovingParticles.size} → $maxMovingParticles) in ${cleanupTime}ms")
+            Logger.d(
+                "ParticleLimit",
+                "⚡ Removed ${particlesToRemove.size} excess particles (${newMovingParticles.size} → $maxMovingParticles) in ${cleanupTime}ms"
+            )
 
             shuffledMovingParticles.take(maxMovingParticles)
         } else {
@@ -280,7 +322,10 @@ class SandGrid(
         gridState.setMovingParticles(limitedParticles)
 
         val physicsTime = (TimeUtils.nanoTime() - physicsStartTime) / 1_000_000.0
-        Logger.d("SandPerf", "Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount")
+        Logger.d(
+            "SandPerf",
+            "Shuffle: ${shuffleTime}ms, Movement: ${movementTime}ms, Collision: ${collisionTime}ms, Total Physics: ${physicsTime}ms, Particles: $particleCount"
+        )
 
         return grid
     }
@@ -320,21 +365,31 @@ class SandGrid(
 
     // Helper functions for functional grid manipulation
 
-    private fun clearSlidingObstacleFromGrid(grid: Array<Array<Cell>>, obstacle: SlidingObstacle, frameTime: Long): Array<Array<Cell>> {
+    private fun clearSlidingObstacleFromGrid(
+        grid: Array<Array<Cell>>,
+        obstacle: SlidingObstacle
+    ): Array<Array<Cell>> {
         val startTime = TimeUtils.nanoTime()
         val centerX = obstacle.x.toInt()
         val centerY = obstacle.y
         var cellsCleared = 0
 
-        for (dy in -obstacle.height/2..obstacle.height/2) {
-            for (dx in -obstacle.width/2..obstacle.width/2) {
+        for (dy in -obstacle.height / 2..obstacle.height / 2) {
+            for (dx in -obstacle.width / 2..obstacle.width / 2) {
                 val x = centerX + dx
                 val y = centerY + dy
                 if (x in 0 until this.width && y in 0 until this.height) {
                     val cell = grid[y][x]
                     if (cell.type == CellType.SLIDING_OBSTACLE) {
-                        if(cell.slidingObstacles.size > 1) {
-                            grid.setCell(x, y, Cell(CellType.SLIDING_OBSTACLE, null, cell.slidingObstacles.filter { it.id != obstacle.id }))
+                        if (cell.slidingObstacles.size > 1) {
+                            grid.setCell(
+                                x,
+                                y,
+                                Cell(
+                                    CellType.SLIDING_OBSTACLE,
+                                    null,
+                                    cell.slidingObstacles.filter { it.id != obstacle.id })
+                            )
                         } else {
                             grid.setCell(x, y, Cell(CellType.EMPTY))
                         }
@@ -345,32 +400,41 @@ class SandGrid(
         }
 
         val elapsedMs = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
-        Logger.d("GridPerf", "CLEAR: ${elapsedMs}ms for ${cellsCleared} cells (${obstacle.width}x${obstacle.height})")
+        Logger.d(
+            "GridPerf",
+            "CLEAR: ${elapsedMs}ms for ${cellsCleared} cells (${obstacle.width}x${obstacle.height})"
+        )
 
         return grid
     }
 
-    private fun placeSlidingObstacleInGrid(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Array<Array<Cell>> {
+    private fun placeSlidingObstacleInGrid(
+        grid: Array<Array<Cell>>,
+        obstacle: SlidingObstacle
+    ): Array<Array<Cell>> {
         val startTime = TimeUtils.nanoTime()
         val centerX = obstacle.x.toInt()
         val centerY = obstacle.y
         var cellsPlaced = 0
 
-        for (dy in -obstacle.height/2..obstacle.height/2) {
-            for (dx in -obstacle.width/2..obstacle.width/2) {
+        for (dy in -obstacle.height / 2..obstacle.height / 2) {
+            for (dx in -obstacle.width / 2..obstacle.width / 2) {
                 val x = centerX + dx
                 val y = centerY + dy
                 if (x in 0 until this.width && y in 0 until this.height) {
                     if (grid[y][x].type == CellType.EMPTY) {
                         grid.setCell(x, y, Cell(CellType.SLIDING_OBSTACLE, null, listOf(obstacle)))
                         cellsPlaced++
-                    }
-                    else if (grid[y][x].type == CellType.SLIDING_OBSTACLE) {
+                    } else if (grid[y][x].type == CellType.SLIDING_OBSTACLE) {
                         // Add to existing sliding obstacles
                         val existingObstacles = grid[y][x].slidingObstacles.toMutableList()
                         if (existingObstacles.none { it.id == obstacle.id }) {
                             existingObstacles.add(obstacle)
-                            grid.setCell(x, y, Cell(CellType.SLIDING_OBSTACLE, null, existingObstacles))
+                            grid.setCell(
+                                x,
+                                y,
+                                Cell(CellType.SLIDING_OBSTACLE, null, existingObstacles)
+                            )
                             cellsPlaced++
                         }
                     }
@@ -379,13 +443,20 @@ class SandGrid(
         }
 
         val elapsedMs = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
-        Logger.d("GridPerf", "PLACE: ${elapsedMs}ms for ${cellsPlaced} cells (${obstacle.width}x${obstacle.height})")
+        Logger.d(
+            "GridPerf",
+            "PLACE: ${elapsedMs}ms for ${cellsPlaced} cells (${obstacle.width}x${obstacle.height})"
+        )
 
 
         return grid
     }
 
-    private fun updateSettledParticles(grid: Array<Array<Cell>>, obstacle: SlidingObstacle, updatedObstacle: SlidingObstacle): Array<Array<Cell>> {
+    private fun updateSettledParticles(
+        grid: Array<Array<Cell>>,
+        obstacle: SlidingObstacle,
+        updatedObstacle: SlidingObstacle
+    ): Array<Array<Cell>> {
         // Calculate the delta (movement difference) between old and new obstacle positions
         // Round both positions to get integer grid deltas
         val oldGridX = obstacle.x.roundToInt()
@@ -437,12 +508,18 @@ class SandGrid(
             gridState.addSettledParticle(movedParticle)
         }
 
-        Logger.d("SlidingObstacle", "🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}")
+        Logger.d(
+            "SlidingObstacle",
+            "🏃 Moved ${movedParticles.size}/${particlesToMove.size} settled particles with obstacle ${obstacle.id}"
+        )
 
         return grid
     }
 
-    private fun calculateSandHeightAboveSlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Int {
+    private fun calculateSandHeightAboveSlidingObstacle(
+        grid: Array<Array<Cell>>,
+        obstacle: SlidingObstacle
+    ): Int {
         val startTime = TimeUtils.nanoTime()
 
         // Get all particles tied to this obstacle
@@ -467,13 +544,19 @@ class SandGrid(
 
         val totalTime = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
 
-        Logger.d("SandWeight", "Obstacle ${obstacle.id}: ${particleCount} particles, weight: ${totalWeight} | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms")
+        Logger.d(
+            "SandWeight",
+            "Obstacle ${obstacle.id}: ${particleCount} particles, weight: ${totalWeight} | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms"
+        )
 
         // Return the weighted count as an integer (rounded down)
         return totalWeight
     }
 
-    private fun destroySlidingObstacle(grid: Array<Array<Cell>>, obstacle: SlidingObstacle): Array<Array<Cell>> {
+    private fun destroySlidingObstacle(
+        grid: Array<Array<Cell>>,
+        obstacle: SlidingObstacle
+    ): Array<Array<Cell>> {
         val centerX = obstacle.x.roundToInt()
         val centerY = obstacle.y
         val halfWidth = obstacle.width / 2
@@ -493,7 +576,10 @@ class SandGrid(
                     // Convert any cell within obstacle bounds to sand (not just SLIDING_OBSTACLE)
                     if (cellType == CellType.SLIDING_OBSTACLE || cellType == CellType.EMPTY) {
                         val unsettlingDelay = 300L // 500ms delay before particles can settle again
-                        val sandParticle = particlePhysics.createSandParticle(obstacle.colorType, TimeUtils.currentTimeMillis()).copy(
+                        val sandParticle = particlePhysics.createSandParticle(
+                            obstacle.colorType,
+                            TimeUtils.currentTimeMillis()
+                        ).copy(
                             velocityY = 0.5f, // Give some initial velocity so they fall immediately
                             isActive = true,
                             isSettled = false,
@@ -507,7 +593,10 @@ class SandGrid(
             }
         }
 
-        Logger.d("SlidingObstacle", "💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.width}x${obstacle.height})")
+        Logger.d(
+            "SlidingObstacle",
+            "💥 Converted ${convertedCells}/${totalCellsChecked} cells to sand for obstacle ${obstacle.id} (${obstacle.width}x${obstacle.height})"
+        )
 
         // Convert all linked settled particles to normal falling sand
         for (settledParticle in gridState.getSettledParticlesByObstacleId(obstacle.id)) {
@@ -555,7 +644,10 @@ class SandGrid(
         }
 
         if (particlesToReactivate.isNotEmpty()) {
-            Logger.d("SandCleanup", "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles at y=${particlesToReactivate.map { it.y }}")
+            Logger.d(
+                "SandCleanup",
+                "🧹 Cleaning up ${particlesToReactivate.size} inconsistent settled particles at y=${particlesToReactivate.map { it.y }}"
+            )
 
             for (particlePos in particlesToReactivate) {
                 reactivateParticleColumn(particlePos.x, particlePos.y, grid)
@@ -594,8 +686,11 @@ class SandGrid(
                 break
             }
         }
-        
-        Logger.d("SandCleanup", "🔗 Reactivated $reactivatedCount particles in column at x=$startX, starting from y=$startY")
+
+        Logger.d(
+            "SandCleanup",
+            "🔗 Reactivated $reactivatedCount particles in column at x=$startX, starting from y=$startY"
+        )
     }
 
     private fun hasProperSupport(x: Int, y: Int, grid: Array<Array<Cell>>): Boolean {
@@ -612,6 +707,17 @@ class SandGrid(
             CellType.OBSTACLE -> true
             CellType.SLIDING_OBSTACLE -> true
             CellType.EMPTY -> false
+        }
+    }
+}
+
+
+private fun SlidingObstacle.getArea() = width * height
+private fun SlidingObstacle.getBallparkScore(): Int {
+    return getArea().run {
+        when {
+            this < 100 -> (this / 10) * 10
+            else -> (this / 100) * 100
         }
     }
 }
