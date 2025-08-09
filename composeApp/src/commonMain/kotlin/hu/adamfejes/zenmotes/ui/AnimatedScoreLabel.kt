@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.getScreenWidth
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
+import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,7 +37,8 @@ fun AnimatedScoreLabel(
     val startY = with(density) { (scoreEvent.y * CELL_SIZE).toDp() }
 
     val targetX = with(density) { (getScreenWidth() / 2).toDp() }
-    val targetY = with(density) { 180.toDp() } // Top of screen with some padding, matching ScoreDisplay
+    val targetY =
+        with(density) { 180.toDp() } // Top of screen with some padding, matching ScoreDisplay
 
     // Animation state
     val animatedX = remember(scoreEvent.obstacleId) { Animatable(startX.value) }
@@ -45,25 +47,24 @@ fun AnimatedScoreLabel(
 
     LaunchedEffect(Unit) {
         // Start animations in parallel
-        val animationDuration = 2000 // 2 seconds
 
         // Launch position animations concurrently
         launch {
             animatedX.animateTo(
                 targetValue = targetX.value,
-                animationSpec = tween(durationMillis = animationDuration)
+                animationSpec = tween(durationMillis = SCORE_FLY_DURATION)
             )
         }
 
         launch {
             animatedY.animateTo(
                 targetValue = targetY.value,
-                animationSpec = tween(durationMillis = animationDuration )
+                animationSpec = tween(durationMillis = SCORE_FLY_DURATION)
             )
         }
 
         // Wait for most of the animation, then fade out
-        delay(animationDuration - 500L)
+        delay((SCORE_FLY_DURATION * 3 / 4).toLong())
         animatedAlpha.animateTo(
             targetValue = 0f,
             animationSpec = tween(durationMillis = 500)
@@ -72,7 +73,7 @@ fun AnimatedScoreLabel(
         // Animation complete
         onAnimationComplete()
     }
-    
+
     Box(
         modifier = modifier
     ) {

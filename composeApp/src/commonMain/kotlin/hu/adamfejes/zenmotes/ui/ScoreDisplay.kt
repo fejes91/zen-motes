@@ -24,7 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.ui.Constants.SCORE_DISPLAY_DURATION
+import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
@@ -39,7 +42,7 @@ fun ScoreDisplay(
         // Start animation from current value to new score
         scoreAnimatable.animateTo(
             targetValue = score.toFloat(),
-            animationSpec = tween(durationMillis = 1000)
+            animationSpec = tween(durationMillis = SCORE_DISPLAY_DURATION)
         )
     }
 
