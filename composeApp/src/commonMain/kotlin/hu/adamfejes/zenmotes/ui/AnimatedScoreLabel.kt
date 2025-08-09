@@ -1,6 +1,9 @@
 package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -8,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -27,6 +29,7 @@ import kotlinx.coroutines.launch
 fun AnimatedScoreLabel(
     scoreEvent: ScoreEvent,
     modifier: Modifier = Modifier,
+    onAnimationNearlyComplete: () -> Unit,
     onAnimationComplete: () -> Unit
 ) {
     val density = LocalDensity.current
@@ -46,31 +49,32 @@ fun AnimatedScoreLabel(
     val animatedAlpha = remember(scoreEvent.obstacleId) { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        // Start animations in parallel
-
-        // Launch position animations concurrently
         launch {
             animatedX.animateTo(
                 targetValue = targetX.value,
-                animationSpec = tween(durationMillis = SCORE_FLY_DURATION)
+                animationSpec = tween(durationMillis = SCORE_FLY_DURATION, easing = FastOutLinearInEasing)
             )
         }
 
         launch {
             animatedY.animateTo(
                 targetValue = targetY.value,
-                animationSpec = tween(durationMillis = SCORE_FLY_DURATION)
+                animationSpec = tween(durationMillis = SCORE_FLY_DURATION, easing = FastOutLinearInEasing)
             )
         }
 
+        launch {
+            delay((SCORE_FLY_DURATION * 0.8f).toLong())
+            onAnimationNearlyComplete()
+        }
+
         // Wait for most of the animation, then fade out
-        delay((SCORE_FLY_DURATION * 3 / 4).toLong())
+        delay((SCORE_FLY_DURATION * 4 / 5).toLong())
         animatedAlpha.animateTo(
             targetValue = 0f,
             animationSpec = tween(durationMillis = 500)
         )
 
-        // Animation complete
         onAnimationComplete()
     }
 

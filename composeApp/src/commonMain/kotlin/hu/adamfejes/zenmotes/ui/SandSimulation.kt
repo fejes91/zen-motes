@@ -22,7 +22,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -112,23 +111,15 @@ fun SandSimulation(
                     decreaseScore = viewModel::decreaseScore
                 )
 
-                // Animated score event labels
-                activeScoreEvents.forEach { event ->
-                    key(event.obstacleId) {
-                        AnimatedScoreLabel(
-                            scoreEvent = event,
-                            modifier = Modifier.fillMaxSize(),
-                            onAnimationComplete = {
-                                activeScoreEvents =
-                                    activeScoreEvents.filter { it.obstacleId != event.obstacleId }
-                                        .toSet()
-                            }
-                        )
-                    }
-                }
-
                 // Score display at the top center
-                ScoreDisplay(score = score)
+                Scores(
+                    score = score,
+                    activeScoreEvents = activeScoreEvents,
+                    onAnimationComplete = { obstacleId ->
+                        activeScoreEvents =
+                            activeScoreEvents.filter { it.obstacleId != obstacleId }
+                                .toSet()
+                    })
 
                 // Top UI overlay - color picker and reset button
                 LazyRow(
