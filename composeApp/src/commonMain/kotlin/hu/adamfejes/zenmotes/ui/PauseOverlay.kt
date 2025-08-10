@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,17 +14,19 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.MaterialTheme
+import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
-import hu.adamfejes.zenmotes.ui.theme.Theme
+import hu.adamfejes.zenmotes.ui.theme.ColorScheme
+import hu.adamfejes.zenmotes.ui.theme.getPixeledFontFamily
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
 @Composable
@@ -59,79 +62,53 @@ fun PauseOverlay(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // TODO pixelated button design
-                Button(
-                    onClick = onResume,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.primaryButtonBackground
-                    )
-                ) {
-                    Text(
-                        text = "Resume",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colorScheme.primaryButtonText
-                    )
-                }
+                Buttons(
+                    colorScheme = colorScheme,
+                    onResume = onResume,
+                    onRestart = onRestart
+                )
 
-                Button(
-                    onClick = onRestart,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.secondaryButtonBackground
-                    )
-                ) {
-                    Text(
-                        text = "Restart",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colorScheme.secondaryButtonText
-                    )
-                }
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Theme switch
-                Row(
+                ThreeStateSwitch(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Light",
-                        fontSize = if (currentAppTheme == AppTheme.LIGHT) 16.sp else 14.sp,
-                        fontWeight = if (currentAppTheme == AppTheme.LIGHT) FontWeight.SemiBold else FontWeight.Normal,
-                        color = colorScheme.textColor,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Switch(
-                        checked = currentAppTheme == AppTheme.DARK,
-                        onCheckedChange = { isDarkTheme ->
-                            onThemeChange(if (isDarkTheme) AppTheme.DARK else AppTheme.LIGHT)
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = colorScheme.primaryButtonBackground,
-                            checkedTrackColor = colorScheme.primaryButtonText,
-                            uncheckedThumbColor = colorScheme.secondaryButtonBackground,
-                            uncheckedTrackColor = colorScheme.secondaryButtonText
-                        )
-                    )
-                    Text(
-                        text = "Dark",
-                        fontSize = if (currentAppTheme == AppTheme.DARK) 16.sp else 14.sp,
-                        fontWeight = if (currentAppTheme == AppTheme.DARK) FontWeight.SemiBold else FontWeight.Normal,
-                        color = colorScheme.textColor,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+                        .padding(horizontal = 24.dp),
+                    currentState = currentAppTheme,
+                    onStateChange = onThemeChange
+                )
             }
         }
+    }
+}
+
+@Composable
+fun Buttons(colorScheme: ColorScheme, onResume: () -> Unit, onRestart: () -> Unit) {
+    Button(
+        onClick = onResume,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colorScheme.primaryButtonBackground
+        )
+    ) {
+        Text(
+            text = "Resume",
+            color = colorScheme.primaryButtonText
+        )
+    }
+
+    Button(
+        onClick = onRestart,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colorScheme.secondaryButtonBackground
+        )
+    ) {
+        Text(
+            text = "Restart",
+            color = colorScheme.secondaryButtonText
+        )
     }
 }

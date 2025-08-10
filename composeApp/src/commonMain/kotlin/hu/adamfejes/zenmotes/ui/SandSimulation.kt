@@ -2,6 +2,7 @@ package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -96,11 +97,12 @@ private fun SandSimulationContent(
         }
     }
 
+    val isSystemDarkTheme = isSystemInDarkTheme()
     val currentTheme by derivedStateOf {
-        if (currentAppTheme == AppTheme.DARK) {
-            Theme.DARK
-        } else {
-            Theme.LIGHT
+        when (currentAppTheme) {
+            AppTheme.LIGHT -> Theme.LIGHT
+            AppTheme.DARK -> Theme.DARK
+            AppTheme.SYSTEM -> if (isSystemDarkTheme) Theme.DARK else Theme.LIGHT
         }
     }
     var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
@@ -176,11 +178,7 @@ private fun SandSimulationContent(
                     }
 
                     item {
-                        // Pause button - circular and same size as color buttons
-                        PauseButton(
-                            isPaused = isPaused,
-                            onClick = { isPaused = !isPaused }
-                        )
+                        PauseButton { isPaused = !isPaused }
                     }
                 }
             }
@@ -260,15 +258,11 @@ private fun Color.lighten(f: Float): Color {
 }
 
 @Composable
-private fun PauseButton(
-    isPaused: Boolean,
-    onClick: () -> Unit
-) {
+private fun PauseButton(onClick: () -> Unit) {
     val colorScheme = LocalTheme.current.toColorScheme()
     Box(
         modifier = Modifier
             .size(48.dp)
-            .clip(CircleShape)
             .background(colorScheme.pauseButtonBackground),
         contentAlignment = Alignment.Center
     ) {
@@ -282,8 +276,8 @@ private fun PauseButton(
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = if (isPaused) "▶" else "⏸",
-                fontSize = 16.sp,
+                text = "Pause",
+                fontSize = 6.sp,
                 color = colorScheme.pauseButtonIcon
             )
         }
