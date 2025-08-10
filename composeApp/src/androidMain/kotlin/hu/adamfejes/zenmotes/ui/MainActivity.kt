@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import hu.adamfejes.zenmotes.di.androidDataModule
 import hu.adamfejes.zenmotes.di.appModule
 import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 import org.koin.android.ext.koin.androidContext
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
         // Initialize Koin
         startKoin {
             androidContext(this@MainActivity)
-            modules(appModule)
+            modules(appModule, androidDataModule)
         }
         
         enableEdgeToEdge()

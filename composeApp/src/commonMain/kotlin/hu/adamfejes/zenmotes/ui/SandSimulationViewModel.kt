@@ -6,6 +6,8 @@ import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.getBallparkScore
+import hu.adamfejes.zenmotes.service.PreferencesService
+import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -13,7 +15,8 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class SandSimulationViewModel(
-    private val scoreHolder: ScoreHolder
+    private val scoreHolder: ScoreHolder,
+    private val preferencesService: PreferencesService
 ) : ViewModel() {
 
     val score: StateFlow<Int> = scoreHolder
@@ -29,6 +32,13 @@ class SandSimulationViewModel(
         started = SharingStarted.WhileSubscribed(),
         initialValue = null
     )
+
+    val appTheme: StateFlow<AppTheme?> = preferencesService.getTheme
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = null
+        )
 
     fun increaseScore(slidingObstacle: SlidingObstacle) {
         viewModelScope.launch {
@@ -58,5 +68,11 @@ class SandSimulationViewModel(
 
     fun resetScore() {
         scoreHolder.resetScore()
+    }
+
+    fun setTheme(theme: AppTheme) {
+        viewModelScope.launch {
+            preferencesService.saveTheme(theme)
+        }
     }
 }

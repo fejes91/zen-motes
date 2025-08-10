@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
@@ -29,8 +30,8 @@ import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 fun PauseOverlay(
     onResume: () -> Unit,
     onRestart: () -> Unit,
-    currentTheme: Theme,
-    onThemeChange: (Theme) -> Unit
+    currentAppTheme: AppTheme,
+    onThemeChange: (AppTheme) -> Unit
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
 
@@ -105,15 +106,15 @@ fun PauseOverlay(
                 ) {
                     Text(
                         text = "Light",
-                        fontSize = if (currentTheme == Theme.LIGHT) 16.sp else 14.sp,
-                        fontWeight = if (currentTheme == Theme.LIGHT) FontWeight.SemiBold else FontWeight.Normal,
+                        fontSize = if (currentAppTheme == AppTheme.LIGHT) 16.sp else 14.sp,
+                        fontWeight = if (currentAppTheme == AppTheme.LIGHT) FontWeight.SemiBold else FontWeight.Normal,
                         color = colorScheme.textColor,
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     Switch(
-                        checked = currentTheme == Theme.DARK,
+                        checked = currentAppTheme == AppTheme.DARK,
                         onCheckedChange = { isDarkTheme ->
-                            onThemeChange(if (isDarkTheme) Theme.DARK else Theme.LIGHT)
+                            onThemeChange(if (isDarkTheme) AppTheme.DARK else AppTheme.LIGHT)
                         },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = colorScheme.primaryButtonBackground,
@@ -124,8 +125,8 @@ fun PauseOverlay(
                     )
                     Text(
                         text = "Dark",
-                        fontSize = if (currentTheme == Theme.DARK) 16.sp else 14.sp,
-                        fontWeight = if (currentTheme == Theme.DARK) FontWeight.SemiBold else FontWeight.Normal,
+                        fontSize = if (currentAppTheme == AppTheme.DARK) 16.sp else 14.sp,
+                        fontWeight = if (currentAppTheme == AppTheme.DARK) FontWeight.SemiBold else FontWeight.Normal,
                         color = colorScheme.textColor,
                         modifier = Modifier.padding(start = 8.dp)
                     )

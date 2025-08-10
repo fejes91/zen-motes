@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.koin.compose.koinInject
@@ -54,6 +57,34 @@ fun SandSimulation(
     val viewModel: SandSimulationViewModel = koinInject()
     val score by viewModel.score.collectAsState(0)
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
+    val currentAppTheme by viewModel.appTheme.collectAsState()
+
+    SandSimulationContent(
+        modifier = modifier,
+        currentAppTheme = currentAppTheme,
+        scoreEvent = scoreEvent,
+        score = score,
+        resetScore = viewModel::resetScore,
+        setTheme = viewModel::setTheme,
+        increaseScore = viewModel::increaseScore,
+        decreaseScore = viewModel::decreaseScore
+    )
+}
+
+@Composable
+private fun SandSimulationContent(
+    modifier: Modifier,
+    currentAppTheme: AppTheme?,
+    scoreEvent: ScoreEvent?,
+    score: Int,
+    resetScore: () -> Unit,
+    setTheme: (AppTheme) -> Unit,
+    increaseScore: (SlidingObstacle) -> Unit,
+    decreaseScore: (SlidingObstacle) -> Unit
+) {
+    if (currentAppTheme == null) {
+        return
+    }
 
     // Manage active score events for animation
     var activeScoreEvents by remember { mutableStateOf<Set<ScoreEvent>>(emptySet()) }
@@ -65,8 +96,13 @@ fun SandSimulation(
         }
     }
 
-    // TODO store it in shared preferences, after converting to multi-platform
-    var currentTheme by remember { mutableStateOf(Theme.DARK) }
+    val currentTheme by derivedStateOf {
+        if (currentAppTheme == AppTheme.DARK) {
+            Theme.DARK
+        } else {
+            Theme.LIGHT
+        }
+    }
     var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }
@@ -107,8 +143,8 @@ fun SandSimulation(
                     showPerformanceOverlay = true, // Toggle performance overlay for testing
                     isPaused = isPaused,
                     resetTrigger = resetTrigger,
-                    increaseScore = viewModel::increaseScore,
-                    decreaseScore = viewModel::decreaseScore
+                    increaseScore = increaseScore,
+                    decreaseScore = decreaseScore
                 )
 
                 // Score display at the top center
@@ -155,11 +191,11 @@ fun SandSimulation(
                     onResume = { isPaused = false },
                     onRestart = {
                         resetTrigger++
-                        viewModel.resetScore()
+                        resetScore()
                         isPaused = false
                     },
-                    currentTheme = currentTheme,
-                    onThemeChange = { newTheme -> currentTheme = newTheme }
+                    currentAppTheme = currentAppTheme,
+                    onThemeChange = { newTheme -> setTheme(newTheme) }
                 )
             }
         }
