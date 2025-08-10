@@ -14,7 +14,6 @@ import org.koin.core.context.startKoin
 /*
     * ZenMotes
     * TODOs
-    * Enable Logging only in debug builds
     * Color picker redesign?
     *   Colors are randomly changing. Next one is show on the top in a colorbar and warns about the change
     * Go full screen, immersive mode

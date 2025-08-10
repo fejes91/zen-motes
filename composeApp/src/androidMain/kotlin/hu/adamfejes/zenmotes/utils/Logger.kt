@@ -1,21 +1,32 @@
 package hu.adamfejes.zenmotes.utils
 
 import android.util.Log
+import hu.adamfejes.zenmotes.BuildConfig
 
 actual object Logger {
+    actual val isDebugBuild: Boolean = BuildConfig.DEBUG
+
     actual fun d(tag: String, message: String) {
-        Log.d(tag, message)
+        if (isDebugBuild) {
+            Log.d(tag, message)
+        }
     }
 
     actual fun i(tag: String, message: String) {
-        Log.i(tag, message)
+        if (isDebugBuild) {
+            Log.i(tag, message)
+        }
     }
 
     actual fun w(tag: String, message: String) {
-        Log.w(tag, message)
+        if (isDebugBuild) {
+            Log.w(tag, message)
+        }
     }
 
     actual fun e(tag: String, message: String) {
-        Log.e(tag, message)
+        if (isDebugBuild) {
+            Log.e(tag, message)
+        }
     }
 }
