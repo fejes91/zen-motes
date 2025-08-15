@@ -10,5 +10,5 @@ import org.koin.dsl.module
 val appModule = module {
     single<ScoreHolder> { ScoreHolderImpl() }
     single { PreferencesService(get()) }
-    factory { SandSimulationViewModel(get(), get()) }
+    factory { SandSimulationViewModel(get(), get(), get()) }
 }

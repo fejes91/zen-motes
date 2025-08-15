@@ -33,7 +33,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.ScoreHolder
@@ -64,7 +63,8 @@ fun SandView(
     isPaused: Boolean,
     resetTrigger: Int,
     increaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
-    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit
+    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
+    toggleAddingSand: (adding: Boolean) -> Unit,
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
 
@@ -77,6 +77,10 @@ fun SandView(
     var sandSourceX by remember { mutableFloatStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
     var frame by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(isAddingSand) {
+        toggleAddingSand(isAddingSand)
+    }
 
     // Clear sand adding state when paused and handle pause/resume
     LaunchedEffect(isPaused) {
@@ -263,8 +267,7 @@ private fun initializeGridIfNeeded(
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        val scoreHolder: ScoreHolder = KoinPlatformTools.defaultContext().get().get<ScoreHolder>()
-        val newGrid = SandGrid(width, height, 1000, scoreHolder)
+        val newGrid = SandGrid(width, height, 1000)
         newGrid.setImages(images)
         newGrid
     } else {

@@ -7,7 +7,10 @@ import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.service.PreferencesService
+import hu.adamfejes.zenmotes.service.SoundManager
+import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -16,8 +19,15 @@ import kotlin.math.roundToInt
 
 class SandSimulationViewModel(
     private val scoreHolder: ScoreHolder,
-    private val preferencesService: PreferencesService
+    private val preferencesService: PreferencesService,
+    private val soundManager: SoundManager
 ) : ViewModel() {
+
+    fun initialize() {
+        viewModelScope.launch {
+            soundManager.init()
+        }
+    }
 
     val score: StateFlow<Int> = scoreHolder
         .getScore()
@@ -73,6 +83,17 @@ class SandSimulationViewModel(
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch {
             preferencesService.saveTheme(theme)
+        }
+    }
+
+    fun toggleAddingSand(isAdding: Boolean) {
+        viewModelScope.launch {
+            if(isAdding) {
+                soundManager.play(SoundSample.SAND_BEGIN, loop = false)
+                soundManager.play(SoundSample.SAND_MIDDLE, loop = true)
+            } else {
+                soundManager.stopAll()
+            }
         }
     }
 }

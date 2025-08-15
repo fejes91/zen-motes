@@ -11,9 +11,7 @@ import hu.adamfejes.zenmotes.logic.ObstacleGenerator
 import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
-import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
-import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.logic.setCell
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
@@ -26,7 +24,6 @@ class SandGrid(
     private val width: Int,
     private val height: Int,
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
-    private val scoreHolder: ScoreHolder
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)

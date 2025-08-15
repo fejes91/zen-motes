@@ -60,6 +60,10 @@ fun SandSimulation(
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.initialize()
+    }
+
     SandSimulationContent(
         modifier = modifier,
         currentAppTheme = currentAppTheme,
@@ -68,7 +72,8 @@ fun SandSimulation(
         resetScore = viewModel::resetScore,
         setTheme = viewModel::setTheme,
         increaseScore = viewModel::increaseScore,
-        decreaseScore = viewModel::decreaseScore
+        decreaseScore = viewModel::decreaseScore,
+        toggleAddingSand = viewModel::toggleAddingSand
     )
 }
 
@@ -81,7 +86,8 @@ private fun SandSimulationContent(
     resetScore: () -> Unit,
     setTheme: (AppTheme) -> Unit,
     increaseScore: (SlidingObstacle) -> Unit,
-    decreaseScore: (SlidingObstacle) -> Unit
+    decreaseScore: (SlidingObstacle) -> Unit,
+    toggleAddingSand: (Boolean) -> Unit
 ) {
     if (currentAppTheme == null) {
         return
@@ -146,7 +152,8 @@ private fun SandSimulationContent(
                     isPaused = isPaused,
                     resetTrigger = resetTrigger,
                     increaseScore = increaseScore,
-                    decreaseScore = decreaseScore
+                    decreaseScore = decreaseScore,
+                    toggleAddingSand = toggleAddingSand
                 )
 
                 // Score display at the top center
