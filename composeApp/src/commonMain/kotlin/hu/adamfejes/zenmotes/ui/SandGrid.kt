@@ -36,6 +36,7 @@ class SandGrid(
     private val cleanupIntervalMs = 100L
 
     // Performance tracking
+    private var lastFrameTime = 0L
     private var frameCount = 0
     private var lastUpdateDuration = 0L
     private var avgUpdateDuration = 0L
@@ -143,12 +144,19 @@ class SandGrid(
 
         Logger.d(
             "SandPerf",
+            "Frame time: ${frameTime}ms, time since last frame: ${frameTime - lastFrameTime}ms | Frame count: $frameCount | Last update: ${lastUpdateDuration}ms | Avg update: ${avgUpdateDuration}ms"
+        )
+
+        Logger.d(
+            "SandPerf",
             "BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms"
         )
         Logger.d(
             "SandPerf",
             "TOTAL: ${totalTime}ms | Moving: ${gridState.getMovingParticles().size} | Settled: ${gridState.getSettledParticles().size}"
         )
+
+        lastFrameTime = frameTime
     }
 
     private fun updateSlidingObstacles(
