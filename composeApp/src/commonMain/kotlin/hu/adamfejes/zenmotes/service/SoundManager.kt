@@ -6,8 +6,11 @@ enum class SoundSample(val fileName: String) {
 }
 
 interface SoundManager {
-    suspend fun init()
-    suspend fun play(sample: SoundSample, loop: Boolean = false)
-    suspend fun stop(sample: SoundSample)
-    suspend fun stopAll()
+    fun init()
+
+    fun setVolume(volume: Float)
+    fun play(sample: SoundSample, loop: Boolean = false)
+    fun stop(sample: SoundSample)
+    fun stopAll()
+    fun dispose()
 }

@@ -60,10 +60,6 @@ fun SandSimulation(
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.initialize()
-    }
-
     SandSimulationContent(
         modifier = modifier,
         currentAppTheme = currentAppTheme,

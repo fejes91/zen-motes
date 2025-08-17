@@ -13,6 +13,8 @@ import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.setCell
+import hu.adamfejes.zenmotes.service.SoundManager
+import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToInt
@@ -23,6 +25,7 @@ private const val slidingObstacleTransitTimeSeconds = 7.5f
 class SandGrid(
     private val width: Int,
     private val height: Int,
+    private val soundManager: SoundManager,
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
@@ -34,6 +37,8 @@ class SandGrid(
     // Cleanup routine timing - run every 2 seconds
     private var lastCleanupTime = 0L
     private val cleanupIntervalMs = 100L
+
+    private var previousNumberOfMovingParticles = 0
 
     // Performance tracking
     private var lastFrameTime = 0L
@@ -123,6 +128,9 @@ class SandGrid(
             gridState.updateGrid(gridAfterParticles)
         }.inWholeMilliseconds
 
+        manageSounds(previousNumberOfMovingParticles, gridState.getMovingParticles().size)
+        previousNumberOfMovingParticles = gridState.getMovingParticles().size
+
         // 5. Cleanup routine (periodic)
         val cleanupTime = if (frameTime - lastCleanupTime >= cleanupIntervalMs) {
             measureTime {
@@ -157,6 +165,20 @@ class SandGrid(
         )
 
         lastFrameTime = frameTime
+    }
+
+    private fun manageSounds(previousNumberOfMovingParticles: Int, currentNumberOfMovingParticles: Int) {
+        if(currentNumberOfMovingParticles > 0) {
+            if (previousNumberOfMovingParticles == 0) {
+                // More particles are moving, play sound
+                soundManager.play(SoundSample.SAND_BEGIN)
+                soundManager.play(SoundSample.SAND_MIDDLE, loop = true)
+            }
+        } else {
+            soundManager.stopAll()
+        }
+
+        soundManager.setVolume(currentNumberOfMovingParticles * 0.7f / maxMovingParticles.toFloat())
     }
 
     private fun updateSlidingObstacles(

@@ -4,7 +4,7 @@ import android.util.Log
 import hu.adamfejes.zenmotes.BuildConfig
 
 actual object Logger {
-    actual val isDebugBuild: Boolean = false//BuildConfig.DEBUG
+    actual val isDebugBuild: Boolean = BuildConfig.DEBUG
 
     actual fun d(tag: String, message: String) {
         if (isDebugBuild) {

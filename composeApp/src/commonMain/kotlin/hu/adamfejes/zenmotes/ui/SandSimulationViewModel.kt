@@ -23,12 +23,6 @@ class SandSimulationViewModel(
     private val soundManager: SoundManager
 ) : ViewModel() {
 
-    fun initialize() {
-        viewModelScope.launch {
-            soundManager.init()
-        }
-    }
-
     val score: StateFlow<Int> = scoreHolder
         .getScore()
         .stateIn(
@@ -88,12 +82,12 @@ class SandSimulationViewModel(
 
     fun toggleAddingSand(isAdding: Boolean) {
         viewModelScope.launch {
-            if(isAdding) {
-                soundManager.play(SoundSample.SAND_BEGIN, loop = false)
-                soundManager.play(SoundSample.SAND_MIDDLE, loop = true)
-            } else {
-                soundManager.stopAll()
-            }
+//            if(isAdding) {
+//                soundManager.play(SoundSample.SAND_BEGIN, loop = false)
+//                soundManager.play(SoundSample.SAND_MIDDLE, loop = true)
+//            } else {
+//                soundManager.stopAll()
+//            }
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -35,8 +36,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
-import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
@@ -45,7 +46,8 @@ import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
-import org.koin.mp.KoinPlatformTools
+import org.koin.compose.getKoin
+import org.koin.compose.koinInject
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.background_daylight
 import zenmotescmp.composeapp.generated.resources.background_night
@@ -66,6 +68,17 @@ fun SandView(
     decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
     toggleAddingSand: (adding: Boolean) -> Unit,
 ) {
+    val soundManager = getKoin().get<SoundManager>()
+    DisposableEffect(Unit) {
+        // Initialize sound manager with the current theme
+        soundManager.init()
+
+        onDispose {
+            soundManager.dispose()
+        }
+    }
+
+
     val colorScheme = LocalTheme.current.toColorScheme()
 
     var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
@@ -149,7 +162,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
-            sandGrid = initializeGridIfNeeded(sandGrid, gridDimensions, images)
+            sandGrid = initializeGridIfNeeded(sandGrid, soundManager, gridDimensions, images)
 
             sandGrid?.let { grid ->
                 // 2. Sand particle addition timing
@@ -262,12 +275,13 @@ private fun calculateGridDimensions(
 
 private fun initializeGridIfNeeded(
     currentGrid: SandGrid?,
+    soundManager: SoundManager,
     dimensions: Pair<Int, Int>,
     images: List<ImageBitmap>
 ): SandGrid {
     val (width, height) = dimensions
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        val newGrid = SandGrid(width, height, 1000)
+        val newGrid = SandGrid(width, height, soundManager, 1000)
         newGrid.setImages(images)
         newGrid
     } else {
