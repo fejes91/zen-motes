@@ -1,9 +1,7 @@
 package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,16 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -31,9 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -42,6 +37,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.ui.Constants.COLOR_CHANGE_ANIMATION_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -107,9 +103,30 @@ private fun SandSimulationContent(
             AppTheme.SYSTEM -> if (isSystemDarkTheme) Theme.DARK else Theme.LIGHT
         }
     }
-    var selectedColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
+    var currentSandColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
+    var nextSandColor by remember { mutableStateOf<ColorType?>(null) }
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }
+
+    // Auto-change sand color every 5-10 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            val delayTime = (5000..10000).random().toLong()
+
+            delay(delayTime - COLOR_CHANGE_ANIMATION_DURATION)
+
+            if (!isPaused) {
+                nextSandColor = ColorType.entries.random()
+            }
+
+            delay(COLOR_CHANGE_ANIMATION_DURATION)
+
+            if (!isPaused) {
+                currentSandColor = nextSandColor!!
+                nextSandColor = null
+            }
+        }
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -142,7 +159,7 @@ private fun SandSimulationContent(
                 // Sand simulation view - full edge-to-edge behind everything
                 SandView(
                     modifier = Modifier.fillMaxSize(),
-                    sandColorType = selectedColor,
+                    sandColorType = currentSandColor,
                     sandGenerationAmount = 60,
                     showPerformanceOverlay = true, // Toggle performance overlay for testing
                     isPaused = isPaused,
@@ -150,6 +167,12 @@ private fun SandSimulationContent(
                     increaseScore = increaseScore,
                     decreaseScore = decreaseScore,
                     toggleAddingSand = toggleAddingSand
+                )
+
+                // Color indicator bar at the very top
+                ColorIndicatorBar(
+                    currentColor = currentSandColor,
+                    nextColor = nextSandColor,
                 )
 
                 // Score display at the top center
@@ -162,27 +185,15 @@ private fun SandSimulationContent(
                                 .toSet()
                     })
 
-                // Top UI overlay - color picker and reset button
-                LazyRow(
+                // Top UI overlay - pause button only
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                        .padding(top = 56.dp), // Add padding to not overlap with score
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(end = 16.dp),
+                    contentAlignment = Alignment.CenterEnd
                 ) {
-                    items(ColorType.entries) { colorType ->
-                        ColorButton(
-                            colorType = colorType,
-                            isSelected = colorType == selectedColor,
-                            onClick = { selectedColor = colorType }
-                        )
-                    }
-
-                    item {
-                        PauseButton { isPaused = !isPaused }
-                    }
+                    PauseButton { isPaused = !isPaused }
                 }
             }
 
@@ -201,63 +212,6 @@ private fun SandSimulationContent(
             }
         }
     }
-}
-
-@Composable
-private fun ColorButton(
-    colorType: ColorType,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val theme = LocalTheme.current
-    val colorScheme = theme.toColorScheme()
-    val color = mapObstacleColorToTheme(colorType, colorScheme)
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .then(
-                if (isSelected) {
-                    Modifier.border(
-                        width = 6.dp,
-                        color = if (theme == Theme.DARK) {
-                            color.lighten(0.5f)
-                        } else {
-                            color.darken(0.5f)
-                        },
-                    )
-                } else {
-                    Modifier
-                }
-            )
-            .background(color),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = Color.Transparent
-            )
-        ) {}
-    }
-}
-
-private fun Color.darken(f: Float): Color {
-    return Color(
-        red = (red * f).coerceIn(0f, 1f),
-        green = (green * f).coerceIn(0f, 1f),
-        blue = (blue * f).coerceIn(0f, 1f),
-        alpha = alpha
-    )
-}
-
-private fun Color.lighten(f: Float): Color {
-    return Color(
-        red = (red + (1f - red) * f).coerceIn(0f, 1f),
-        green = (green + (1f - green) * f).coerceIn(0f, 1f),
-        blue = (blue + (1f - blue) * f).coerceIn(0f, 1f),
-        alpha = alpha
-    )
 }
 
 @Composable
