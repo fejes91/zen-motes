@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntSize
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
@@ -280,13 +281,15 @@ private fun initializeGridIfNeeded(
     images: List<ImageBitmap>
 ): SandGrid {
     val (width, height) = dimensions
+    val obstacleTypes = createObstacleTypes(images)
+    
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
         val newGrid = SandGrid(width, height, soundManager, 1000)
-        newGrid.setImages(images)
+        newGrid.setObstacleTypes(obstacleTypes)
         newGrid
     } else {
-        // Update bitmap if it's changed
-        currentGrid.setImages(images)
+        // Update obstacle types if images changed
+        currentGrid.setObstacleTypes(obstacleTypes)
         currentGrid
     }
 }
@@ -448,7 +451,7 @@ private fun DrawScope.drawSlidingObstacles(
         val y = obstacle.y * cellSize - height / 2
 
         drawImage(
-            image = obstacle.bitmapShape,
+            image = obstacle.type.imageBitmap,
             dstOffset = IntOffset(x.toInt(), y.toInt()),
             dstSize = IntSize(width, height),
             filterQuality = FilterQuality.None, // Pixelated scaling
@@ -501,5 +504,12 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int,
         textSize = textSizePx,
         startOffset = Offset(padding + 8f, size.height - 180f),
         lineHeight = lineHeight
+    )
+}
+
+private fun createObstacleTypes(images: List<ImageBitmap>): List<SlidingObstacleType> {
+    return listOf(
+        SlidingObstacleType.Small(images[0]), // tower
+        SlidingObstacleType.Big(images[1])    // wider_tower
     )
 }

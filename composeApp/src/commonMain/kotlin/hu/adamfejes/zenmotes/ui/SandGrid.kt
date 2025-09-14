@@ -12,6 +12,7 @@ import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.logic.setCell
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.service.SoundSample
@@ -59,11 +60,11 @@ class SandGrid(
     private val obstacleAnimator = ObstacleAnimator(width)
     private val particlePhysics = ParticlePhysics(width, height, nonSettleZoneHeight)
 
-    // Sample bitmap for obstacle shapes
-    private lateinit var images: List<ImageBitmap>
+    // Obstacle types with loaded bitmaps
+    private lateinit var obstacleTypes: List<SlidingObstacleType>
 
-    fun setImages(bitmap: List<ImageBitmap>) {
-        images = bitmap
+    fun setObstacleTypes(types: List<SlidingObstacleType>) {
+        obstacleTypes = types
     }
 
     fun getCell(x: Int, y: Int): Cell? = gridState.getCell(x, y)
@@ -190,7 +191,7 @@ class SandGrid(
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTime {
-            obstacleGenerator.generateSlidingObstacle(adjustedTime, images)?.let { newObstacle ->
+            obstacleGenerator.generateSlidingObstacle(adjustedTime, obstacleTypes)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
                 Logger.d(
                     "SlidingObstacle",
@@ -220,7 +221,7 @@ class SandGrid(
             // Check if obstacle should be destroyed by sand weight
             val sandHeight = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
             val weightThreshold =
-                obstacle.width * obstacle.height / 6f //2f // Threshold based on obstacle area
+                obstacle.width * obstacle.height / 2f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
                 Logger.d(
@@ -570,7 +571,7 @@ class SandGrid(
             val cell = grid[settledParticle.y][settledParticle.x]
             if (cell.type == CellType.SAND && cell.particle != null) {
                 // Double weight if color matches obstacle color
-                val weight = if (cell.particle.colorType == obstacle.colorType) 2 else 1
+                val weight = if (cell.particle.colorType == obstacle.colorType) 3 else 1
                 totalWeight += weight
                 particleCount++
             }

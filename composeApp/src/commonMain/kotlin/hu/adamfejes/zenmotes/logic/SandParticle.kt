@@ -12,6 +12,14 @@ enum class ColorType {
     // OBSTACLE_COLOR_6
 }
 
+sealed class SlidingObstacleType(
+    val imageBitmap: ImageBitmap,
+    val value: Int
+) {
+    class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(imageBitmap, 100)
+    class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(imageBitmap, 1000)
+}
+
 data class SandParticle(
     val colorType: ColorType, // Domain color type (reusing obstacle colors)
     val isActive: Boolean = false,
@@ -51,9 +59,9 @@ data class SlidingObstacle(
     val width: Int, // Width of the obstacle
     val height: Int, // Height of the obstacle
     val colorType: ColorType, // Domain color type
+    val type: SlidingObstacleType, // Obstacle type with bitmap and value
     val id: String = UuidGenerator.randomUUID(), // Unique identifier
-    val lastUpdateTime: Long = 0L, // Last time this obstacle was updated (for time-based movement)
-    val bitmapShape: ImageBitmap // Bitmap pattern for complex shapes
+    val lastUpdateTime: Long = 0L // Last time this obstacle was updated (for time-based movement)
 )
 
 data class Cell(
@@ -73,10 +81,13 @@ data class PerformanceData(
 fun SlidingObstacle.getArea() = width * height
 
 fun SlidingObstacle.getBallparkScore(): Int {
-    return getArea().run {
-        when {
-            this < 100 -> (this / 10) * 10
-            else -> (this / 100) * 100
-        }
-    }
+    return type.value
+}
+
+fun SlidingObstacleType.getWidth(): Int {
+    return imageBitmap.width
+}
+
+fun SlidingObstacleType.getHeight(): Int {
+    return imageBitmap.height
 }

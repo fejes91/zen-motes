@@ -8,9 +8,9 @@ class ObstacleGenerator(
     private val width: Int,
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
-    private val slidingObstacleTransitTimeSeconds: Float
+    slidingObstacleTransitTimeSeconds: Float
 ) : IObstacleGenerator {
-    private val slidingObstacleInterval = 500L // 3 seconds between obstacles
+    private val slidingObstacleInterval = 2500L
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
 
@@ -21,25 +21,30 @@ class ObstacleGenerator(
         return TimeUtils.currentTimeMillis() - lastSlidingObstacleTime >= slidingObstacleInterval
     }
 
-    override fun generateSlidingObstacle(frameTime: Long, images: List<ImageBitmap>): SlidingObstacle? {
+    override fun generateSlidingObstacle(frameTime: Long, obstacleTypes: List<SlidingObstacleType>): SlidingObstacle? {
         if (!shouldGenerateObstacle()) return null
+        if (obstacleTypes.isEmpty()) return null
 
         lastSlidingObstacleTime = TimeUtils.currentTimeMillis()
+        val obstacleType = obstacleTypes.random()
 
         // Generate random Y position avoiding non-obstacle zone
         val minY = nonObstacleZoneHeight + 6 // Add margin
-        val maxY = height - 20 // Add margin from bottom
+        val maxY = height - obstacleType.getHeight()
 
         if (minY >= maxY) return null // Not enough space to place obstacle
 
         val obstacleY = (minY..maxY).random()
-        val bitmap = images.randomOrNull() ?: return null
-
-        // Use bitmap dimensions directly
-        val obstacleWidth = bitmap.width
-        val obstacleHeight = bitmap.height
+            .apply {
+                if (this > height / 2 && Random.nextInt(10) < 8) {
+                    (minY..height / 2).random() // Bias towards upper half
+                }
+            }
 
         val direction = if (Random.Default.nextBoolean()) 1 else -1
+
+        val obstacleWidth = obstacleType.getWidth()
+        val obstacleHeight = obstacleType.getHeight()
 
         return SlidingObstacle(
             x = if (direction == 1) -obstacleWidth.toFloat() else width.toFloat() + obstacleWidth,
@@ -49,8 +54,8 @@ class ObstacleGenerator(
             width = obstacleWidth,
             height = obstacleHeight,
             colorType = colorTypes.random(),
-            lastUpdateTime = frameTime,
-            bitmapShape = bitmap
+            type = obstacleType,
+            lastUpdateTime = frameTime
         )
     }
 

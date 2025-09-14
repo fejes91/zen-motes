@@ -44,21 +44,23 @@ class ListBasedObstacleGenerator(
 
     override fun generateSlidingObstacle(
         frameTime: Long,
-        images: List<ImageBitmap>
+        obstacleTypes: List<SlidingObstacleType>
     ): SlidingObstacle? {
         val obstacleList = getObstacleList()
         if (!shouldGenerateObstacle()) return null
         if (obstacleList.isEmpty()) return null
+        if (obstacleTypes.isEmpty()) return null
         if (currentObstacleIndex >= obstacleList.size) return null // Done with all obstacles
 
         lastObstacleTime = TimeUtils.currentTimeMillis()
         val obstacleDefinition = obstacleList[currentObstacleIndex]
         currentObstacleIndex++
 
-        val bitmap = images[1]
-        val obstacleWidth = bitmap.width
-        val obstacleHeight = bitmap.height
         val direction = obstacleDefinition.direction
+        val obstacleType = obstacleTypes.random()
+        
+        val obstacleWidth = obstacleType.getWidth()
+        val obstacleHeight = obstacleType.getHeight()
 
         return SlidingObstacle(
             id = obstacleDefinition.id,
@@ -69,8 +71,8 @@ class ListBasedObstacleGenerator(
             width = obstacleWidth,
             height = obstacleHeight,
             colorType = obstacleDefinition.colorType,
-            lastUpdateTime = frameTime,
-            bitmapShape = bitmap
+            type = obstacleType,
+            lastUpdateTime = frameTime
         )
     }
 
