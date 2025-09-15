@@ -2,13 +2,19 @@ package hu.adamfejes.zenmotes.logic
 
 import androidx.compose.ui.graphics.ImageBitmap
 import hu.adamfejes.zenmotes.utils.TimeUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class ObstacleGenerator(
     private val width: Int,
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
-    slidingObstacleTransitTimeSeconds: Float
+    slidingObstacleTransitTimeSeconds: Float,
+    private val sandColorManager: SandColorManager
 ) : IObstacleGenerator {
     private val slidingObstacleInterval = 2500L
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
@@ -16,6 +22,20 @@ class ObstacleGenerator(
 
     // Use domain-layer color types
     private val colorTypes = ColorType.entries.toTypedArray()
+
+    // Track when to use the current sand color vs random
+    private var useCurrentSandColorForNext = false
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    init {
+        // Listen for sand color changes
+        scope.launch {
+            sandColorManager.currentSandColor
+                .collect { newColor ->
+                    useCurrentSandColorForNext = true
+                }
+        }
+    }
 
     private fun shouldGenerateObstacle(): Boolean {
         return TimeUtils.currentTimeMillis() - lastSlidingObstacleTime >= slidingObstacleInterval
@@ -46,6 +66,14 @@ class ObstacleGenerator(
         val obstacleWidth = obstacleType.getWidth()
         val obstacleHeight = obstacleType.getHeight()
 
+        // Determine color: use current sand color if flag is set, otherwise random
+        val obstacleColor = if (useCurrentSandColorForNext) {
+            useCurrentSandColorForNext = false // Reset flag after using
+            sandColorManager.currentSandColor.value
+        } else {
+            colorTypes.random()
+        }
+
         return SlidingObstacle(
             x = if (direction == 1) -obstacleWidth.toFloat() else width.toFloat() + obstacleWidth,
             y = obstacleY,
@@ -53,7 +81,7 @@ class ObstacleGenerator(
             speed = slidingSpeed * direction,
             width = obstacleWidth,
             height = obstacleHeight,
-            colorType = colorTypes.random(),
+            colorType = obstacleColor,
             type = obstacleType,
             lastUpdateTime = frameTime
         )

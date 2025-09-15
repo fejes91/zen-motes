@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.service.SoundManager
@@ -70,6 +71,7 @@ fun SandView(
     toggleAddingSand: (adding: Boolean) -> Unit,
 ) {
     val soundManager = getKoin().get<SoundManager>()
+    val sandColorManager: SandColorManager = koinInject()
     DisposableEffect(Unit) {
         // Initialize sound manager with the current theme
         soundManager.init()
@@ -163,7 +165,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
-            sandGrid = initializeGridIfNeeded(sandGrid, soundManager, gridDimensions, images)
+            sandGrid = initializeGridIfNeeded(sandGrid, soundManager, gridDimensions, images, sandColorManager)
 
             sandGrid?.let { grid ->
                 // 2. Sand particle addition timing
@@ -278,13 +280,14 @@ private fun initializeGridIfNeeded(
     currentGrid: SandGrid?,
     soundManager: SoundManager,
     dimensions: Pair<Int, Int>,
-    images: List<ImageBitmap>
+    images: List<ImageBitmap>,
+    sandColorManager: SandColorManager
 ): SandGrid {
     val (width, height) = dimensions
     val obstacleTypes = createObstacleTypes(images)
     
     return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        val newGrid = SandGrid(width, height, soundManager, 1000)
+        val newGrid = SandGrid(width, height, soundManager, 1000, sandColorManager)
         newGrid.setObstacleTypes(obstacleTypes)
         newGrid
     } else {

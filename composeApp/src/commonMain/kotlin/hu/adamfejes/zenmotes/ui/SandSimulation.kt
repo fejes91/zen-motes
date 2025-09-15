@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.ui.Constants.COLOR_CHANGE_ANIMATION_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
@@ -52,6 +53,7 @@ fun SandSimulation(
     modifier: Modifier = Modifier
 ) {
     val viewModel: SandSimulationViewModel = koinInject()
+    val sandColorManager: SandColorManager = koinInject()
     val score by viewModel.score.collectAsState(0)
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
@@ -65,7 +67,8 @@ fun SandSimulation(
         setTheme = viewModel::setTheme,
         increaseScore = viewModel::increaseScore,
         decreaseScore = viewModel::decreaseScore,
-        toggleAddingSand = viewModel::toggleAddingSand
+        toggleAddingSand = viewModel::toggleAddingSand,
+        sandColorManager = sandColorManager
     )
 }
 
@@ -79,7 +82,8 @@ private fun SandSimulationContent(
     setTheme: (AppTheme) -> Unit,
     increaseScore: (SlidingObstacle) -> Unit,
     decreaseScore: (SlidingObstacle) -> Unit,
-    toggleAddingSand: (Boolean) -> Unit
+    toggleAddingSand: (Boolean) -> Unit,
+    sandColorManager: SandColorManager
 ) {
     if (currentAppTheme == null) {
         return
@@ -103,38 +107,23 @@ private fun SandSimulationContent(
             AppTheme.SYSTEM -> if (isSystemDarkTheme) Theme.DARK else Theme.LIGHT
         }
     }
-    var currentSandColor by remember { mutableStateOf(ColorType.OBSTACLE_COLOR_1) }
-    var nextSandColor by remember { mutableStateOf<ColorType?>(null) }
+    val currentSandColor by sandColorManager.currentSandColor.collectAsState()
+    val nextSandColor by sandColorManager.nextSandColor.collectAsState()
     var isPaused by remember { mutableStateOf(false) }
     var resetTrigger by remember { mutableIntStateOf(0) }
-
-    // Auto-change sand color every 5-10 seconds
-    LaunchedEffect(Unit) {
-        while (true) {
-            val delayTime = (5000..10000).random().toLong()
-
-            delay(delayTime - COLOR_CHANGE_ANIMATION_DURATION)
-
-            if (!isPaused) {
-                nextSandColor = ColorType.entries.random()
-            }
-
-            delay(COLOR_CHANGE_ANIMATION_DURATION)
-
-            if (!isPaused) {
-                currentSandColor = nextSandColor!!
-                nextSandColor = null
-            }
-        }
-    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_PAUSE -> isPaused = true
-                Lifecycle.Event.ON_RESUME -> {}
+                Lifecycle.Event.ON_PAUSE -> {
+                    isPaused = true
+                    sandColorManager.pause()
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    sandColorManager.resume()
+                }
                 else -> {}
             }
         }
@@ -200,7 +189,10 @@ private fun SandSimulationContent(
             // Pause overlay with blur and menu
             if (isPaused) {
                 PauseOverlay(
-                    onResume = { isPaused = false },
+                    onResume = {
+                        isPaused = false
+                        sandColorManager.resume()
+                    },
                     onRestart = {
                         resetTrigger++
                         resetScore()

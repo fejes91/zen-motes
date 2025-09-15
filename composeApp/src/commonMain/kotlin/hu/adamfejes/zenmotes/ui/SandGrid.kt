@@ -9,6 +9,7 @@ import hu.adamfejes.zenmotes.logic.MovingParticle
 import hu.adamfejes.zenmotes.logic.ObstacleAnimator
 import hu.adamfejes.zenmotes.logic.ObstacleGenerator
 import hu.adamfejes.zenmotes.logic.ParticlePhysics
+import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
@@ -28,6 +29,7 @@ class SandGrid(
     private val height: Int,
     private val soundManager: SoundManager,
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
+    private val sandColorManager: SandColorManager
 ) {
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
@@ -54,7 +56,7 @@ class SandGrid(
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
     private val obstacleGenerator =
-        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds)
+        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds, sandColorManager)
 
     //ListBasedObstacleGenerator(width = width, height = height)
     private val obstacleAnimator = ObstacleAnimator(width)
