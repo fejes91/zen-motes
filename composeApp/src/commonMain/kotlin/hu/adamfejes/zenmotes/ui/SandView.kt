@@ -66,7 +66,7 @@ fun SandView(
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
     resetTrigger: Int,
-    increaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
+    increaseScore: (slidingObstacle: SlidingObstacle, isBonus: Boolean) -> Unit,
     decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
     toggleAddingSand: (adding: Boolean) -> Unit,
 ) {
@@ -367,10 +367,19 @@ private fun DrawScope.drawSandGrid(
 
                         val drawOpStartTime = TimeUtils.nanoTime()
                         val baseColor = mapObstacleColorToTheme(particle.colorType, colorScheme)
+                        val brightnessMultiplier = if (particle.fromObstacle) 1.5f else 1.0f
+                        val noiseVariation = particle.noiseVariation.apply {
+                            if(this < 1f && particle.fromObstacle) {
+                                // Make sure particles from obstacles are not too dark
+                                this + 0.4f
+                            } else {
+                                this
+                            }
+                        }
                         val displayColor = baseColor.copy(
-                            red = (baseColor.red * particle.noiseVariation).coerceIn(0f, 1f),
-                            green = (baseColor.green * particle.noiseVariation).coerceIn(0f, 1f),
-                            blue = (baseColor.blue * particle.noiseVariation).coerceIn(0f, 1f)
+                            red = (baseColor.red * noiseVariation * brightnessMultiplier).coerceIn(0f, 1f),
+                            green = (baseColor.green * noiseVariation * brightnessMultiplier).coerceIn(0f, 1f),
+                            blue = (baseColor.blue * noiseVariation * brightnessMultiplier).coerceIn(0f, 1f)
                         )
                         drawRect(
                             color = displayColor,

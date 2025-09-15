@@ -80,7 +80,7 @@ private fun SandSimulationContent(
     score: Int,
     resetScore: () -> Unit,
     setTheme: (AppTheme) -> Unit,
-    increaseScore: (SlidingObstacle) -> Unit,
+    increaseScore: (SlidingObstacle, Boolean) -> Unit,
     decreaseScore: (SlidingObstacle) -> Unit,
     toggleAddingSand: (Boolean) -> Unit,
     sandColorManager: SandColorManager

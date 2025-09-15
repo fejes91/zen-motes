@@ -28,7 +28,8 @@ data class SandParticle(
     val noiseVariation: Float = 1f, // 1f = normal, < 1f = darker
     val isSettled: Boolean = false, // true if particle won't move anymore
     val obstacleId: String? = null, // ID of the obstacle this particle is settling on
-    val unsettlingUntil: Long = 0L // Timestamp until when particle cannot settle (for post-destruction falling)
+    val unsettlingUntil: Long = 0L, // Timestamp until when particle cannot settle (for post-destruction falling)
+    val fromObstacle: Boolean = false // true if this particle was created from destroying an obstacle
 )
 
 data class MovingParticle(
