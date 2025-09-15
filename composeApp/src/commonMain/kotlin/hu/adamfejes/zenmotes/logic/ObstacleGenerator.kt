@@ -1,13 +1,11 @@
 package hu.adamfejes.zenmotes.logic
 
-import androidx.compose.ui.graphics.ImageBitmap
-import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import hu.adamfejes.zenmotes.utils.Logger
 
 class ObstacleGenerator(
     private val width: Int,
@@ -16,7 +14,13 @@ class ObstacleGenerator(
     slidingObstacleTransitTimeSeconds: Float,
     private val sandColorManager: SandColorManager
 ) : IObstacleGenerator {
-    private val slidingObstacleInterval = 2500L
+    private val initialSlidingObstacleInterval = 2500L
+    private val minSlidingObstacleInterval = 500L
+    private val intervalReductionAmount = 50L
+    private val difficultyIncreaseInterval = 5000L // 5 seconds in game time
+
+    private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
+    private var lastDifficultyIncreaseTime = 0L
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
 
@@ -37,15 +41,35 @@ class ObstacleGenerator(
         }
     }
 
-    private fun shouldGenerateObstacle(): Boolean {
-        return TimeUtils.currentTimeMillis() - lastSlidingObstacleTime >= slidingObstacleInterval
+    private fun shouldGenerateObstacle(frameTime: Long): Boolean {
+        return frameTime - lastSlidingObstacleTime >= currentSlidingObstacleInterval
+    }
+
+    private fun updateDifficulty(frameTime: Long) {
+        if (lastDifficultyIncreaseTime == 0L) {
+            lastDifficultyIncreaseTime = frameTime
+            return
+        }
+
+        if (frameTime - lastDifficultyIncreaseTime >= difficultyIncreaseInterval) {
+            if (currentSlidingObstacleInterval > minSlidingObstacleInterval) {
+                currentSlidingObstacleInterval = maxOf(
+                    minSlidingObstacleInterval,
+                    currentSlidingObstacleInterval - intervalReductionAmount
+                )
+                Logger.d("ObstacleGenerator","Increased difficulty: new interval = $currentSlidingObstacleInterval")
+                lastDifficultyIncreaseTime = frameTime
+            }
+        }
     }
 
     override fun generateSlidingObstacle(frameTime: Long, obstacleTypes: List<SlidingObstacleType>): SlidingObstacle? {
-        if (!shouldGenerateObstacle()) return null
+        updateDifficulty(frameTime)
+
+        if (!shouldGenerateObstacle(frameTime)) return null
         if (obstacleTypes.isEmpty()) return null
 
-        lastSlidingObstacleTime = TimeUtils.currentTimeMillis()
+        lastSlidingObstacleTime = frameTime
         val obstacleType = obstacleTypes.random()
 
         // Generate random Y position avoiding non-obstacle zone
@@ -96,5 +120,7 @@ class ObstacleGenerator(
 
     override fun reset() {
         lastSlidingObstacleTime = 0L
+        lastDifficultyIncreaseTime = 0L
+        currentSlidingObstacleInterval = initialSlidingObstacleInterval
     }
 }
