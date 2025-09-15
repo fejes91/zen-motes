@@ -66,12 +66,18 @@ class ObstacleGenerator(
         val obstacleWidth = obstacleType.getWidth()
         val obstacleHeight = obstacleType.getHeight()
 
-        // Determine color: use current sand color if flag is set, otherwise random
+        // Determine color: use current sand color if flag is set, otherwise random with bias
         val obstacleColor = if (useCurrentSandColorForNext) {
             useCurrentSandColorForNext = false // Reset flag after using
             sandColorManager.currentSandColor.value
         } else {
-            colorTypes.random()
+            // Random selection with double chance for current sand color
+            val currentColor = sandColorManager.currentSandColor.value
+            val colorPool = colorTypes.toMutableList().apply {
+                add(currentColor)
+                add(currentColor) // Add current color twice fro having 50% chance
+            }
+            colorPool.random()
         }
 
         return SlidingObstacle(
