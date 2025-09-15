@@ -63,7 +63,7 @@ class SandSimulationViewModel(
                 ScoreEvent(
                     x = slidingObstacle.x.roundToInt(),
                     y = slidingObstacle.y,
-                    score = (-slidingObstacle.getBallparkScore() / 4f).roundToInt(),
+                    score = -slidingObstacle.getBallparkScore(),
                     obstacleId = slidingObstacle.id
                 )
             )
