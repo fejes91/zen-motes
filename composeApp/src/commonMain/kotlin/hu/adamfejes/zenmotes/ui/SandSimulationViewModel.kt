@@ -4,13 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
+import hu.adamfejes.zenmotes.logic.SessionTimer
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
-import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,7 +19,8 @@ import kotlin.math.roundToInt
 class SandSimulationViewModel(
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
-    private val soundManager: SoundManager
+    private val soundManager: SoundManager,
+    private val sessionTimer: SessionTimer
 ) : ViewModel() {
 
     val score: StateFlow<Int> = scoreHolder
@@ -42,6 +42,13 @@ class SandSimulationViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = null
+        )
+
+    val sessionTimeMillis: StateFlow<Long> = sessionTimer.sessionTimeMillis
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = 0L
         )
 
     fun increaseScore(slidingObstacle: SlidingObstacle, isBonus: Boolean = false) {
@@ -73,8 +80,21 @@ class SandSimulationViewModel(
         }
     }
 
-    fun resetScore() {
+    fun resetSession() {
         scoreHolder.resetScore()
+        sessionTimer.reset()
+    }
+
+    fun startSession() {
+        sessionTimer.start()
+    }
+
+    fun pauseSession() {
+        sessionTimer.pause()
+    }
+
+    fun resumeSession() {
+        sessionTimer.resume()
     }
 
     fun setTheme(theme: AppTheme) {

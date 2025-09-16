@@ -30,13 +30,21 @@ import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.getPixeledFontFamily
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
+fun formatTime(millis: Long): String {
+    val totalSeconds = millis / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "${minutes}:${seconds.toString().padStart(2, '0')}"
+}
+
 @Composable
 fun PauseOverlay(
     onResume: () -> Unit,
     onRestart: () -> Unit,
     currentAppTheme: AppTheme,
     onThemeChange: (AppTheme) -> Unit,
-    score: Int
+    score: Int,
+    sessionTimeMillis: Long
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
 
@@ -66,6 +74,24 @@ fun PauseOverlay(
 
                 Text(
                     text = score.toString(),
+                    fontSize = 36.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    color = colorScheme.pausedTitleText
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Time:",
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    color = colorScheme.pausedTitleText
+                )
+
+                Text(
+                    text = formatTime(sessionTimeMillis),
                     fontSize = 36.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Medium,

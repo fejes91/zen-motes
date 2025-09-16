@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import androidx.compose.ui.Alignment
-import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
@@ -35,10 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
-import hu.adamfejes.zenmotes.ui.Constants.COLOR_CHANGE_ANIMATION_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -57,17 +54,22 @@ fun SandSimulation(
     val score by viewModel.score.collectAsState(0)
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
+    val sessionTime by viewModel.sessionTimeMillis.collectAsState(0L)
 
     SandSimulationContent(
         modifier = modifier,
         currentAppTheme = currentAppTheme,
         scoreEvent = scoreEvent,
         score = score,
-        resetScore = viewModel::resetScore,
+        sessionTime = sessionTime,
+        resetScore = viewModel::resetSession,
         setTheme = viewModel::setTheme,
         increaseScore = viewModel::increaseScore,
         decreaseScore = viewModel::decreaseScore,
         toggleAddingSand = viewModel::toggleAddingSand,
+        startSession = viewModel::startSession,
+        pauseSession = viewModel::pauseSession,
+        resumeSession = viewModel::resumeSession,
         sandColorManager = sandColorManager
     )
 }
@@ -78,11 +80,15 @@ private fun SandSimulationContent(
     currentAppTheme: AppTheme?,
     scoreEvent: ScoreEvent?,
     score: Int,
+    sessionTime: Long,
     resetScore: () -> Unit,
     setTheme: (AppTheme) -> Unit,
     increaseScore: (SlidingObstacle, Boolean) -> Unit,
     decreaseScore: (SlidingObstacle) -> Unit,
     toggleAddingSand: (Boolean) -> Unit,
+    startSession: () -> Unit,
+    pauseSession: () -> Unit,
+    resumeSession: () -> Unit,
     sandColorManager: SandColorManager
 ) {
     if (currentAppTheme == null) {
@@ -115,9 +121,15 @@ private fun SandSimulationContent(
         isPaused = paused
         if (paused) {
             sandColorManager.pause()
+            pauseSession()
         } else {
             sandColorManager.resume()
+            resumeSession()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        startSession()
     }
     var resetTrigger by remember { mutableIntStateOf(0) }
 
@@ -207,7 +219,8 @@ private fun SandSimulationContent(
                     },
                     currentAppTheme = currentAppTheme,
                     onThemeChange = { newTheme -> setTheme(newTheme) },
-                    score = score
+                    score = score,
+                    sessionTimeMillis = sessionTime
                 )
             }
         }
