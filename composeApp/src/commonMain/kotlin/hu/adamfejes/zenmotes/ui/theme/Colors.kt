@@ -7,24 +7,24 @@ object ZenColors {
     object Light {
         internal val background = Color.White
 
-        // Sand colors - soft pastels
+        // Sand colors - more saturated, same brightness
         internal val sandColors = listOf(
-            Color(0xFFFF9BB5), // Saturated Pink
-            Color(0xFF9BCFFF), // Saturated Blue
-            Color(0xFF9BFF9B), // Saturated Green
-            Color(0xFFFFE066), // Saturated Yellow
-            Color(0xFFD99BFF), // Saturated Purple
-            Color(0xFFFF9B66)  // Saturated Orange
+            Color(0xFFFF80B3), // More saturated pink
+            Color(0xFF80C0FF), // More saturated blue
+            Color(0xFF80FF80), // More saturated green
+            Color(0xFFFFD040), // More saturated yellow
+            Color(0xFFD080FF), // More saturated purple
+            Color(0xFFFF8040)  // More saturated orange
         )
         
-        // Obstacle colors - matching pastels with slight variations
+        // Obstacle colors - more saturated with slight variations
         internal val obstacleColors = listOf(
-            Color(0xFFFF85A3), // Slightly deeper pink
-            Color(0xFF85BFFF), // Slightly deeper blue
-            Color(0xFF85FF85), // Slightly deeper green
-            Color(0xFFFFD033), // Slightly deeper yellow
-            Color(0xFFCC85FF), // Slightly deeper purple
-            Color(0xFFFF8533)  // Slightly deeper orange
+            Color(0xFFFF6699), // More saturated pink
+            Color(0xFF66B3FF), // More saturated blue
+            Color(0xFF66FF66), // More saturated green
+            Color(0xFFFFCC00), // More saturated yellow
+            Color(0xFFB366FF), // More saturated purple
+            Color(0xFFFF6600)  // More saturated orange
         )
         
         
