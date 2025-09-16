@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
@@ -34,7 +35,8 @@ fun PauseOverlay(
     onResume: () -> Unit,
     onRestart: () -> Unit,
     currentAppTheme: AppTheme,
-    onThemeChange: (AppTheme) -> Unit
+    onThemeChange: (AppTheme) -> Unit,
+    score: Int
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
 
@@ -51,12 +53,25 @@ fun PauseOverlay(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Text(
-                text = "Paused",
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
-                color = colorScheme.pausedTitleText
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Score:",
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    color = colorScheme.pausedTitleText
+                )
+
+                Text(
+                    text = score.toString(),
+                    fontSize = 36.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    color = colorScheme.pausedTitleText
+                )
+            }
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),

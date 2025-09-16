@@ -206,7 +206,8 @@ private fun SandSimulationContent(
                         setPaused(false)
                     },
                     currentAppTheme = currentAppTheme,
-                    onThemeChange = { newTheme -> setTheme(newTheme) }
+                    onThemeChange = { newTheme -> setTheme(newTheme) },
+                    score = score
                 )
             }
         }
