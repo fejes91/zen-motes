@@ -62,42 +62,57 @@ fun PauseOverlay(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Column(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Score:",
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.pausedTitleText
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = "Score",
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = colorScheme.pausedTitleText
+                    )
 
-                Text(
-                    text = score.toString(),
-                    fontSize = 36.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.pausedTitleText
-                )
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = "Time",
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = colorScheme.pausedTitleText
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = score.toString(),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = colorScheme.pausedTitleText
+                    )
 
-                Text(
-                    text = "Time:",
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.pausedTitleText
-                )
-
-                Text(
-                    text = formatTime(sessionTimeMillis),
-                    fontSize = 36.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.pausedTitleText
-                )
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = formatTime(sessionTimeMillis),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = colorScheme.pausedTitleText
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
