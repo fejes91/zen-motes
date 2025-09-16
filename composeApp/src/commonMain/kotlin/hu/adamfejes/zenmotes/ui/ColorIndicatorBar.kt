@@ -30,7 +30,7 @@ fun ColorIndicatorBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(8.dp)
+            .height(16.dp)
     ) {
         // Current color (base layer)
         Box(

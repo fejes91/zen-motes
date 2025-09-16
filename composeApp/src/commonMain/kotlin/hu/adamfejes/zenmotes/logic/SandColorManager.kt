@@ -28,7 +28,7 @@ class SandColorManager {
     private fun startColorChangeLoop() {
         scope.launch {
             while (true) {
-                val delayTime = (5000..10000).random().toLong()
+                val delayTime = (8000..15000).random().toLong()
 
                 delay(delayTime - COLOR_CHANGE_ANIMATION_DURATION)
 

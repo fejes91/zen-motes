@@ -76,7 +76,8 @@ data class PerformanceData(
     val avgUpdateTime: Long,
     val movingParticles: Int,
     val settledParticles: Int,
-    val obstacles: Int
+    val obstacles: Int,
+    val currentSlidingObstacleInterval: Long
 )
 
 fun SlidingObstacle.getArea() = width * height

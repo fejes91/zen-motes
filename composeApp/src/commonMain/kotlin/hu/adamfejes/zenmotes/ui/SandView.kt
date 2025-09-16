@@ -494,11 +494,11 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int,
     val padding = 16f
     val lineHeight = 26f
 
-    // Background for text - make it taller for additional FPS line
+    // Background for text - make it taller for additional line
     drawRect(
         color = backgroundColor,
-        topLeft = Offset(padding, size.height - 220f),
-        size = Size(600f, 180f)
+        topLeft = Offset(padding, size.height - 250f),
+        size = Size(600f, 210f)
     )
 
     // Use platform-specific text drawing
@@ -507,14 +507,15 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int,
         "Update + Draw = Total: ${perfData.updateTime}ms + ${totalDrawTime}ms = ${perfData.updateTime + totalDrawTime}ms",
         "Avg: ${perfData.avgUpdateTime}ms",
         "Moving: ${perfData.movingParticles}",
-        "Settled: ${perfData.settledParticles}"
+        "Settled: ${perfData.settledParticles}",
+        "Obstacle Interval: ${perfData.currentSlidingObstacleInterval}ms"
     )
 
     drawTextLines(
         lines = lines,
         color = textColor,
         textSize = textSizePx,
-        startOffset = Offset(padding + 8f, size.height - 180f),
+        startOffset = Offset(padding + 8f, size.height - 210f),
         lineHeight = lineHeight
     )
 }

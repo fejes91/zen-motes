@@ -6,6 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import hu.adamfejes.zenmotes.utils.Logger
+import kotlin.math.roundToLong
 
 class ObstacleGenerator(
     private val width: Int,
@@ -14,10 +15,10 @@ class ObstacleGenerator(
     slidingObstacleTransitTimeSeconds: Float,
     private val sandColorManager: SandColorManager
 ) : IObstacleGenerator {
-    private val initialSlidingObstacleInterval = 2500L
-    private val minSlidingObstacleInterval = 500L
-    private val intervalReductionAmount = 50L
-    private val difficultyIncreaseInterval = 5000L // 5 seconds in game time
+    private val initialSlidingObstacleInterval = 2000L
+    private val minSlidingObstacleInterval = 300L
+    private val intervalReductionMultiplier = 0.98f
+    private val difficultyIncreaseInterval = 10000L // 5 seconds in game time
 
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
     private var lastDifficultyIncreaseTime = 0L
@@ -55,7 +56,7 @@ class ObstacleGenerator(
             if (currentSlidingObstacleInterval > minSlidingObstacleInterval) {
                 currentSlidingObstacleInterval = maxOf(
                     minSlidingObstacleInterval,
-                    currentSlidingObstacleInterval - intervalReductionAmount
+                    (currentSlidingObstacleInterval * intervalReductionMultiplier).roundToLong()
                 )
                 Logger.d("ObstacleGenerator","Increased difficulty: new interval = $currentSlidingObstacleInterval")
                 lastDifficultyIncreaseTime = frameTime
@@ -123,4 +124,6 @@ class ObstacleGenerator(
         lastDifficultyIncreaseTime = 0L
         currentSlidingObstacleInterval = initialSlidingObstacleInterval
     }
+
+    fun getCurrentSlidingObstacleInterval(): Long = currentSlidingObstacleInterval
 }
