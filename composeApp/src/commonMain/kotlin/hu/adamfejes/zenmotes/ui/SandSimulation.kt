@@ -110,6 +110,15 @@ private fun SandSimulationContent(
     val currentSandColor by sandColorManager.currentSandColor.collectAsState()
     val nextSandColor by sandColorManager.nextSandColor.collectAsState()
     var isPaused by remember { mutableStateOf(false) }
+
+    fun setPaused(paused: Boolean) {
+        isPaused = paused
+        if (paused) {
+            sandColorManager.pause()
+        } else {
+            sandColorManager.resume()
+        }
+    }
     var resetTrigger by remember { mutableIntStateOf(0) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -118,11 +127,10 @@ private fun SandSimulationContent(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> {
-                    isPaused = true
-                    sandColorManager.pause()
+                    setPaused(true)
                 }
                 Lifecycle.Event.ON_RESUME -> {
-                    sandColorManager.resume()
+                    setPaused(false)
                 }
                 else -> {}
             }
@@ -182,7 +190,7 @@ private fun SandSimulationContent(
                         .padding(end = 16.dp),
                     contentAlignment = Alignment.CenterEnd
                 ) {
-                    PauseButton { isPaused = !isPaused }
+                    PauseButton { setPaused(true) }
                 }
             }
 
@@ -190,13 +198,12 @@ private fun SandSimulationContent(
             if (isPaused) {
                 PauseOverlay(
                     onResume = {
-                        isPaused = false
-                        sandColorManager.resume()
+                        setPaused(false)
                     },
                     onRestart = {
                         resetTrigger++
                         resetScore()
-                        isPaused = false
+                        setPaused(false)
                     },
                     currentAppTheme = currentAppTheme,
                     onThemeChange = { newTheme -> setTheme(newTheme) }
