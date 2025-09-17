@@ -48,6 +48,10 @@ class SandGrid(
     private var lastCleanupTime = 0L
     private val cleanupIntervalMs = 100L
 
+    // Physics timing control - target 60fps for consistent physics regardless of display refresh rate
+    private var lastPhysicsUpdateTime = 0L
+    private val physicsTargetIntervalMs = 16L // ~60fps (1000ms / 60fps ≈ 16.67ms)
+
     private var previousNumberOfMovingParticles = 0
 
     // Performance tracking
@@ -349,6 +353,19 @@ class SandGrid(
         frameTime: Long
     ): Array<Array<Cell>> {
         val physicsStartTime = TimeUtils.nanoTime()
+
+        // Check if enough time has passed since last physics update (target 60fps)
+        val shouldRunPhysics = frameTime - lastPhysicsUpdateTime >= physicsTargetIntervalMs
+
+        if (!shouldRunPhysics) {
+            // Skip physics processing but still return current moving particles
+            Logger.d("PhysicsThrottle", "Skipping physics - not enough time passed (${frameTime - lastPhysicsUpdateTime}ms < ${physicsTargetIntervalMs}ms)")
+            return grid
+        }
+
+        // Update the last physics time
+        lastPhysicsUpdateTime = frameTime
+
         val newMovingParticles = mutableListOf<MovingParticle>()
 
         // Process moving particles in random order to avoid asymmetry
@@ -458,6 +475,9 @@ class SandGrid(
         lastUpdateDuration = 0L
         avgUpdateDuration = 0L
         lastCleanupTime = 0L
+
+        // Reset physics timing
+        lastPhysicsUpdateTime = 0L
 
         // Reset all components
         gridState.reset()

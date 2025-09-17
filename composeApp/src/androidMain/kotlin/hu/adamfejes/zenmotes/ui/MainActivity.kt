@@ -24,7 +24,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
     *  Sound doesn't stop when game is paused or backgrounded
-    *  In 120fps mode the too much sand is generated and it falls too quickly. Sand generatpr and gravity must depend on frame time.
  */
 
 class MainActivity : ComponentActivity() {
