@@ -8,16 +8,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
 import zenmotescmp.composeapp.generated.resources.Res
-import zenmotescmp.composeapp.generated.resources.pixeled
+import zenmotescmp.composeapp.generated.resources.Minecraft
 
 @Composable
-fun getPixeledFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.pixeled),
+fun getFontFamily(): FontFamily = FontFamily(
+    Font(Res.font.Minecraft),
 )
 
 @Composable
 fun getTypography(): Typography {
-    val pixeledFont = getPixeledFontFamily()
+    val pixeledFont = getFontFamily()
     return Typography(
         bodyLarge = TextStyle(
             fontFamily = pixeledFont,

@@ -88,7 +88,7 @@ fun AnimatedScoreLabel(
                 scoreEvent.score > 0 -> colorScheme.textColor
                 else -> Color.Red
             },
-            fontSize = if(scoreEvent.isBonus) 16.sp else 12.sp,
+            fontSize = if(scoreEvent.isBonus) 24.sp else 20.sp,
             modifier = Modifier
                 .offset(
                     x = animatedX.value.dp,

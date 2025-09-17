@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.ui.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
-import hu.adamfejes.zenmotes.ui.theme.getPixeledFontFamily
+import hu.adamfejes.zenmotes.ui.theme.getFontFamily
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
 @Composable
@@ -38,14 +38,14 @@ fun ThreeStateSwitch(
 
     val thumbOffset = remember { Animatable(0f) }
     val states = listOf(AppTheme.LIGHT, AppTheme.SYSTEM, AppTheme.DARK)
-    val labels = states.map { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } }
+    val labels = states.map { it.name.uppercase().replaceFirstChar { char -> char.uppercase() } }
     val currentIndex = states.indexOf(currentState)
 
     val colorScheme = LocalTheme.current.toColorScheme()
     val textColor = colorScheme.pausedTitleText
     val trackColor = colorScheme.background
     val thumbColor = colorScheme.textBackground
-    val fontFamily = getPixeledFontFamily()
+    val fontFamily = getFontFamily()
 
     LaunchedEffect(currentState) {
         thumbOffset.animateTo(
@@ -117,7 +117,7 @@ private fun DrawScope.drawThreeStateSwitch(
         val segmentCenterX = segmentWidth * index + segmentWidth / 2f
 
         val textStyle = TextStyle(
-            fontSize = 8.sp,
+            fontSize = 16.sp,
             fontFamily = fontFamily,
             color = textColor
         )

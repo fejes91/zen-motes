@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
-import hu.adamfejes.zenmotes.ui.theme.getPixeledFontFamily
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
 fun formatTime(millis: Long): String {
@@ -71,8 +68,8 @@ fun PauseOverlay(
                 ) {
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "Score",
-                        fontSize = 24.sp,
+                        text = "SCORE",
+                        fontSize = 28.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
                         color = colorScheme.pausedTitleText
@@ -80,8 +77,8 @@ fun PauseOverlay(
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "Time",
-                        fontSize = 24.sp,
+                        text = "TIME",
+                        fontSize = 28.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
                         color = colorScheme.pausedTitleText
@@ -95,7 +92,7 @@ fun PauseOverlay(
                     Text(
                         modifier = Modifier.weight(1f),
                         text = score.toString(),
-                        fontSize = 20.sp,
+                        fontSize = 32.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
                         color = colorScheme.pausedTitleText
@@ -104,7 +101,7 @@ fun PauseOverlay(
                     Text(
                         modifier = Modifier.weight(1f),
                         text = formatTime(sessionTimeMillis),
-                        fontSize = 20.sp,
+                        fontSize = 32.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
                         color = colorScheme.pausedTitleText
@@ -149,7 +146,7 @@ fun Buttons(colorScheme: ColorScheme, onResume: () -> Unit, onRestart: () -> Uni
         )
     ) {
         Text(
-            text = "Resume",
+            text = "RESUME",
             color = colorScheme.primaryButtonText
         )
     }
@@ -163,7 +160,7 @@ fun Buttons(colorScheme: ColorScheme, onResume: () -> Unit, onRestart: () -> Uni
         )
     ) {
         Text(
-            text = "Restart",
+            text = "RESTART",
             color = colorScheme.secondaryButtonText
         )
     }

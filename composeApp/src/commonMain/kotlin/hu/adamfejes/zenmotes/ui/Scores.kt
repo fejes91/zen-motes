@@ -94,17 +94,17 @@ private fun ScoreDisplay(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = "Score: ",
+                text = "SCORE: ",
                 color = colorScheme.textColor,
                 textAlign = TextAlign.End,
-                fontSize = 16.sp,
+                fontSize = 22.sp,
                 modifier = Modifier.fillMaxWidth().weight(1f),
             )
             Text(
                 text = "${currentAnimatedScore.roundToInt()}",
                 color = colorScheme.textColor,
                 textAlign = TextAlign.Start,
-                fontSize = 16.sp,
+                fontSize = 22.sp,
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
         }

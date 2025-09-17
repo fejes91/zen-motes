@@ -246,8 +246,8 @@ private fun PauseButton(onClick: () -> Unit) {
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = "Pause",
-                fontSize = 6.sp,
+                text = "PAUSE",
+                fontSize = 10.sp,
                 color = colorScheme.pauseButtonIcon
             )
         }
