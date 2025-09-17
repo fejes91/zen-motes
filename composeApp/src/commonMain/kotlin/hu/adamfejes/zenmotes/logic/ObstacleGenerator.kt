@@ -17,13 +17,14 @@ class ObstacleGenerator(
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 2000L
     private val minSlidingObstacleInterval = 300L
-    private val intervalReductionMultiplier = 0.98f
-    private val difficultyIncreaseInterval = 10000L // 5 seconds in game time
+    private val intervalReductionMultiplier = 0.975f
+    private val difficultyIncreaseInterval = 8000L
 
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
     private var lastDifficultyIncreaseTime = 0L
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
+    private var isPaused = false
 
     // Use domain-layer color types
     private val colorTypes = ColorType.entries.toTypedArray()
@@ -43,6 +44,7 @@ class ObstacleGenerator(
     }
 
     private fun shouldGenerateObstacle(frameTime: Long): Boolean {
+        if (isPaused) return false
         return frameTime - lastSlidingObstacleTime >= currentSlidingObstacleInterval
     }
 
@@ -123,6 +125,17 @@ class ObstacleGenerator(
         lastSlidingObstacleTime = 0L
         lastDifficultyIncreaseTime = 0L
         currentSlidingObstacleInterval = initialSlidingObstacleInterval
+    }
+
+    override fun onPause() {
+        isPaused = true
+    }
+
+    override fun onResume() {
+        isPaused = false
+        // Reset timing to restart obstacle generation immediately
+        lastSlidingObstacleTime = 0L
+        lastDifficultyIncreaseTime = 0L
     }
 
     fun getCurrentSlidingObstacleInterval(): Long = currentSlidingObstacleInterval

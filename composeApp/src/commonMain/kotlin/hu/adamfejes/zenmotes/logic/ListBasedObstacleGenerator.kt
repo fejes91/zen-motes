@@ -80,4 +80,13 @@ class ListBasedObstacleGenerator(
         lastObstacleTime = 0L
         currentObstacleIndex = 0
     }
+
+    override fun onPause() {
+        // Nothing specific needed for pause
+    }
+
+    override fun onResume() {
+        // Reset timing to restart obstacle generation immediately
+        lastObstacleTime = 0L
+    }
 }
