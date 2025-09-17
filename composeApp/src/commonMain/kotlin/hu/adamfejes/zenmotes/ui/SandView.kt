@@ -62,7 +62,7 @@ import kotlin.time.measureTime
 fun SandView(
     modifier: Modifier = Modifier,
     sandColorType: ColorType = ColorType.OBSTACLE_COLOR_1,
-    sandGenerationAmount: Int = 8, // Higher value for performance testing
+    sandGenerationAmount: Int,
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
     resetTrigger: Int,
@@ -168,20 +168,17 @@ fun SandView(
             sandGrid = initializeGridIfNeeded(sandGrid, soundManager, gridDimensions, images, sandColorManager)
 
             sandGrid?.let { grid ->
-                // 2. Sand particle addition timing
-                val sandAddTime = if (isAddingSand) {
-                    val sandAddStartTime = TimeUtils.nanoTime()
-                    addSandParticles(
-                        grid,
-                        sandSourceX,
-                        CELL_SIZE,
-                        sandColorType,
-                        frame,
-                        gridDimensions,
-                        sandGenerationAmount
+                // 2. Update sand generation state based on user input
+                if (isAddingSand) {
+                    grid.setSandGeneration(
+                        active = true,
+                        sourceX = sandSourceX / CELL_SIZE, // Convert to grid coordinates
+                        colorType = sandColorType,
+                        amount = sandGenerationAmount
                     )
-                    (TimeUtils.nanoTime() - sandAddStartTime) / 1_000_000.0
-                } else 0.0
+                } else {
+                    grid.setSandGeneration(active = false)
+                }
 
                 // 3. Draw grid timing (this will provide internal breakdown)
                 val drawGridStartTime = TimeUtils.nanoTime()
@@ -218,7 +215,7 @@ fun SandView(
 
                 Logger.d(
                     "DrawPerf",
-                    "TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: $fps | AddSand: ${sandAddTime}ms | DrawGrid: ${drawGridTime}ms"
+                    "TOTAL: ${drawTime}ms + ${grid.getPerformanceData().updateTime}ms = ${drawTime + grid.getPerformanceData().updateTime}ms | FPS: $fps | DrawGrid: ${drawGridTime}ms"
                 )
             }
         }
@@ -297,31 +294,6 @@ private fun initializeGridIfNeeded(
     }
 }
 
-private fun addSandParticles(
-    grid: SandGrid,
-    sourceX: Float,
-    cellSize: Float,
-    colorType: ColorType,
-    frame: Long,
-    dimensions: Pair<Int, Int>,
-    sandGenerationAmount: Int
-) {
-    val (width, _) = dimensions
-    val centerX = (sourceX / cellSize).roundToInt().coerceIn(0, width - 1)
-
-    // Generate multiple sand particles in a sprinkle pattern at the top of the screen
-    repeat(sandGenerationAmount) {
-        val spreadX = centerX + (-2..2).random()
-        val spreadY = 0 // Always spawn at the top of the screen
-
-        if (spreadX in 0 until width) {
-            grid.addSand(spreadX, spreadY, colorType, frame)
-        }
-    }
-
-    // Always add one at the center of the top
-    grid.addSand(centerX, 0, colorType, frame)
-}
 
 private fun DrawScope.drawSandGrid(
     grid: SandGrid,
@@ -347,7 +319,6 @@ private fun DrawScope.drawSandGrid(
     val getAllCellsTime = (TimeUtils.nanoTime() - getAllCellsStartTime) / 1_000_000.0
 
     // 2. Break down the cell iteration
-    val cellIterationStartTime = TimeUtils.nanoTime()
     var sandDrawTime = 0.0
 
     val cellIterationTime = measureTime {

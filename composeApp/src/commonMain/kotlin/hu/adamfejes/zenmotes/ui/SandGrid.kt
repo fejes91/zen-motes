@@ -31,6 +31,13 @@ class SandGrid(
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
     private val sandColorManager: SandColorManager
 ) {
+    // Sand generation control
+    private var isSandGenerationActive = false
+    private var sandGenerationSourceX = 0f
+    private var sandGenerationColorType = ColorType.OBSTACLE_COLOR_1
+    private var sandGenerationAmount = 1
+    private var lastSandGenerationTime = 0L
+    private val sandGenerationIntervalMs = 16L // ~60 FPS for sand generation
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
 
@@ -67,6 +74,20 @@ class SandGrid(
 
     fun setObstacleTypes(types: List<SlidingObstacleType>) {
         obstacleTypes = types
+    }
+
+    fun setSandGeneration(
+        active: Boolean,
+        sourceX: Float = 0f,
+        colorType: ColorType = ColorType.OBSTACLE_COLOR_1,
+        amount: Int = 1
+    ) {
+        isSandGenerationActive = active
+        if (active) {
+            sandGenerationSourceX = sourceX
+            sandGenerationColorType = colorType
+            sandGenerationAmount = amount
+        }
     }
 
     fun getCell(x: Int, y: Int): Cell? = gridState.getCell(x, y)
@@ -115,11 +136,17 @@ class SandGrid(
             initialGrid = gridState.getGrid()//createNewGrid()
         }.inWholeMilliseconds
 
-        // 2. Obstacle updates  
+        // 2. Time-based sand generation
+        var gridAfterSandGeneration: Array<Array<Cell>>
+        val sandGenerationTime = measureTime {
+            gridAfterSandGeneration = processTimedSandGeneration(initialGrid, frameTime)
+        }.inWholeMilliseconds
+
+        // 3. Obstacle updates
         var gridAfterObstacles: Array<Array<Cell>>
         val obstacleTime = measureTime {
             gridAfterObstacles =
-                updateSlidingObstacles(initialGrid, frameTime, increaseScore, decreaseScore)
+                updateSlidingObstacles(gridAfterSandGeneration, frameTime, increaseScore, decreaseScore)
         }.inWholeMilliseconds
 
         // 3. Particle physics
@@ -144,7 +171,7 @@ class SandGrid(
             }.inWholeMilliseconds
         } else 0L
 
-        val totalTime = gridCreateTime + obstacleTime + particleTime + updateGridTime + cleanupTime
+        val totalTime = gridCreateTime + sandGenerationTime + obstacleTime + particleTime + updateGridTime + cleanupTime
 
         // Update performance tracking
         frameCount++
@@ -162,7 +189,7 @@ class SandGrid(
 
         Logger.d(
             "SandPerf",
-            "BREAKDOWN: Grid: ${gridCreateTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms"
+            "BREAKDOWN: Grid: ${gridCreateTime}ms | SandGen: ${sandGenerationTime}ms | Obstacles: ${obstacleTime}ms | Particles: ${particleTime}ms | Update: ${updateGridTime}ms | Cleanup: ${cleanupTime}ms"
         )
         Logger.d(
             "SandPerf",
@@ -184,6 +211,39 @@ class SandGrid(
         }
 
         soundManager.setVolume(currentNumberOfMovingParticles * 0.7f / maxMovingParticles.toFloat())
+    }
+
+    private fun processTimedSandGeneration(
+        grid: Array<Array<Cell>>,
+        frameTime: Long
+    ): Array<Array<Cell>> {
+        // Only generate sand if active and enough time has passed
+        if (!isSandGenerationActive || frameTime - lastSandGenerationTime < sandGenerationIntervalMs) {
+            return grid
+        }
+
+        val centerX = sandGenerationSourceX.roundToInt().coerceIn(0, width - 1)
+
+        // Generate multiple sand particles in a sprinkle pattern at the top of the screen
+        var particlesAdded = 0
+        repeat(sandGenerationAmount) {
+            val spreadX = centerX + (-3..3).random()
+            val spreadY = 0 // Always spawn at the top of the screen
+
+            if (spreadX in 0 until width && grid[spreadY][spreadX].type == CellType.EMPTY) {
+                val particle = particlePhysics.createSandParticle(sandGenerationColorType, frameTime)
+                grid[spreadY][spreadX] = Cell(CellType.SAND, particle)
+                gridState.addMovingParticle(MovingParticle(spreadX, spreadY, particle))
+                particlesAdded++
+            }
+        }
+
+        // Update last generation time only if we actually added particles
+        if (particlesAdded > 0) {
+            lastSandGenerationTime = frameTime
+        }
+
+        return grid
     }
 
     private fun updateSlidingObstacles(
