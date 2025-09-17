@@ -11,20 +11,21 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 /*
     * ZenMotes
     * TODOs
-    * Color picker redesign?
-    *   Colors are randomly changing. Next one is show on the top in a colorbar and warns about the change
     * Play sounds for: sea, sand, obstacle destruction, score change?
-    * Fix obstacle generator to not generate obstacles on each other
     * Settings, shared preferences
-    *   Theme
     *   Game mode: Zen / Time attack?
     *   High Score
     * Scoring
-    *   Timer is counting under the score
-    *   The longer you can keep the score above 0, the higher rank you get
-    *   When score is below 0 for 5 secs, game is over
-    * Continuously changing sand color?
+    *   Timer is counting down under the score
+    *   When obstacle is destroyed, time is increased, when an obstacle is missed, time is decreased
+    *   Game is until the timer reaches zero, the score will be written into a leaderboard
     * More obstacle designs?
+    *
+    * Bugs:
+    *  Fix obstacle generator to not generate obstacles on each other
+    *  Sound doesn't stop when game is paused or backgrounded
+    *  When game is unpaused, first obstacle appears after a long delay. Obstacle generator must restart immediately when game is unpaused.
+    *  In 120fps mode the too much sand is generated and it falls too quickly. Sand generatpr and gravity must depend on frame time.
  */
 
 class MainActivity : ComponentActivity() {
