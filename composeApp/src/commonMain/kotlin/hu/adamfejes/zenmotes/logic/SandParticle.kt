@@ -1,23 +1,34 @@
 package hu.adamfejes.zenmotes.logic
 
 import androidx.compose.ui.graphics.ImageBitmap
+import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.utils.UuidGenerator
 
 enum class ColorType {
     OBSTACLE_COLOR_1,
     OBSTACLE_COLOR_2,
     OBSTACLE_COLOR_3,
-     OBSTACLE_COLOR_4,
+    OBSTACLE_COLOR_4,
     // OBSTACLE_COLOR_5,
     // OBSTACLE_COLOR_6
 }
 
 sealed class SlidingObstacleType(
     val imageBitmap: ImageBitmap,
+    val soundSample: SoundSample,
     val value: Int
 ) {
-    class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(imageBitmap, 100)
-    class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(imageBitmap, 1000)
+    class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(
+        imageBitmap = imageBitmap,
+        soundSample = SoundSample.SAND_BLAST_SHORT,
+        value = 100
+    )
+
+    class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(
+        imageBitmap = imageBitmap,
+        soundSample = SoundSample.SAND_BLAST,
+        value = 1000
+    )
 }
 
 data class SandParticle(

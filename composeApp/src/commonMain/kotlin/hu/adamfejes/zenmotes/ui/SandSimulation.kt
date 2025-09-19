@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
@@ -70,7 +71,8 @@ fun SandSimulation(
         startSession = viewModel::startSession,
         pauseSession = viewModel::pauseSession,
         resumeSession = viewModel::resumeSession,
-        sandColorManager = sandColorManager
+        sandColorManager = sandColorManager,
+        playSound = viewModel::playSound
     )
 }
 
@@ -89,6 +91,7 @@ private fun SandSimulationContent(
     startSession: () -> Unit,
     pauseSession: () -> Unit,
     resumeSession: () -> Unit,
+    playSound: (Int) -> Unit,
     sandColorManager: SandColorManager
 ) {
     if (currentAppTheme == null) {
@@ -188,6 +191,9 @@ private fun SandSimulationContent(
                 Scores(
                     score = score,
                     activeScoreEvents = activeScoreEvents,
+                    onAnimationNearlyComplete = { obstacleId ->
+                        playSound(activeScoreEvents.first { it.obstacleId == obstacleId }.score)
+                    },
                     onAnimationComplete = { obstacleId ->
                         activeScoreEvents =
                             activeScoreEvents.filter { it.obstacleId != obstacleId }

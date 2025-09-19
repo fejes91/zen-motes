@@ -50,7 +50,7 @@ class IOSSoundManager : SoundManager {
         }
     }
 
-    override fun play(sample: SoundSample, loop: Boolean) {
+    override fun playAsync(sample: SoundSample, loop: Boolean) {
         scope.launch(Dispatchers.Main) {
             audioPlayers[sample]?.let { player ->
                 player.stop()

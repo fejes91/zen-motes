@@ -31,6 +31,7 @@ import kotlin.math.roundToInt
 fun Scores(
     score: Int,
     activeScoreEvents: Set<ScoreEvent>,
+    onAnimationNearlyComplete: (String) -> Unit,
     onAnimationComplete: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -68,6 +69,7 @@ fun Scores(
                     modifier = Modifier.fillMaxSize(),
                     onAnimationNearlyComplete = {
                         animationTrigger++
+                        onAnimationNearlyComplete(event.obstacleId)
                     },
                     onAnimationComplete = {
                         onAnimationComplete(event.obstacleId)

@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import java.util.concurrent.ConcurrentHashMap
@@ -51,31 +52,39 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
         }
     }
 
-    override fun play(sample: SoundSample, loop: Boolean) {
+    override fun playAsync(sample: SoundSample) {
         scope.launch(Dispatchers.Main) {
-            Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName}, loop: $loop")
-            soundIds[sample]?.let { soundId ->
-                // Stop any existing stream for this sample
-                streamIds[sample]?.let { streamId ->
-                    soundPool.stop(streamId)
-                }
-
-                val streamId = soundPool.play(
-                    soundId,
-                    1.0f, // left volume
-                    1.0f, // right volume
-                    1, // priority
-                    if (loop) -1 else 0, // loop (-1 = infinite, 0 = no loop)
-                    1.0f // rate
-                )
-                
-                if (streamId != 0) {
-                    streamIds[sample] = streamId
-                }
-            }
+            play(sample)
         }
     }
-    
+
+    override suspend fun play(sample: SoundSample) {
+        Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName})")
+        soundIds[sample]?.let { soundId ->
+            // Stop any existing stream for this sample
+//            streamIds[sample]?.let { streamId ->
+//                soundPool.stop(streamId)
+//            }
+
+            val streamId = soundPool.play(
+                soundId,
+                1.0f, // left volume
+                1.0f, // right volume
+                1, // priority
+                0, // loop (-1 = infinite, 0 = no loop)
+                1.0f // rate
+            )
+
+            if (streamId != 0) {
+                streamIds[sample] = streamId
+            }
+
+            delay(sample.durationMillis)
+
+            streamIds.remove(sample)
+        }
+    }
+
     override fun stop(sample: SoundSample) {
         Logger.d("AndroidSoundManager", "Stopping sound: ${sample.fileName}")
         scope.launch(Dispatchers.Main) {

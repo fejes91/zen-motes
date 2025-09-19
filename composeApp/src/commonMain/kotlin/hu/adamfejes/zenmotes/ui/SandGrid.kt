@@ -1,6 +1,5 @@
 package hu.adamfejes.zenmotes.ui
 
-import androidx.compose.ui.graphics.ImageBitmap
 import hu.adamfejes.zenmotes.logic.Cell
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
@@ -16,7 +15,6 @@ import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.logic.setCell
 import hu.adamfejes.zenmotes.service.SoundManager
-import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToInt
@@ -164,7 +162,7 @@ class SandGrid(
             gridState.updateGrid(gridAfterParticles)
         }.inWholeMilliseconds
 
-        manageSounds(previousNumberOfMovingParticles, gridState.getMovingParticles().size)
+//        manageSounds(previousNumberOfMovingParticles, gridState.getMovingParticles().size)
         previousNumberOfMovingParticles = gridState.getMovingParticles().size
 
         // 5. Cleanup routine (periodic)
@@ -201,20 +199,6 @@ class SandGrid(
         )
 
         lastFrameTime = frameTime
-    }
-
-    private fun manageSounds(previousNumberOfMovingParticles: Int, currentNumberOfMovingParticles: Int) {
-        if(currentNumberOfMovingParticles > 0) {
-            if (previousNumberOfMovingParticles == 0) {
-                // More particles are moving, play sound
-                soundManager.play(SoundSample.SAND_BEGIN)
-                soundManager.play(SoundSample.SAND_MIDDLE, loop = true)
-            }
-        } else {
-            soundManager.stopAll()
-        }
-
-        soundManager.setVolume(currentNumberOfMovingParticles * 0.7f / maxMovingParticles.toFloat())
     }
 
     private fun processTimedSandGeneration(
@@ -296,6 +280,8 @@ class SandGrid(
                     "SlidingObstacle",
                     "💥 Destroying sliding obstacle due to sand weight: $sandHeight >= $weightThreshold"
                 )
+                // Play destruction sound
+                soundManager.playAsync(obstacle.type.soundSample)
                 // Add score for destroying obstacle (bonus already calculated)
                 increaseScore(obstacle, isBonus)
                 // Convert obstacle to sand particles instead of updating position

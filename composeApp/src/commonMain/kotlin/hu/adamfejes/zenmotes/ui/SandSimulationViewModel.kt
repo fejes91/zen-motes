@@ -9,7 +9,9 @@ import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
+import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,13 +25,14 @@ class SandSimulationViewModel(
     private val sessionTimer: SessionTimer
 ) : ViewModel() {
 
+    var soundJob: Job? = null
     val score: StateFlow<Int> = scoreHolder
         .getScore()
         .stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = 0
-    )
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = 0
+        )
 
     val scoreEvent: StateFlow<ScoreEvent?> = scoreHolder.getScoreEvent().stateIn(
         scope = viewModelScope,
@@ -100,6 +103,16 @@ class SandSimulationViewModel(
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch {
             preferencesService.saveTheme(theme)
+        }
+    }
+
+    fun playSound(score: Int) {
+        if(soundJob?.isActive == true) {
+            return
+        }
+
+        soundJob = viewModelScope.launch {
+            soundManager.play(if (score < 0) SoundSample.NEGATIVE else SoundSample.POSITIVE)
         }
     }
 
