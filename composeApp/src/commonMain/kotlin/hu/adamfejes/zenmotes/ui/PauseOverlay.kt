@@ -40,6 +40,8 @@ fun PauseOverlay(
     onRestart: () -> Unit,
     currentAppTheme: AppTheme,
     onThemeChange: (AppTheme) -> Unit,
+    soundEnabled: Boolean,
+    onSoundToggle: (Boolean) -> Unit,
     score: Int,
     sessionTimeMillis: Long
 ) {
@@ -130,6 +132,22 @@ fun PauseOverlay(
                     currentState = currentAppTheme,
                     onStateChange = onThemeChange
                 )
+
+                Button(
+                    onClick = { onSoundToggle(!soundEnabled) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (soundEnabled) colorScheme.primaryButtonBackground else colorScheme.secondaryButtonBackground
+                    )
+                ) {
+                    Text(
+                        text = if (soundEnabled) "SOUND ON" else "SOUND OFF",
+                        color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText
+                    )
+                }
             }
         }
     }

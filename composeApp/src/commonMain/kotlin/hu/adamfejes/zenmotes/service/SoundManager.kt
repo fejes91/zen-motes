@@ -10,6 +10,7 @@ enum class SoundSample(val fileName: String, val durationMillis: Long) {
 interface SoundManager {
     fun init()
     fun setVolume(volume: Float)
+    fun setSoundEnabled(enabled: Boolean)
     fun playAsync(sample: SoundSample)
     suspend fun play(sample: SoundSample)
     fun stop(sample: SoundSample)

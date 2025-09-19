@@ -11,7 +11,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 /*
     * ZenMotes
     * TODOs
-    * Play sounds for: sea, sand, obstacle destruction, score change?
     * Settings, shared preferences
     *   Game mode: Zen / Time attack?
     *   High Score
@@ -23,7 +22,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
-    *  Sound doesn't stop when game is paused or backgrounded
  */
 
 class MainActivity : ComponentActivity() {

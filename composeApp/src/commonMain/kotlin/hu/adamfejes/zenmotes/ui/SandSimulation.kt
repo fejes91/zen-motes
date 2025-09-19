@@ -55,6 +55,7 @@ fun SandSimulation(
     val score by viewModel.score.collectAsState(0)
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
+    val soundEnabled by viewModel.soundEnabled.collectAsState()
     val sessionTime by viewModel.sessionTimeMillis.collectAsState(0L)
 
     SandSimulationContent(
@@ -63,8 +64,10 @@ fun SandSimulation(
         scoreEvent = scoreEvent,
         score = score,
         sessionTime = sessionTime,
+        soundEnabled = soundEnabled,
         resetScore = viewModel::resetSession,
         setTheme = viewModel::setTheme,
+        setSoundEnabled = viewModel::setSoundEnabled,
         increaseScore = viewModel::increaseScore,
         decreaseScore = viewModel::decreaseScore,
         toggleAddingSand = viewModel::toggleAddingSand,
@@ -83,8 +86,10 @@ private fun SandSimulationContent(
     scoreEvent: ScoreEvent?,
     score: Int,
     sessionTime: Long,
+    soundEnabled: Boolean,
     resetScore: () -> Unit,
     setTheme: (AppTheme) -> Unit,
+    setSoundEnabled: (Boolean) -> Unit,
     increaseScore: (SlidingObstacle, Boolean) -> Unit,
     decreaseScore: (SlidingObstacle) -> Unit,
     toggleAddingSand: (Boolean) -> Unit,
@@ -225,6 +230,8 @@ private fun SandSimulationContent(
                     },
                     currentAppTheme = currentAppTheme,
                     onThemeChange = { newTheme -> setTheme(newTheme) },
+                    soundEnabled = soundEnabled,
+                    onSoundToggle = { enabled -> setSoundEnabled(enabled) },
                     score = score,
                     sessionTimeMillis = sessionTime
                 )

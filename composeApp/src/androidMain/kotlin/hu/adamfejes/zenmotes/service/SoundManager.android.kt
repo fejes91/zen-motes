@@ -29,6 +29,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     private val streamIds = ConcurrentHashMap<SoundSample, Int>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var paused: Boolean = false
+    private var soundEnabled: Boolean = true
     
     override fun init() {
         scope.launch {
@@ -52,6 +53,14 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
         }
     }
 
+    override fun setSoundEnabled(enabled: Boolean) {
+        Logger.d("AndroidSoundManager", "Setting sound enabled to $enabled")
+        soundEnabled = enabled
+        if (!enabled) {
+            stopAll()
+        }
+    }
+
     override fun playAsync(sample: SoundSample) {
         scope.launch(Dispatchers.Main) {
             play(sample)
@@ -62,6 +71,10 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
         Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName})")
         if(paused) {
             Logger.d("AndroidSoundManager", "SoundManager is paused, not playing sound: ${sample.fileName})")
+            return
+        }
+        if(!soundEnabled) {
+            Logger.d("AndroidSoundManager", "Sound is disabled, not playing sound: ${sample.fileName})")
             return
         }
 
