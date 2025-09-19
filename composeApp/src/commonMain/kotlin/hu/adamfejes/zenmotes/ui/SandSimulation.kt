@@ -56,14 +56,14 @@ fun SandSimulation(
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val soundEnabled by viewModel.soundEnabled.collectAsState()
-    val sessionTime by viewModel.sessionTimeMillis.collectAsState(0L)
+    val countDownTime by viewModel.countDownTimeMillis.collectAsState()
 
     SandSimulationContent(
         modifier = modifier,
         currentAppTheme = currentAppTheme,
         scoreEvent = scoreEvent,
         score = score,
-        sessionTime = sessionTime,
+        countDownTime = countDownTime,
         soundEnabled = soundEnabled,
         resetScore = viewModel::resetSession,
         setTheme = viewModel::setTheme,
@@ -85,7 +85,7 @@ private fun SandSimulationContent(
     currentAppTheme: AppTheme?,
     scoreEvent: ScoreEvent?,
     score: Int,
-    sessionTime: Long,
+    countDownTime: Long,
     soundEnabled: Boolean,
     resetScore: () -> Unit,
     setTheme: (AppTheme) -> Unit,
@@ -195,6 +195,7 @@ private fun SandSimulationContent(
                 // Score display at the top center
                 Scores(
                     score = score,
+                    countDownTimeMillis = countDownTime,
                     activeScoreEvents = activeScoreEvents,
                     onAnimationNearlyComplete = { obstacleId ->
                         playSound(activeScoreEvents.first { it.obstacleId == obstacleId }.score)
@@ -233,7 +234,7 @@ private fun SandSimulationContent(
                     soundEnabled = soundEnabled,
                     onSoundToggle = { enabled -> setSoundEnabled(enabled) },
                     score = score,
-                    sessionTimeMillis = sessionTime
+                    countDownTimeMillis = countDownTime
                 )
             }
         }

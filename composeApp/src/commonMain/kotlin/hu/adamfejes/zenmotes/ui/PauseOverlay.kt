@@ -26,13 +26,7 @@ import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
-
-fun formatTime(millis: Long): String {
-    val totalSeconds = millis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "${minutes}:${seconds.toString().padStart(2, '0')}"
-}
+import hu.adamfejes.zenmotes.utils.formatTime
 
 @Composable
 fun PauseOverlay(
@@ -43,7 +37,7 @@ fun PauseOverlay(
     soundEnabled: Boolean,
     onSoundToggle: (Boolean) -> Unit,
     score: Int,
-    sessionTimeMillis: Long
+    countDownTimeMillis: Long
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
 
@@ -102,7 +96,7 @@ fun PauseOverlay(
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = formatTime(sessionTimeMillis),
+                        text = formatTime(countDownTimeMillis),
                         fontSize = 32.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,

@@ -24,6 +24,7 @@ import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun AnimatedScoreLabel(
@@ -82,7 +83,7 @@ fun AnimatedScoreLabel(
         modifier = modifier
     ) {
         Text(
-            text = if (scoreEvent.score > 0) "+${scoreEvent.score}" else "${scoreEvent.score}",
+            text = if (scoreEvent.score > 0) "+${(scoreEvent.score / 1000f).roundToInt()}" else "${(scoreEvent.score / 1000f).roundToInt()}",
             color = when {
                 scoreEvent.isBonus -> Color.Green
                 scoreEvent.score > 0 -> colorScheme.textColor

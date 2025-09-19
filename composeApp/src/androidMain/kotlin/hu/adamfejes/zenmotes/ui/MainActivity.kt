@@ -15,10 +15,9 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *   Game mode: Zen / Time attack?
     *   High Score
     * Scoring
-    *   Timer is counting down under the score
-    *   When obstacle is destroyed, time is increased, when an obstacle is missed, time is decreased
     *   Game is until the timer reaches zero, the score will be written into a leaderboard
     * More obstacle designs?
+    * Play ticking sound when time is running out
     *
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other

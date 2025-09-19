@@ -6,4 +6,6 @@ object Constants {
     const val SCORE_FLY_DURATION: Int = 1000
 
     const val COLOR_CHANGE_ANIMATION_DURATION: Long = 3000L
+
+    const val INITIAL_COUNTDOWN_TIME_MILLIS: Long = 60000L
 }

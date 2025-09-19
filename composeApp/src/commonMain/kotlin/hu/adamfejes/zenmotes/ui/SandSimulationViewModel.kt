@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
-import hu.adamfejes.zenmotes.logic.SessionTimer
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.service.SoundSample
+import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,8 +23,7 @@ import kotlin.math.roundToInt
 class SandSimulationViewModel(
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
-    private val soundManager: SoundManager,
-    private val sessionTimer: SessionTimer
+    private val soundManager: SoundManager
 ) : ViewModel() {
 
     var soundJob: Job? = null
@@ -56,11 +55,11 @@ class SandSimulationViewModel(
             initialValue = true
         )
 
-    val sessionTimeMillis: StateFlow<Long> = sessionTimer.sessionTimeMillis
+    val countDownTimeMillis: StateFlow<Long> = scoreHolder.getCountDownTimeMillis()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = 0L
+            initialValue = INITIAL_COUNTDOWN_TIME_MILLIS
         )
 
     init {
@@ -74,13 +73,11 @@ class SandSimulationViewModel(
 
     fun increaseScore(slidingObstacle: SlidingObstacle, isBonus: Boolean = false) {
         viewModelScope.launch {
-            val baseScore = slidingObstacle.getBallparkScore()
-            val finalScore = if (isBonus) baseScore * 2 else baseScore
             scoreHolder.increaseScore(
                 ScoreEvent(
                     x = slidingObstacle.x.roundToInt(),
                     y = slidingObstacle.y,
-                    score = finalScore,
+                    score = slidingObstacle.getBallparkScore(),
                     obstacleId = slidingObstacle.id,
                     isBonus = isBonus
                 )
@@ -90,11 +87,12 @@ class SandSimulationViewModel(
 
     fun decreaseScore(slidingObstacle: SlidingObstacle) {
         viewModelScope.launch {
+            // do not decrease score
             scoreHolder.decreaseScore(
                 ScoreEvent(
                     x = slidingObstacle.x.roundToInt(),
                     y = slidingObstacle.y,
-                    score = -slidingObstacle.getBallparkScore(),
+                    score = (-slidingObstacle.getBallparkScore() / 2f).roundToInt(),
                     obstacleId = slidingObstacle.id
                 )
             )
@@ -103,19 +101,18 @@ class SandSimulationViewModel(
 
     fun resetSession() {
         scoreHolder.resetScore()
-        sessionTimer.reset()
     }
 
     fun startSession() {
-        sessionTimer.start()
+        scoreHolder.startTimer()
     }
 
     fun pauseSession() {
-        sessionTimer.pause()
+        scoreHolder.pauseTimer()
     }
 
     fun resumeSession() {
-        sessionTimer.resume()
+        scoreHolder.resumeTimer()
     }
 
     fun setTheme(theme: AppTheme) {
@@ -132,7 +129,7 @@ class SandSimulationViewModel(
     }
 
     fun playSound(score: Int) {
-        if(soundJob?.isActive == true) {
+        if (soundJob?.isActive == true) {
             return
         }
 

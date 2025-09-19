@@ -3,6 +3,7 @@ package hu.adamfejes.zenmotes.logic
 import androidx.compose.ui.graphics.ImageBitmap
 import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.utils.UuidGenerator
+import kotlin.math.roundToInt
 
 enum class ColorType {
     OBSTACLE_COLOR_1,
@@ -21,13 +22,13 @@ sealed class SlidingObstacleType(
     class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST_SHORT,
-        value = 100
+        value = 5000
     )
 
     class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST,
-        value = 1000
+        value = 10000
     )
 }
 
@@ -90,8 +91,6 @@ data class PerformanceData(
     val obstacles: Int,
     val currentSlidingObstacleInterval: Long
 )
-
-fun SlidingObstacle.getArea() = width * height
 
 fun SlidingObstacle.getBallparkScore(): Int {
     return type.value
