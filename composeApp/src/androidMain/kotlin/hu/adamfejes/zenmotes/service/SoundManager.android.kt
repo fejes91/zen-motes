@@ -27,8 +27,8 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     
     private val soundIds = ConcurrentHashMap<SoundSample, Int>()
     private val streamIds = ConcurrentHashMap<SoundSample, Int>()
-    
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var paused: Boolean = false
     
     override fun init() {
         scope.launch {
@@ -60,12 +60,12 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
 
     override suspend fun play(sample: SoundSample) {
         Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName})")
-        soundIds[sample]?.let { soundId ->
-            // Stop any existing stream for this sample
-//            streamIds[sample]?.let { streamId ->
-//                soundPool.stop(streamId)
-//            }
+        if(paused) {
+            Logger.d("AndroidSoundManager", "SoundManager is paused, not playing sound: ${sample.fileName})")
+            return
+        }
 
+        soundIds[sample]?.let { soundId ->
             val streamId = soundPool.play(
                 soundId,
                 1.0f, // left volume
@@ -111,5 +111,14 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
             soundPool.release()
         }
         scope.cancel()
+    }
+
+    override fun onPause() {
+        stopAll()
+        paused = true
+    }
+
+    override fun onResume() {
+        paused = false
     }
 }
