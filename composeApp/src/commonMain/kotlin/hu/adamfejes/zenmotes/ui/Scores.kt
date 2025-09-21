@@ -54,11 +54,7 @@ fun Scores(
         targetCountDownTime = countDownTimeMillis
 
         if(score == 0) {
-            scoreAnimatable.snapTo(0f)
-        }
-
-        if(countDownTimeMillis == INITIAL_COUNTDOWN_TIME_MILLIS) {
-            countDownAnimatable.snapTo(INITIAL_COUNTDOWN_TIME_MILLIS.toFloat())
+            scoreAnimatable.animateTo(0f)
         }
     }
 
