@@ -13,9 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -23,28 +24,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.navigation.LocalTheme
+import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatTime
+import org.koin.compose.koinInject
 
 @Composable
-fun PauseOverlay(
+fun PauseDialog(
     onResume: () -> Unit,
-    onRestart: () -> Unit,
-    currentAppTheme: AppTheme,
-    onThemeChange: (AppTheme) -> Unit,
-    soundEnabled: Boolean,
-    onSoundToggle: (Boolean) -> Unit,
-    score: Int,
-    countDownTimeMillis: Long
+    onRestart: () -> Unit
 ) {
+    val viewModel: SandSimulationViewModel = koinInject()
+    val currentAppTheme by viewModel.appTheme.collectAsState()
+    val soundEnabled by viewModel.soundEnabled.collectAsState()
+    val score by viewModel.score.collectAsState(0)
+    val countDownTime by viewModel.countDownTimeMillis.collectAsState()
+
+    if (currentAppTheme == null) {
+        return
+    }
+
     val colorScheme = LocalTheme.current.toColorScheme()
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(colorScheme.pauseOverlayBackground),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -96,7 +103,7 @@ fun PauseOverlay(
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = formatTime(countDownTimeMillis),
+                        text = formatTime(countDownTime),
                         fontSize = 32.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
@@ -111,10 +118,16 @@ fun PauseOverlay(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Buttons(
+                PauseScreenButtons(
                     colorScheme = colorScheme,
-                    onResume = onResume,
-                    onRestart = onRestart
+                    onResume = {
+                        viewModel.resumeSession()
+                        onResume()
+                    },
+                    onRestart = {
+                        viewModel.resetSession()
+                        onRestart()
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -123,12 +136,12 @@ fun PauseOverlay(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
-                    currentState = currentAppTheme,
-                    onStateChange = onThemeChange
+                    currentState = currentAppTheme!!,
+                    onStateChange = viewModel::setTheme
                 )
 
                 Button(
-                    onClick = { onSoundToggle(!soundEnabled) },
+                    onClick = { viewModel.setSoundEnabled(!soundEnabled) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
@@ -148,7 +161,11 @@ fun PauseOverlay(
 }
 
 @Composable
-fun Buttons(colorScheme: ColorScheme, onResume: () -> Unit, onRestart: () -> Unit) {
+private fun PauseScreenButtons(
+    colorScheme: ColorScheme,
+    onResume: () -> Unit,
+    onRestart: () -> Unit
+) {
     Button(
         onClick = onResume,
         modifier = Modifier.fillMaxWidth(),

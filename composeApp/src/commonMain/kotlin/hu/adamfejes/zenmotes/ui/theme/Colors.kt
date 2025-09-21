@@ -33,7 +33,7 @@ object ZenColors {
         internal val pauseButtonBackground = Color(0xFFF5F5F5) // Light gray with pastel feel
         internal val pauseButtonIcon = Color(0xFF6B6B6B) // Soft gray for icons
         internal val pauseOverlayBackground = Color(0x80FFFFFF) // Semi-transparent white
-        internal val pausedTitleText = Color(0xFF4A4A4A) // Darker gray for title visibility
+        internal val pausedTitleText = Color(0xFFE0E0E0) // Darker gray for title visibility
         
         // Primary and secondary button colors
         internal val primaryButtonBackground = Color(0xFFE8F8E8) // Very light green pastel

@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import hu.adamfejes.zenmotes.logic.ColorType
+import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
 @Composable

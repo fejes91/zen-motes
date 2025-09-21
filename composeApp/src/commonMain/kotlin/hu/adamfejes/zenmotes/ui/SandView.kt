@@ -39,6 +39,7 @@ import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
+import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme

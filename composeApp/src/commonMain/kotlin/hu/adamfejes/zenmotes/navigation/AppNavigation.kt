@@ -1,0 +1,105 @@
+package hu.adamfejes.zenmotes.navigation
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.dialog
+import androidx.navigation.compose.rememberNavController
+import hu.adamfejes.zenmotes.ui.GameScreen
+import hu.adamfejes.zenmotes.ui.PauseDialog
+import hu.adamfejes.zenmotes.ui.theme.AppTheme
+import hu.adamfejes.zenmotes.ui.theme.Theme
+
+val LocalTheme = staticCompositionLocalOf {
+    Theme.DARK
+}
+
+sealed class Screen(val route: String) {
+    data object Game : Screen("game")
+    data object Pause : Screen("pause")
+}
+
+@Composable
+fun AppNavigation(
+    navController: NavHostController = rememberNavController()
+) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val isPaused = currentRoute == Screen.Pause.route
+
+    // Use system theme
+    val isSystemDarkTheme = isSystemInDarkTheme()
+    val currentTheme = if (isSystemDarkTheme) Theme.DARK else Theme.LIGHT
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner, isPaused) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    if(!isPaused) {
+                        navController.navigate(Screen.Pause.route)
+                    }
+                }
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    var resetTrigger by remember { mutableIntStateOf(0) }
+
+    CompositionLocalProvider(LocalTheme provides currentTheme) {
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Game.route
+        ) {
+            composable(Screen.Game.route) {
+                GameScreen(
+                    isPaused = isPaused,
+                    resetTrigger = resetTrigger,
+                    onNavigateToPause = {
+                        navController.navigate(Screen.Pause.route)
+                    }
+                )
+            }
+
+            dialog(route = Screen.Pause.route,
+                dialogProperties = DialogProperties(
+                    usePlatformDefaultWidth = false
+                )
+            ) {
+                PauseDialog(
+                    onResume = {
+                        navController.popBackStack()
+                    },
+                    onRestart = {
+                        navController.popBackStack()
+                        resetTrigger++
+                    }
+                )
+            }
+        }
+    }
+}

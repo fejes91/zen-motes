@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.logic.ScoreEvent
+import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_DISPLAY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme

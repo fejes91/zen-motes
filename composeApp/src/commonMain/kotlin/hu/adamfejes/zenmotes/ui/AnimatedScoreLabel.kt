@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.getScreenWidth
 import hu.adamfejes.zenmotes.logic.ScoreEvent
+import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme

@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import hu.adamfejes.zenmotes.ui.LocalTheme
+import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.getFontFamily
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
