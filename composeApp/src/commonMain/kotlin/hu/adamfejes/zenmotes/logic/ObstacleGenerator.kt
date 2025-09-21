@@ -17,7 +17,7 @@ class ObstacleGenerator(
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 2000L
     private val minSlidingObstacleInterval = 300L
-    private val intervalReductionMultiplier = 0.975f
+    private val intervalReductionMultiplier = 0.95f
     private val difficultyIncreaseInterval = 8000L
 
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval

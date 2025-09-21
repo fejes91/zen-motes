@@ -73,11 +73,16 @@ class SandSimulationViewModel(
 
     fun increaseScore(slidingObstacle: SlidingObstacle, isBonus: Boolean = false) {
         viewModelScope.launch {
+            val finalScore = if (isBonus) {
+                slidingObstacle.getBallparkScore() * 2
+            } else {
+                slidingObstacle.getBallparkScore()
+            }
             scoreHolder.increaseScore(
                 ScoreEvent(
                     x = slidingObstacle.x.roundToInt(),
                     y = slidingObstacle.y,
-                    score = slidingObstacle.getBallparkScore(),
+                    score = finalScore,
                     obstacleId = slidingObstacle.id,
                     isBonus = isBonus
                 )
@@ -92,7 +97,7 @@ class SandSimulationViewModel(
                 ScoreEvent(
                     x = slidingObstacle.x.roundToInt(),
                     y = slidingObstacle.y,
-                    score = (-slidingObstacle.getBallparkScore() / 2f).roundToInt(),
+                    score = -slidingObstacle.getBallparkScore() * 2,
                     obstacleId = slidingObstacle.id
                 )
             )

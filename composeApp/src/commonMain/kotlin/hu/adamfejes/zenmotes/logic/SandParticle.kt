@@ -22,13 +22,13 @@ sealed class SlidingObstacleType(
     class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST_SHORT,
-        value = 5000
+        value = 2000
     )
 
     class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST,
-        value = 10000
+        value = 5000
     )
 }
 

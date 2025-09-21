@@ -62,12 +62,7 @@ class ScoreHolderImpl : ScoreHolder {
 
     override suspend fun increaseScore(scoreEvent: ScoreEvent) = withContext(Dispatchers.Default){
         _scoreEventFlow.emit(scoreEvent)
-        val finalScore = if (scoreEvent.isBonus) {
-            scoreEvent.score * 2
-        } else {
-            scoreEvent.score
-        }
-        val newScore = _score.addAndGet(finalScore / 10)
+        val newScore = _score.addAndGet(scoreEvent.score / 10)
         _scoreFlow.value = newScore
         updateCountDownTime(scoreEvent.score.toLong())
     }
