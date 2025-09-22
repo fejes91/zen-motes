@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-class SandSimulationViewModel(
+open class SandSimulationViewModel(
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
     private val soundManager: SoundManager

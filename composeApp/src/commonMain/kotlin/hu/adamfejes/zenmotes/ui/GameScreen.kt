@@ -32,15 +32,16 @@ import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun GameScreen(
+    viewModel: SandSimulationViewModel = koinViewModel(),
     isPaused: Boolean,
     resetTrigger: Int,
     onNavigateToPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: SandSimulationViewModel = koinInject()
     val sandColorManager: SandColorManager = koinInject()
     val score by viewModel.score.collectAsState(0)
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)

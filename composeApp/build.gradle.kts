@@ -46,6 +46,8 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.koin.compose.viewmodel.navigation)
             implementation(libs.atomicfu)
             implementation(libs.datastore)
             implementation(libs.datastore.preferences)
