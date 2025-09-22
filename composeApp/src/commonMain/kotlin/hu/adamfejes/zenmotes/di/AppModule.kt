@@ -1,5 +1,6 @@
 package hu.adamfejes.zenmotes.di
 
+import hu.adamfejes.zenmotes.logic.SandGridHolder
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolderImpl
@@ -13,6 +14,21 @@ val appModule = module {
     single<ScoreHolder> { ScoreHolderImpl() }
     single { SandColorManager() }
     single { PreferencesService(get()) }
-    viewModel { SandSimulationViewModel(get(), get(), get()) }
-    viewModel { PauseViewModel(get(), get(), get()) }
+    single { SandGridHolder() }
+    viewModel {
+        SandSimulationViewModel(
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
+    viewModel {
+        PauseViewModel(
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
 }

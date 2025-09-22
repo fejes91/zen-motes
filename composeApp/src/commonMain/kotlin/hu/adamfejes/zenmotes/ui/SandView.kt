@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntSize
 import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SandColorManager
+import hu.adamfejes.zenmotes.logic.SandGridHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
@@ -66,7 +67,6 @@ fun SandView(
     sandGenerationAmount: Int,
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
-    resetTrigger: Int,
     increaseScore: (slidingObstacle: SlidingObstacle, isBonus: Boolean) -> Unit,
     decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
     toggleAddingSand: (adding: Boolean) -> Unit,
@@ -82,15 +82,9 @@ fun SandView(
         }
     }
 
+    val sandGridHolder = koinInject<SandGridHolder>()
 
     val colorScheme = LocalTheme.current.toColorScheme()
-
-    var sandGrid by remember { mutableStateOf<SandGrid?>(null) }
-
-    // Reset grid when resetTrigger changes
-    LaunchedEffect(resetTrigger) {
-        sandGrid?.reset()
-    }
     var sandSourceX by remember { mutableFloatStateOf(0f) }
     var isAddingSand by remember { mutableStateOf(false) }
     var frame by remember { mutableLongStateOf(0L) }
@@ -103,9 +97,9 @@ fun SandView(
     LaunchedEffect(isPaused) {
         if (isPaused) {
             isAddingSand = false
-            sandGrid?.onPause()
+            sandGridHolder.sandGrid?.onPause()
         } else {
-            sandGrid?.onResume()
+            sandGridHolder.sandGrid?.onResume()
         }
     }
 
@@ -166,9 +160,9 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
-            sandGrid = initializeGridIfNeeded(sandGrid, soundManager, gridDimensions, images, sandColorManager)
+            sandGridHolder.initializeGridIfNeeded(soundManager, gridDimensions, images, sandColorManager)
 
-            sandGrid?.let { grid ->
+            sandGridHolder.sandGrid?.let { grid ->
                 // 2. Update sand generation state based on user input
                 if (isAddingSand) {
                     grid.setSandGeneration(
@@ -225,7 +219,7 @@ fun SandView(
 
     SandAnimationLoop(isPaused = isPaused) { frameTime ->
         frame = frameTime
-        sandGrid?.update(frameTime, increaseScore, decreaseScore)
+        sandGridHolder.sandGrid?.update(frameTime, increaseScore, decreaseScore)
     }
 }
 
@@ -273,28 +267,6 @@ private fun calculateGridDimensions(
         (size.height / cellSize).roundToInt()
     )
 }
-
-private fun initializeGridIfNeeded(
-    currentGrid: SandGrid?,
-    soundManager: SoundManager,
-    dimensions: Pair<Int, Int>,
-    images: List<ImageBitmap>,
-    sandColorManager: SandColorManager
-): SandGrid {
-    val (width, height) = dimensions
-    val obstacleTypes = createObstacleTypes(images)
-    
-    return if (currentGrid == null || currentGrid.getWidth() != width || currentGrid.getHeight() != height) {
-        val newGrid = SandGrid(width, height, soundManager, 1000, sandColorManager)
-        newGrid.setObstacleTypes(obstacleTypes)
-        newGrid
-    } else {
-        // Update obstacle types if images changed
-        currentGrid.setObstacleTypes(obstacleTypes)
-        currentGrid
-    }
-}
-
 
 private fun DrawScope.drawSandGrid(
     grid: SandGrid,
@@ -489,12 +461,5 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int,
         textSize = textSizePx,
         startOffset = Offset(padding + 8f, size.height - 210f),
         lineHeight = lineHeight
-    )
-}
-
-private fun createObstacleTypes(images: List<ImageBitmap>): List<SlidingObstacleType> {
-    return listOf(
-        SlidingObstacleType.Small(images[0]), // tower
-        SlidingObstacleType.Big(images[1])    // wider_tower
     )
 }

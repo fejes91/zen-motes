@@ -2,6 +2,7 @@ package hu.adamfejes.zenmotes.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hu.adamfejes.zenmotes.logic.SandGridHolder
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 open class SandSimulationViewModel(
+    private val sandGridHolder: SandGridHolder,
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
     private val soundManager: SoundManager
@@ -105,6 +107,7 @@ open class SandSimulationViewModel(
     }
 
     fun resetSession() {
+        sandGridHolder.sandGrid?.reset()
         scoreHolder.resetScore()
     }
 

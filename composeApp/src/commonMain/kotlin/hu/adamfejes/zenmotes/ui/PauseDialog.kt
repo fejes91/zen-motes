@@ -33,8 +33,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun PauseDialog(
     viewModel: PauseViewModel = koinViewModel(),
-    onResume: () -> Unit,
-    onRestart: () -> Unit
+    onBack: () -> Unit
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val soundEnabled by viewModel.soundEnabled.collectAsState()
@@ -120,11 +119,11 @@ fun PauseDialog(
                     colorScheme = colorScheme,
                     onResume = {
                         viewModel.resumeSession()
-                        onResume()
+                        onBack()
                     },
                     onRestart = {
                         viewModel.resetSession()
-                        onRestart()
+                        onBack()
                     }
                 )
 

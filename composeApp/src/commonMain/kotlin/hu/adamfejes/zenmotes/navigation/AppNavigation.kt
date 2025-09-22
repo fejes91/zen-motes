@@ -4,12 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
@@ -23,7 +18,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.PauseDialog
-import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 
 val LocalTheme = staticCompositionLocalOf {
@@ -68,8 +62,6 @@ fun AppNavigation(
         }
     }
 
-    var resetTrigger by remember { mutableIntStateOf(0) }
-
     CompositionLocalProvider(LocalTheme provides currentTheme) {
         NavHost(
             navController = navController,
@@ -78,7 +70,6 @@ fun AppNavigation(
             composable(Screen.Game.route) {
                 GameScreen(
                     isPaused = isPaused,
-                    resetTrigger = resetTrigger,
                     onNavigateToPause = {
                         navController.navigate(Screen.Pause.route)
                     }
@@ -91,12 +82,8 @@ fun AppNavigation(
                 )
             ) {
                 PauseDialog(
-                    onResume = {
+                    onBack = {
                         navController.popBackStack()
-                    },
-                    onRestart = {
-                        navController.popBackStack()
-                        resetTrigger++
                     }
                 )
             }

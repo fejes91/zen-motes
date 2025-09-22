@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,9 +37,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun GameScreen(
     viewModel: SandSimulationViewModel = koinViewModel(),
     isPaused: Boolean,
-    resetTrigger: Int,
-    onNavigateToPause: () -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateToPause: () -> Unit
 ) {
     val sandColorManager: SandColorManager = koinInject()
     val score by viewModel.score.collectAsState(0)
@@ -49,9 +46,7 @@ fun GameScreen(
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
 
     GameScreenContent(
-        modifier = modifier,
         isPaused = isPaused,
-        resetTrigger = resetTrigger,
         currentAppTheme = currentAppTheme,
         scoreEvent = scoreEvent,
         score = score,
@@ -70,9 +65,7 @@ fun GameScreen(
 
 @Composable
 private fun GameScreenContent(
-    modifier: Modifier,
     isPaused: Boolean,
-    resetTrigger: Int,
     currentAppTheme: AppTheme?,
     scoreEvent: ScoreEvent?,
     score: Int,
@@ -134,7 +127,6 @@ private fun GameScreenContent(
                 sandGenerationAmount = 5,
                 showPerformanceOverlay = true, // Toggle performance overlay for testing
                 isPaused = isPaused,
-                resetTrigger = resetTrigger,
                 increaseScore = increaseScore,
                 decreaseScore = decreaseScore,
                 toggleAddingSand = toggleAddingSand
