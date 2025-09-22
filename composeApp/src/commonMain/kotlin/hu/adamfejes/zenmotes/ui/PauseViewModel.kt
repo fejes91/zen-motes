@@ -1,20 +1,18 @@
 package hu.adamfejes.zenmotes.ui
 
-import hu.adamfejes.zenmotes.logic.SandGridHolder
+import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 
 class PauseViewModel(
-    sandGridHolder: SandGridHolder,
+    gameStateHolder: GameStateHolder,
     scoreHolder: ScoreHolder,
     preferencesService: PreferencesService,
     soundManager: SoundManager
 ) : SandSimulationViewModel(
-    sandGridHolder,
+    gameStateHolder,
     scoreHolder,
     preferencesService,
     soundManager,
-) {
-
-}
+)

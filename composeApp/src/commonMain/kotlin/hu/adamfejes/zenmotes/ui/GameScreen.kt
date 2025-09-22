@@ -36,7 +36,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun GameScreen(
     viewModel: SandSimulationViewModel = koinViewModel(),
-    isPaused: Boolean,
     onNavigateToPause: () -> Unit
 ) {
     val sandColorManager: SandColorManager = koinInject()
@@ -44,6 +43,7 @@ fun GameScreen(
     val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
+    val isPaused by viewModel.isPaused.collectAsState()
 
     GameScreenContent(
         isPaused = isPaused,
@@ -53,10 +53,8 @@ fun GameScreen(
         countDownTime = countDownTime,
         increaseScore = viewModel::increaseScore,
         decreaseScore = viewModel::decreaseScore,
-        toggleAddingSand = viewModel::toggleAddingSand,
         startSession = viewModel::startSession,
         pauseSession = viewModel::pauseSession,
-        resumeSession = viewModel::resumeSession,
         sandColorManager = sandColorManager,
         playSound = viewModel::playSound,
         onNavigateToPause = onNavigateToPause
@@ -72,10 +70,8 @@ private fun GameScreenContent(
     countDownTime: Long,
     increaseScore: (SlidingObstacle, Boolean) -> Unit,
     decreaseScore: (SlidingObstacle) -> Unit,
-    toggleAddingSand: (Boolean) -> Unit,
     startSession: () -> Unit,
     pauseSession: () -> Unit,
-    resumeSession: () -> Unit,
     playSound: (Int) -> Unit,
     sandColorManager: SandColorManager,
     onNavigateToPause: () -> Unit
@@ -101,70 +97,59 @@ private fun GameScreenContent(
         startSession()
     }
 
-    // Handle game pause/resume based on navigation state
-    LaunchedEffect(isPaused) {
-        if (isPaused) {
-            sandColorManager.pause()
-            pauseSession()
-        } else {
-            sandColorManager.resume()
-            resumeSession()
-        }
-    }
-
     val colorScheme = LocalTheme.current.toColorScheme()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .then(if (isPaused) Modifier.blur(20.dp)
+                .background(colorScheme.pauseOverlayBackground)
+            else Modifier)
+    ) {
+        // Sand simulation view - full edge-to-edge behind everything
+        SandView(
+            modifier = Modifier.fillMaxSize(),
+            sandColorType = currentSandColor,
+            sandGenerationAmount = 5,
+            showPerformanceOverlay = true, // Toggle performance overlay for testing
+            isPaused = isPaused,
+            increaseScore = increaseScore,
+            decreaseScore = decreaseScore
+        )
+
+        // Color indicator bar at the very top
+        ColorIndicatorBar(
+            currentColor = currentSandColor,
+            nextColor = nextSandColor,
+        )
+
+        // Score display at the top center
+        Scores(
+            score = score,
+            countDownTimeMillis = countDownTime,
+            activeScoreEvents = activeScoreEvents,
+            onAnimationNearlyComplete = { obstacleId ->
+                playSound(activeScoreEvents.first { it.obstacleId == obstacleId }.score)
+            },
+            onAnimationComplete = { obstacleId ->
+                activeScoreEvents =
+                    activeScoreEvents.filter { it.obstacleId != obstacleId }
+                        .toSet()
+            })
+
+        // Top UI overlay - pause button only
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .then(if (isPaused) Modifier.blur(20.dp)
-                    .background(colorScheme.pauseOverlayBackground)
-                else Modifier)
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(end = 16.dp),
+            contentAlignment = Alignment.CenterEnd
         ) {
-            // Sand simulation view - full edge-to-edge behind everything
-            SandView(
-                modifier = Modifier.fillMaxSize(),
-                sandColorType = currentSandColor,
-                sandGenerationAmount = 5,
-                showPerformanceOverlay = true, // Toggle performance overlay for testing
-                isPaused = isPaused,
-                increaseScore = increaseScore,
-                decreaseScore = decreaseScore,
-                toggleAddingSand = toggleAddingSand
-            )
-
-            // Color indicator bar at the very top
-            ColorIndicatorBar(
-                currentColor = currentSandColor,
-                nextColor = nextSandColor,
-            )
-
-            // Score display at the top center
-            Scores(
-                score = score,
-                countDownTimeMillis = countDownTime,
-                activeScoreEvents = activeScoreEvents,
-                onAnimationNearlyComplete = { obstacleId ->
-                    playSound(activeScoreEvents.first { it.obstacleId == obstacleId }.score)
-                },
-                onAnimationComplete = { obstacleId ->
-                    activeScoreEvents =
-                        activeScoreEvents.filter { it.obstacleId != obstacleId }
-                            .toSet()
-                })
-
-            // Top UI overlay - pause button only
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(end = 16.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                PauseButton {
-                    onNavigateToPause()
-                }
+            PauseButton {
+                pauseSession()
+                onNavigateToPause()
             }
         }
+    }
 }
 
 @Composable

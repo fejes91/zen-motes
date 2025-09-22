@@ -68,8 +68,7 @@ fun SandView(
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
     increaseScore: (slidingObstacle: SlidingObstacle, isBonus: Boolean) -> Unit,
-    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
-    toggleAddingSand: (adding: Boolean) -> Unit,
+    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit
 ) {
     val soundManager = getKoin().get<SoundManager>()
     val sandColorManager: SandColorManager = koinInject()
@@ -89,17 +88,10 @@ fun SandView(
     var isAddingSand by remember { mutableStateOf(false) }
     var frame by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(isAddingSand) {
-        toggleAddingSand(isAddingSand)
-    }
-
     // Clear sand adding state when paused and handle pause/resume
     LaunchedEffect(isPaused) {
         if (isPaused) {
-            isAddingSand = false
-            sandGridHolder.sandGrid?.onPause()
-        } else {
-            sandGridHolder.sandGrid?.onResume()
+            isAddingSand = false // TODO move to ViewModel?
         }
     }
 

@@ -16,9 +16,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.PauseDialog
 import hu.adamfejes.zenmotes.ui.theme.Theme
+import org.koin.compose.koinInject
 
 val LocalTheme = staticCompositionLocalOf {
     Theme.DARK
@@ -33,6 +35,7 @@ sealed class Screen(val route: String) {
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
+    val gameStateHolder = koinInject<GameStateHolder>()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val isPaused = currentRoute == Screen.Pause.route
@@ -48,6 +51,7 @@ fun AppNavigation(
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> {
                     if(!isPaused) {
+                        gameStateHolder.onPause()
                         navController.navigate(Screen.Pause.route)
                     }
                 }
@@ -69,7 +73,6 @@ fun AppNavigation(
         ) {
             composable(Screen.Game.route) {
                 GameScreen(
-                    isPaused = isPaused,
                     onNavigateToPause = {
                         navController.navigate(Screen.Pause.route)
                     }

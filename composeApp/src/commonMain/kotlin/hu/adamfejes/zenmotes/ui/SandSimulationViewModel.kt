@@ -2,7 +2,7 @@ package hu.adamfejes.zenmotes.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hu.adamfejes.zenmotes.logic.SandGridHolder
+import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 open class SandSimulationViewModel(
-    private val sandGridHolder: SandGridHolder,
+    private val gameStateHolder: GameStateHolder,
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
     private val soundManager: SoundManager
@@ -62,6 +62,13 @@ open class SandSimulationViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = INITIAL_COUNTDOWN_TIME_MILLIS
+        )
+
+    val isPaused: StateFlow<Boolean> = gameStateHolder.isPaused
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = false
         )
 
     init {
@@ -107,8 +114,7 @@ open class SandSimulationViewModel(
     }
 
     fun resetSession() {
-        sandGridHolder.sandGrid?.reset()
-        scoreHolder.resetScore()
+        gameStateHolder.restart()
     }
 
     fun startSession() {
@@ -116,11 +122,11 @@ open class SandSimulationViewModel(
     }
 
     fun pauseSession() {
-        scoreHolder.pauseTimer()
+        gameStateHolder.onPause()
     }
 
     fun resumeSession() {
-        scoreHolder.resumeTimer()
+        gameStateHolder.onResume()
     }
 
     fun setTheme(theme: AppTheme) {
@@ -143,17 +149,6 @@ open class SandSimulationViewModel(
 
         soundJob = viewModelScope.launch {
             soundManager.play(if (score < 0) SoundSample.NEGATIVE else SoundSample.POSITIVE)
-        }
-    }
-
-    fun toggleAddingSand(isAdding: Boolean) {
-        viewModelScope.launch {
-//            if(isAdding) {
-//                soundManager.play(SoundSample.SAND_BEGIN, loop = false)
-//                soundManager.play(SoundSample.SAND_MIDDLE, loop = true)
-//            } else {
-//                soundManager.stopAll()
-//            }
         }
     }
 }
