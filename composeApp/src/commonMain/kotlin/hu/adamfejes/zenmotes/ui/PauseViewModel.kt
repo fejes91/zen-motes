@@ -13,7 +13,7 @@ class PauseViewModel(
     scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
     soundManager: SoundManager
-) : SandSimulationViewModel(
+) : SandSimulationViewModel( // todo do we need to inherit from SandSimulationViewModel?
     gameStateHolder,
     scoreHolder,
     preferencesService,

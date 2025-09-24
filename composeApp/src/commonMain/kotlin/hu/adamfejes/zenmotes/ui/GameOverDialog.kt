@@ -23,16 +23,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.navigation.LocalTheme
+import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun GameOverDialog(
-    viewModel: PauseViewModel = koinViewModel(),
+    viewModel: GameOverViewModel = koinViewModel(),
     onBack: () -> Unit
 ) {
-    val currentAppTheme by viewModel.appTheme.collectAsState()
-    val score by viewModel.score.collectAsState(0)
+    val currentAppTheme by viewModel.appTheme.collectAsState(initial = null)
+    val scoreComparison by viewModel.scoreComparison.collectAsState()
 
     if (currentAppTheme == null) {
         return
@@ -62,25 +63,15 @@ fun GameOverDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "SCORE",
-                    fontSize = 28.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.pausedTitleText
-                )
-
-                Text(
-                    text = score.toString(),
-                    fontSize = 32.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.pausedTitleText
-                )
+            scoreComparison?.let { comparison ->
+                when (comparison) {
+                    is ScoreComparison.NewHighScore -> {
+                        NewHighScoreDisplay(comparison.score, colorScheme)
+                    }
+                    is ScoreComparison.RegularScore -> {
+                        RegularScoreDisplay(comparison.score, comparison.highScore, colorScheme)
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -101,6 +92,74 @@ fun GameOverDialog(
                     color = colorScheme.secondaryButtonText
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun NewHighScoreDisplay(score: Int, colorScheme: ColorScheme) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "NEW HIGH SCORE!",
+            fontSize = 28.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            color = colorScheme.pausedTitleText
+        )
+
+        Text(
+            text = score.toString(),
+            fontSize = 42.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            color = colorScheme.pausedTitleText
+        )
+    }
+}
+
+@Composable
+private fun RegularScoreDisplay(score: Int, highScore: Int?, colorScheme: ColorScheme) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "SCORE",
+            fontSize = 28.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            color = colorScheme.pausedTitleText
+        )
+
+        Text(
+            text = score.toString(),
+            fontSize = 32.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            color = colorScheme.pausedTitleText
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        highScore?.let {
+            Text(
+                text = "HIGH SCORE",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                color = colorScheme.pausedTitleText
+            )
+
+            Text(
+                text = it.toString(),
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                color = colorScheme.pausedTitleText
+            )
         }
     }
 }

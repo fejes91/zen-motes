@@ -6,6 +6,7 @@ import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolderImpl
 import hu.adamfejes.zenmotes.service.PreferencesService
+import hu.adamfejes.zenmotes.ui.GameOverViewModel
 import hu.adamfejes.zenmotes.ui.PauseViewModel
 import hu.adamfejes.zenmotes.ui.SandSimulationViewModel
 import org.koin.core.module.dsl.viewModel
@@ -32,6 +33,13 @@ val appModule = module {
     viewModel {
         PauseViewModel(
             get(),
+            get(),
+            get(),
+            get()
+        )
+    }
+    viewModel {
+        GameOverViewModel(
             get(),
             get(),
             get()
