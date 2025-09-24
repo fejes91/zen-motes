@@ -17,18 +17,24 @@ enum class ColorType {
 sealed class SlidingObstacleType(
     val imageBitmap: ImageBitmap,
     val soundSample: SoundSample,
-    val value: Int
+    val value: Int,
+    val width: Int,
+    val height: Int
 ) {
     class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST_SHORT,
-        value = 2000
+        value = 2000,
+        width = 10,
+        height = 17
     )
 
     class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST,
-        value = 5000
+        value = 5000,
+        width = 28,
+        height = 34
     )
 }
 
@@ -97,9 +103,9 @@ fun SlidingObstacle.getBallparkScore(): Int {
 }
 
 fun SlidingObstacleType.getWidth(): Int {
-    return imageBitmap.width
+    return width
 }
 
 fun SlidingObstacleType.getHeight(): Int {
-    return imageBitmap.height
+    return height
 }
