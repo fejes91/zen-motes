@@ -124,7 +124,7 @@ private fun GameScreenContent(
             modifier = Modifier.fillMaxSize(),
             sandColorType = currentSandColor,
             sandGenerationAmount = 5,
-            showPerformanceOverlay = true, // Toggle performance overlay for testing
+            showPerformanceOverlay = false, // Toggle performance overlay for testing
             isPaused = isPaused,
             increaseScore = increaseScore,
             decreaseScore = decreaseScore
