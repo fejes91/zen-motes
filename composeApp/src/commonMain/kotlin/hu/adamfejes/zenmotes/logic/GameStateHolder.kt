@@ -33,5 +33,6 @@ class GameStateHolder(
         scoreHolder.resumeTimer()
         isPausedState.value = false
         sandGridHolder.sandGrid?.onResume()
+        sandColorManager.resume()
     }
 }
