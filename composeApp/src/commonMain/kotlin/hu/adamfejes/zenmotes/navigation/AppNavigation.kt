@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameScreen
+import hu.adamfejes.zenmotes.ui.GameOverDialog
 import hu.adamfejes.zenmotes.ui.PauseDialog
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
@@ -32,6 +33,7 @@ val LocalTheme = staticCompositionLocalOf {
 sealed class Screen(val route: String) {
     data object Game : Screen("game")
     data object Pause : Screen("pause")
+    data object GameOver : Screen("gameover")
 }
 
 @Composable
@@ -84,6 +86,9 @@ fun AppNavigation(
                 GameScreen(
                     onNavigateToPause = {
                         navController.navigate(Screen.Pause.route)
+                    },
+                    onNavigateToGameOver = {
+                        navController.navigate(Screen.GameOver.route)
                     }
                 )
             }
@@ -96,6 +101,22 @@ fun AppNavigation(
                 PauseDialog(
                     onBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+            dialog(route = Screen.GameOver.route,
+                dialogProperties = DialogProperties(
+                    usePlatformDefaultWidth = false
+                )
+            ) {
+                GameOverDialog(
+                    onBack = {
+                        navController.navigate(Screen.Game.route) {
+                            popUpTo(Screen.Game.route) {
+                                inclusive = true
+                            }
+                        }
                     }
                 )
             }

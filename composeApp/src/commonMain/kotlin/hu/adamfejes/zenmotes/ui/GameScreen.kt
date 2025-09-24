@@ -28,15 +28,18 @@ import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.navigation.LocalTheme
+import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun GameScreen(
     viewModel: SandSimulationViewModel = koinViewModel(),
-    onNavigateToPause: () -> Unit
+    onNavigateToPause: () -> Unit,
+    onNavigateToGameOver: () -> Unit
 ) {
     val sandColorManager: SandColorManager = koinInject()
     val score by viewModel.score.collectAsState(0)
@@ -57,7 +60,8 @@ fun GameScreen(
         pauseSession = viewModel::pauseSession,
         sandColorManager = sandColorManager,
         playSound = viewModel::playSound,
-        onNavigateToPause = onNavigateToPause
+        onNavigateToPause = onNavigateToPause,
+        onNavigateToGameOver = onNavigateToGameOver
     )
 }
 
@@ -74,7 +78,8 @@ private fun GameScreenContent(
     pauseSession: () -> Unit,
     playSound: (Int) -> Unit,
     sandColorManager: SandColorManager,
-    onNavigateToPause: () -> Unit
+    onNavigateToPause: () -> Unit,
+    onNavigateToGameOver: () -> Unit
 ) {
     if (currentAppTheme == null) {
         return
@@ -95,6 +100,15 @@ private fun GameScreenContent(
 
     LaunchedEffect(Unit) {
         startSession()
+    }
+
+    // Game over logic - watch for when countdown reaches zero
+    LaunchedEffect(countDownTime) {
+        if (countDownTime == 0L && !isPaused) {
+            delay(SCORE_FLY_DURATION.toLong()) // Wait for any final animations
+            pauseSession()
+            onNavigateToGameOver()
+        }
     }
 
     val colorScheme = LocalTheme.current.toColorScheme()
