@@ -42,7 +42,7 @@ fun ThreeStateSwitch(
     val currentIndex = states.indexOf(currentState)
 
     val colorScheme = LocalTheme.current.toColorScheme()
-    val textColor = colorScheme.pausedTitleText
+    val textColor = colorScheme.textColor
     val trackColor = colorScheme.background
     val thumbColor = colorScheme.textBackground
     val fontFamily = getFontFamily()

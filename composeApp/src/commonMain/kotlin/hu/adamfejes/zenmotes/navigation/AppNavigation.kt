@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.window.DialogProperties
@@ -17,8 +18,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import hu.adamfejes.zenmotes.logic.GameStateHolder
+import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.PauseDialog
+import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import org.koin.compose.koinInject
 
@@ -36,13 +39,19 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     val gameStateHolder = koinInject<GameStateHolder>()
+    val preferencesService = koinInject<PreferencesService>()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val isPaused = currentRoute == Screen.Pause.route
 
-    // Use system theme
+    // Use preferences theme with system fallback
+    val appTheme by preferencesService.getTheme.collectAsState(initial = AppTheme.SYSTEM)
     val isSystemDarkTheme = isSystemInDarkTheme()
-    val currentTheme = if (isSystemDarkTheme) Theme.DARK else Theme.LIGHT
+    val currentTheme = when (appTheme) {
+        AppTheme.LIGHT -> Theme.LIGHT
+        AppTheme.DARK -> Theme.DARK
+        AppTheme.SYSTEM -> if (isSystemDarkTheme) Theme.DARK else Theme.LIGHT
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
 

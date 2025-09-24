@@ -129,11 +129,6 @@ open class SandSimulationViewModel(
         gameStateHolder.onResume()
     }
 
-    fun setTheme(theme: AppTheme) {
-        viewModelScope.launch {
-            preferencesService.saveTheme(theme)
-        }
-    }
 
     fun setSoundEnabled(enabled: Boolean) {
         viewModelScope.launch {
