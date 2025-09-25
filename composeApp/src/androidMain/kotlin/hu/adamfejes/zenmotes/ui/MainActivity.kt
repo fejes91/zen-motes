@@ -17,6 +17,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *  Play ticking sound when time is running out
     *  Play game over sound
     *  Add tutorial in the beginning
+    *  Basic Firebase analytics and Crashlytics integration
     *
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
