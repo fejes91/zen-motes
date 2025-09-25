@@ -11,14 +11,12 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 
 /*
     * ZenMotes
-    * TODOs
-    * Settings, shared preferences
-    *   Game mode: Zen / Time attack?
-    *   High Score
-    * Scoring
-    *   Game is until the timer reaches zero, the score will be written into a leaderboard
-    * More obstacle designs?
-    * Play ticking sound when time is running out
+    * TODOs:
+    *  Game mode: Zen / Time attack?
+    *  More obstacle designs?
+    *  Play ticking sound when time is running out
+    *  Play game over sound
+    *  Add tutorial in the beginning
     *
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
