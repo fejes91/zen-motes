@@ -37,6 +37,8 @@ interface ScoreHolder {
     fun resumeTimer()
 
     fun resetTimer()
+
+    fun setDemoMode(isDemoMode: Boolean)
 }
 
 class ScoreHolderImpl : ScoreHolder {
@@ -55,6 +57,7 @@ class ScoreHolderImpl : ScoreHolder {
     private var startTime: Long = 0L
     private var countDownAccumulatedTime: Long = 0L
     private var isRunning: Boolean = false
+    private var isDemoMode: Boolean = false
 
     override fun getScore(): Flow<Int> = _scoreFlow.asStateFlow()
 
@@ -112,6 +115,9 @@ class ScoreHolderImpl : ScoreHolder {
     }
 
     private fun updateCountDownTime(millis: Long) {
+        // Don't update countdown in demo mode
+        if (isDemoMode) return
+
         countDownAccumulatedTime -= millis
         if (!isRunning) {
             val remainingCountDown = (initialCountDown - countDownAccumulatedTime).coerceAtLeast(0L)
@@ -130,5 +136,9 @@ class ScoreHolderImpl : ScoreHolder {
                 delay(100)
             }
         }
+    }
+
+    override fun setDemoMode(isDemoMode: Boolean) {
+        this.isDemoMode = isDemoMode
     }
 }

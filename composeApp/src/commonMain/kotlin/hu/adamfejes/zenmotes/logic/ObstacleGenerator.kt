@@ -17,6 +17,7 @@ class ObstacleGenerator(
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 2000L
     private val minSlidingObstacleInterval = 300L
+    private val demoModeObstacleInterval = 500L
     private val intervalReductionMultiplier = 0.95f
     private val difficultyIncreaseInterval = 8000L
 
@@ -25,6 +26,7 @@ class ObstacleGenerator(
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
     private var isPaused = false
+    private var isDemoMode = false
 
     // Use domain-layer color types
     private val colorTypes = ColorType.entries.toTypedArray()
@@ -45,10 +47,14 @@ class ObstacleGenerator(
 
     private fun shouldGenerateObstacle(frameTime: Long): Boolean {
         if (isPaused) return false
-        return frameTime - lastSlidingObstacleTime >= currentSlidingObstacleInterval
+        val interval = if (isDemoMode) demoModeObstacleInterval else currentSlidingObstacleInterval
+        return frameTime - lastSlidingObstacleTime >= interval
     }
 
     private fun updateDifficulty(frameTime: Long) {
+        // Skip difficulty increase in demo mode
+        if (isDemoMode) return
+
         if (lastDifficultyIncreaseTime == 0L) {
             lastDifficultyIncreaseTime = frameTime
             return
@@ -139,4 +145,13 @@ class ObstacleGenerator(
     }
 
     fun getCurrentSlidingObstacleInterval(): Long = currentSlidingObstacleInterval
+
+    override fun setDemoMode(isDemoMode: Boolean) {
+        this.isDemoMode = isDemoMode
+        if (isDemoMode) {
+            // Reset timing when entering demo mode
+            lastSlidingObstacleTime = 0L
+            lastDifficultyIncreaseTime = 0L
+        }
+    }
 }

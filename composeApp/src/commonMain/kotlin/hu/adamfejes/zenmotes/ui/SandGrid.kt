@@ -828,4 +828,8 @@ class SandGrid(
             CellType.EMPTY -> false
         }
     }
+
+    fun setDemoMode(isDemoMode: Boolean) {
+        obstacleGenerator.setDemoMode(isDemoMode)
+    }
 }

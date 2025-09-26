@@ -5,4 +5,5 @@ interface IObstacleGenerator {
     fun reset()
     fun onPause()
     fun onResume()
+    fun setDemoMode(isDemoMode: Boolean)
 }

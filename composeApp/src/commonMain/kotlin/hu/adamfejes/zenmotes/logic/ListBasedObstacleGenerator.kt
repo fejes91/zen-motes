@@ -89,4 +89,9 @@ class ListBasedObstacleGenerator(
         // Reset timing to restart obstacle generation immediately
         lastObstacleTime = 0L
     }
+
+    override fun setDemoMode(isDemoMode: Boolean) {
+        // This generator doesn't need special demo mode behavior
+        // Could be extended if needed for different demo content
+    }
 }

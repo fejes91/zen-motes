@@ -79,7 +79,7 @@ fun AppNavigation(
 
     // Show main menu on app startup
     LaunchedEffect(Unit) {
-        gameStateHolder.onPause()
+        gameStateHolder.enableDemoMode()
         navController.navigate(Screen.MainMenu.route)
     }
 
@@ -149,6 +149,7 @@ fun AppNavigation(
             ) {
                 MainMenuDialog(
                     onStartGame = {
+                        gameStateHolder.disableDemoMode()
                         gameStateHolder.onResume()
                         analyticsService.trackGameStart()
                         navController.popBackStack()

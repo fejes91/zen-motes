@@ -73,6 +73,13 @@ open class SandSimulationViewModel(
             initialValue = false
         )
 
+    val isDemoMode: StateFlow<Boolean> = gameStateHolder.isDemoMode
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = false
+        )
+
     init {
         // Sync SoundManager with stored sound preference
         soundEnabled

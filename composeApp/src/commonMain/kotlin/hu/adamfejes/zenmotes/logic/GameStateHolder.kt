@@ -11,6 +11,9 @@ class GameStateHolder(
     private val isPausedState = MutableStateFlow(false)
     val isPaused: Flow<Boolean> = isPausedState
 
+    private val isDemoModeState = MutableStateFlow(false)
+    val isDemoMode: Flow<Boolean> = isDemoModeState
+
     fun onPause() {
         isPausedState.value = true
 
@@ -32,7 +35,25 @@ class GameStateHolder(
         scoreHolder.resetScore()
         scoreHolder.resumeTimer()
         isPausedState.value = false
+        isDemoModeState.value = false
         sandGridHolder.sandGrid?.onResume()
         sandColorManager.resume()
+    }
+
+    fun enableDemoMode() {
+        isDemoModeState.value = true
+        isPausedState.value = false
+        scoreHolder.pauseTimer()
+        scoreHolder.setDemoMode(true)
+        sandColorManager.resume()
+        sandGridHolder.sandGrid?.onResume()
+        sandGridHolder.sandGrid?.setDemoMode(true)
+    }
+
+    fun disableDemoMode() {
+        isDemoModeState.value = false
+        scoreHolder.setDemoMode(false)
+        sandGridHolder.sandGrid?.setDemoMode(false)
+        sandGridHolder.sandGrid?.reset()
     }
 }

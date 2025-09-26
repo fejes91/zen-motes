@@ -52,9 +52,11 @@ fun GameScreen(
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
     val isPaused by viewModel.isPaused.collectAsState()
+    val isDemoMode by viewModel.isDemoMode.collectAsState()
 
     GameScreenContent(
         isPaused = isPaused,
+        isDemoMode = isDemoMode,
         currentAppTheme = currentAppTheme,
         scoreEvent = scoreEvent,
         score = score,
@@ -72,6 +74,7 @@ fun GameScreen(
 @Composable
 private fun GameScreenContent(
     isPaused: Boolean,
+    isDemoMode: Boolean,
     currentAppTheme: AppTheme?,
     scoreEvent: ScoreEvent?,
     score: Int,
@@ -135,7 +138,7 @@ private fun GameScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .then(
-                if (isPaused) Modifier.blur(20.dp)
+                if (isPaused || isDemoMode) Modifier.blur(20.dp)
                     .background(colorScheme.pauseOverlayBackground)
                 else Modifier
             )
