@@ -27,6 +27,7 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
@@ -35,11 +36,13 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
     viewModel {
         GameOverViewModel(
+            get(),
             get(),
             get(),
             get()

@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,6 +35,10 @@ fun GameOverDialog(
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState(initial = null)
     val scoreComparison by viewModel.scoreComparison.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.initialize()
+    }
 
     if (currentAppTheme == null) {
         return

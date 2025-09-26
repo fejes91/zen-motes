@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolder
+import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 class GameOverViewModel(
     private val scoreHolder: ScoreHolder,
     private val gameStateHolder: GameStateHolder,
-    private val preferencesService: PreferencesService
+    private val preferencesService: PreferencesService,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     val score: Flow<Int> = scoreHolder.getScore()
@@ -43,6 +45,20 @@ class GameOverViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ScoreComparison.RegularScore(0, 0)
     )
+
+    fun initialize() {
+        viewModelScope.launch {
+            val currentScore = scoreHolder.getScore().first()
+            val savedHighScore = preferencesService.getHighScore.first()
+            val isNewHighScore = currentScore > (savedHighScore ?: 0)
+
+            analyticsService.trackGameOver(
+                achievedScore = currentScore.toLong(),
+                highScore = savedHighScore?.toLong() ?: 0L,
+                isNewHighScore = isNewHighScore
+            )
+        }
+    }
 
     fun resetSession() {
         gameStateHolder.restart()

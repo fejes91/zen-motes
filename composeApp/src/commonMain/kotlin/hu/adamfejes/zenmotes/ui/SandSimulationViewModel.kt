@@ -7,6 +7,7 @@ import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.getBallparkScore
+import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.service.SoundSample
@@ -25,7 +26,8 @@ open class SandSimulationViewModel(
     private val gameStateHolder: GameStateHolder,
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
-    private val soundManager: SoundManager
+    private val soundManager: SoundManager,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     var soundJob: Job? = null
@@ -119,14 +121,17 @@ open class SandSimulationViewModel(
 
     fun startSession() {
         scoreHolder.startTimer()
+        analyticsService.trackGameStart()
     }
 
     fun pauseSession() {
         gameStateHolder.onPause()
+        analyticsService.trackGamePause()
     }
 
     fun resumeSession() {
         gameStateHolder.onResume()
+        analyticsService.trackGameResume()
     }
 
 
@@ -134,6 +139,7 @@ open class SandSimulationViewModel(
         viewModelScope.launch {
             preferencesService.saveSoundEnabled(enabled)
             soundManager.setSoundEnabled(enabled)
+            analyticsService.trackSettingsChanged("sound_enabled", enabled)
         }
     }
 

@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import hu.adamfejes.zenmotes.logic.GameStateHolder
+import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.GameOverDialog
@@ -42,9 +43,18 @@ fun AppNavigation(
 ) {
     val gameStateHolder = koinInject<GameStateHolder>()
     val preferencesService = koinInject<PreferencesService>()
+    val analyticsService = koinInject<AnalyticsService>()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val isPaused = currentRoute == Screen.Pause.route
+
+    // Track screen navigation
+    DisposableEffect(currentRoute) {
+        currentRoute?.let { route ->
+            analyticsService.trackScreenView(route)
+        }
+        onDispose { }
+    }
 
     // Use preferences theme with system fallback
     val appTheme by preferencesService.getTheme.collectAsState(initial = AppTheme.SYSTEM)
