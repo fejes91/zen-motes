@@ -20,7 +20,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
-    *  Block back navigation on pause and game over dialogs
  */
 
 class MainActivity : ComponentActivity() {

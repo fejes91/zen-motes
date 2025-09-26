@@ -105,7 +105,8 @@ fun AppNavigation(
 
             dialog(route = Screen.Pause.route,
                 dialogProperties = DialogProperties(
-                    usePlatformDefaultWidth = false
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = false
                 )
             ) {
                 PauseDialog(
@@ -117,7 +118,8 @@ fun AppNavigation(
 
             dialog(route = Screen.GameOver.route,
                 dialogProperties = DialogProperties(
-                    usePlatformDefaultWidth = false
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = false
                 )
             ) {
                 GameOverDialog(
