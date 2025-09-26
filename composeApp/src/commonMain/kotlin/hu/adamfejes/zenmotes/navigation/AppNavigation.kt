@@ -22,12 +22,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.GameOverDialog
+import hu.adamfejes.zenmotes.ui.MainMenuDialog
 import hu.adamfejes.zenmotes.ui.OrientationWarningDialog
 import hu.adamfejes.zenmotes.ui.PauseDialog
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
@@ -40,6 +40,7 @@ val LocalTheme = staticCompositionLocalOf {
 }
 
 sealed class Screen(val route: String) {
+    data object MainMenu : Screen("mainmenu")
     data object Game : Screen("game")
     data object Pause : Screen("pause")
     data object GameOver : Screen("gameover")
@@ -56,7 +57,6 @@ fun AppNavigation(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val isPaused = currentRoute == Screen.Pause.route
-    val isOnOrientationWarning = currentRoute == Screen.OrientationWarning.route
 
     // Track screen navigation
     DisposableEffect(currentRoute) {
@@ -76,6 +76,12 @@ fun AppNavigation(
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Show main menu on app startup
+    LaunchedEffect(Unit) {
+        gameStateHolder.onPause()
+        navController.navigate(Screen.MainMenu.route)
+    }
 
     DisposableEffect(lifecycleOwner, isPaused) {
         val observer = LifecycleEventObserver { _, event ->
@@ -130,6 +136,22 @@ fun AppNavigation(
                     },
                     onNavigateToGameOver = {
                         navController.navigate(Screen.GameOver.route)
+                    }
+                )
+            }
+
+            dialog(
+                route = Screen.MainMenu.route,
+                dialogProperties = DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = false
+                )
+            ) {
+                MainMenuDialog(
+                    onStartGame = {
+                        gameStateHolder.onResume()
+                        analyticsService.trackGameStart()
+                        navController.popBackStack()
                     }
                 )
             }

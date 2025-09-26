@@ -119,11 +119,6 @@ open class SandSimulationViewModel(
         gameStateHolder.restart()
     }
 
-    fun startSession() {
-        scoreHolder.startTimer()
-        analyticsService.trackGameStart()
-    }
-
     fun pauseSession() {
         gameStateHolder.onPause()
         analyticsService.trackGamePause()

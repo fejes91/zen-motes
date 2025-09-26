@@ -2,6 +2,7 @@ package hu.adamfejes.zenmotes
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreGraphics.CGRectGetWidth
+import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 import platform.UIKit.UIScreen
 import kotlin.math.roundToInt
@@ -9,6 +10,9 @@ import kotlin.math.roundToInt
 class IOSPlatform : Platform {
     override val name: String =
         UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+
+    override val appVersion: String =
+        NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: "0.0.1"
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()

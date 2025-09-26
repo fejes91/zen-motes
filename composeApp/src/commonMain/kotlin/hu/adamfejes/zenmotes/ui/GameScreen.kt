@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,10 +25,14 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.navigation.LocalTheme
+import hu.adamfejes.zenmotes.navigation.Screen
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -56,7 +61,6 @@ fun GameScreen(
         countDownTime = countDownTime,
         increaseScore = viewModel::increaseScore,
         decreaseScore = viewModel::decreaseScore,
-        startSession = viewModel::startSession,
         pauseSession = viewModel::pauseSession,
         sandColorManager = sandColorManager,
         playSound = viewModel::playSound,
@@ -74,7 +78,6 @@ private fun GameScreenContent(
     countDownTime: Long,
     increaseScore: (SlidingObstacle, Boolean) -> Unit,
     decreaseScore: (SlidingObstacle) -> Unit,
-    startSession: () -> Unit,
     pauseSession: () -> Unit,
     playSound: (Int) -> Unit,
     sandColorManager: SandColorManager,
@@ -98,8 +101,24 @@ private fun GameScreenContent(
     val currentSandColor by sandColorManager.currentSandColor.collectAsState()
     val nextSandColor by sandColorManager.nextSandColor.collectAsState()
 
-    LaunchedEffect(Unit) {
-        startSession()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, isPaused) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    pauseSession()
+                    onNavigateToPause()
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     // Game over logic - watch for when countdown reaches zero
@@ -115,9 +134,11 @@ private fun GameScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .then(if (isPaused) Modifier.blur(20.dp)
-                .background(colorScheme.pauseOverlayBackground)
-            else Modifier)
+            .then(
+                if (isPaused) Modifier.blur(20.dp)
+                    .background(colorScheme.pauseOverlayBackground)
+                else Modifier
+            )
     ) {
         // Sand simulation view - full edge-to-edge behind everything
         SandView(
