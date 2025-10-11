@@ -56,7 +56,7 @@ fun AppNavigation(
     val analyticsService = koinInject<AnalyticsService>()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isPaused = currentRoute == Screen.Pause.route
+    val isPaused = currentRoute == Screen.Pause.route || currentRoute == Screen.GameOver.route
 
     // Track screen navigation
     DisposableEffect(currentRoute) {

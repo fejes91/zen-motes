@@ -104,26 +104,6 @@ private fun GameScreenContent(
     val currentSandColor by sandColorManager.currentSandColor.collectAsState()
     val nextSandColor by sandColorManager.nextSandColor.collectAsState()
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, isPaused) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_PAUSE -> {
-                    pauseSession()
-                    onNavigateToPause()
-                }
-
-                else -> {}
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
     // Game over logic - watch for when countdown reaches zero
     LaunchedEffect(countDownTime) {
         if (countDownTime == 0L && !isPaused) {
