@@ -84,7 +84,7 @@ fun MainMenuDialog(
                 text = "Castle Blaster",
                 fontSize = 48.sp,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
+                lineHeight = 48.sp,
                 color = colorScheme.pausedTitleText
             )
 
