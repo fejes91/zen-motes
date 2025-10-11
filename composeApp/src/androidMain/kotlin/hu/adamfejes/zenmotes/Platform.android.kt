@@ -2,6 +2,11 @@ package hu.adamfejes.zenmotes
 
 import android.content.res.Resources
 import android.os.Build
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -12,4 +17,14 @@ actual fun getPlatform(): Platform = AndroidPlatform()
 
 actual fun getScreenWidth(): Int {
     return Resources.getSystem().displayMetrics.widthPixels
+}
+
+@Composable
+actual fun rememberIsLandscape(): State<Boolean> {
+    val configuration = LocalConfiguration.current
+    return remember(configuration.screenWidthDp, configuration.screenHeightDp) {
+        derivedStateOf {
+            configuration.screenWidthDp > configuration.screenHeightDp
+        }
+    }
 }

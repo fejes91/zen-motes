@@ -11,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -23,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import hu.adamfejes.zenmotes.logic.GameStateHolder
+import hu.adamfejes.zenmotes.rememberIsLandscape
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameScreen
@@ -32,7 +32,6 @@ import hu.adamfejes.zenmotes.ui.OrientationWarningDialog
 import hu.adamfejes.zenmotes.ui.PauseDialog
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
-import kotlinx.coroutines.flow.first
 import org.koin.compose.koinInject
 
 val LocalTheme = staticCompositionLocalOf {
@@ -105,15 +104,15 @@ fun AppNavigation(
     }
 
     // Pause game when orientation changes to landscape
-    val configuration = LocalConfiguration.current
-    var isLandscape by remember { mutableStateOf(configuration.screenWidthDp > configuration.screenHeightDp) }
+    val isLandscapeState = rememberIsLandscape()
+    val isLandscape by isLandscapeState
+    var previousIsLandscape by remember { mutableStateOf(isLandscape) }
 
-    LaunchedEffect(configuration.screenWidthDp, configuration.screenHeightDp) {
-        val newIsLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-        if (newIsLandscape && !isLandscape) {
+    LaunchedEffect(isLandscape) {
+        if (isLandscape && !previousIsLandscape) {
             gameStateHolder.onPause()
             navController.navigate(Screen.OrientationWarning.route)
-        } else if (!newIsLandscape && currentRoute == Screen.OrientationWarning.route) {
+        } else if (!isLandscape && currentRoute == Screen.OrientationWarning.route) {
             navController.popBackStack()
             // Check what screen we returned to after popping back
             val previousRoute = navController.currentBackStackEntry?.destination?.route
@@ -121,7 +120,7 @@ fun AppNavigation(
                 gameStateHolder.onResume()
             }
         }
-        isLandscape = newIsLandscape
+        previousIsLandscape = isLandscape
     }
 
     CompositionLocalProvider(LocalTheme provides currentTheme) {
