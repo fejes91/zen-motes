@@ -147,7 +147,8 @@ fun AppNavigation(
                 route = Screen.MainMenu.route,
                 dialogProperties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    dismissOnBackPress = false
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
                 )
             ) {
                 MainMenuDialog(
@@ -164,7 +165,8 @@ fun AppNavigation(
                 route = Screen.Pause.route,
                 dialogProperties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    dismissOnBackPress = false
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
                 )
             ) {
                 PauseDialog(
@@ -178,7 +180,8 @@ fun AppNavigation(
                 route = Screen.GameOver.route,
                 dialogProperties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    dismissOnBackPress = false
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
                 )
             ) {
                 GameOverDialog(
@@ -196,7 +199,8 @@ fun AppNavigation(
                 route = Screen.OrientationWarning.route,
                 dialogProperties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    dismissOnBackPress = false
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
                 )
             ) {
                 OrientationWarningDialog()
