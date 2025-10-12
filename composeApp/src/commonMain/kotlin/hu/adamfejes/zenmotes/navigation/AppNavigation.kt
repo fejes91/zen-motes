@@ -55,7 +55,7 @@ fun AppNavigation(
     val analyticsService = koinInject<AnalyticsService>()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isPaused = currentRoute == Screen.Pause.route || currentRoute == Screen.GameOver.route
+    val isGameRunning = currentRoute == Screen.Game.route
 
     // Track screen navigation
     DisposableEffect(currentRoute) {
@@ -82,11 +82,11 @@ fun AppNavigation(
         navController.navigate(Screen.MainMenu.route)
     }
 
-    DisposableEffect(lifecycleOwner, isPaused) {
+    DisposableEffect(lifecycleOwner, isGameRunning) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> {
-                    if (!isPaused) {
+                    if (isGameRunning) {
                         gameStateHolder.onPause()
                         navController.navigate(Screen.Pause.route)
                     }
@@ -104,8 +104,7 @@ fun AppNavigation(
     }
 
     // Pause game when orientation changes to landscape
-    val isLandscapeState = rememberIsLandscape()
-    val isLandscape by isLandscapeState
+    val isLandscape by rememberIsLandscape()
     var previousIsLandscape by remember { mutableStateOf(isLandscape) }
 
     LaunchedEffect(isLandscape) {
