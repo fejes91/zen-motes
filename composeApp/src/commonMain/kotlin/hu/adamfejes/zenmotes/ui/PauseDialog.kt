@@ -28,7 +28,15 @@ import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.pause_dialog_restart
+import zenmotescmp.composeapp.generated.resources.pause_dialog_resume
+import zenmotescmp.composeapp.generated.resources.pause_dialog_score
+import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_off
+import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_on
+import zenmotescmp.composeapp.generated.resources.pause_dialog_time
 
 @Composable
 fun PauseDialog(
@@ -68,7 +76,7 @@ fun PauseDialog(
                 ) {
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "SCORE",
+                        text = stringResource(Res.string.pause_dialog_score),
                         fontSize = 28.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
@@ -77,7 +85,7 @@ fun PauseDialog(
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "TIME",
+                        text = stringResource(Res.string.pause_dialog_time),
                         fontSize = 28.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
@@ -148,7 +156,7 @@ fun PauseDialog(
                     )
                 ) {
                     Text(
-                        text = if (soundEnabled) "SOUND ON" else "SOUND OFF",
+                        text = stringResource(if (soundEnabled) Res.string.pause_dialog_sound_on else Res.string.pause_dialog_sound_off),
                         color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText
                     )
                 }
@@ -172,7 +180,7 @@ private fun PauseScreenButtons(
         )
     ) {
         Text(
-            text = "RESUME",
+            text = stringResource(Res.string.pause_dialog_resume),
             color = colorScheme.primaryButtonText
         )
     }
@@ -186,7 +194,7 @@ private fun PauseScreenButtons(
         )
     ) {
         Text(
-            text = "RESTART",
+            text = stringResource(Res.string.pause_dialog_restart),
             color = colorScheme.secondaryButtonText
         )
     }
