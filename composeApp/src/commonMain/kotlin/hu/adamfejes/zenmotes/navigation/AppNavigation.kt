@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.window.DialogProperties
@@ -76,10 +77,14 @@ fun AppNavigation(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Show main menu on app startup
+    // Show main menu on app startup - use rememberSaveable to persist across config changes
+    var hasNavigatedToMainMenu by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        gameStateHolder.enableDemoMode()
-        navController.navigate(Screen.MainMenu.route)
+        if (!hasNavigatedToMainMenu) {
+            gameStateHolder.enableDemoMode()
+            navController.navigate(Screen.MainMenu.route)
+            hasNavigatedToMainMenu = true
+        }
     }
 
     DisposableEffect(lifecycleOwner, isGameRunning) {
