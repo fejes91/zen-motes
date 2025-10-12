@@ -4,7 +4,6 @@
     <string translatable="false" name="main_menu_app_name">Castle Blaster</string>
     <string name="main_menu_start_game">START GAME</string>
     <string name="main_menu_high_score_label">HIGH SCORE: %1$d</string>
-    <string name="main_menu_high_score_placeholder">HIGH SCORE: --</string>
 
     <!-- Game Screen -->
     <string name="game_screen_pause">PAUSE</string>

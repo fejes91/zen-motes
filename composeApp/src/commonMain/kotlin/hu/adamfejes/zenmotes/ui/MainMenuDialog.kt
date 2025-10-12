@@ -37,7 +37,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.main_menu_app_name
 import zenmotescmp.composeapp.generated.resources.main_menu_high_score_label
-import zenmotescmp.composeapp.generated.resources.main_menu_high_score_placeholder
 import zenmotescmp.composeapp.generated.resources.main_menu_start_game
 import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_off
 import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_on
@@ -112,11 +111,7 @@ fun MainMenuDialog(
             }
 
             Text(
-                text = if (highScore != null) {
-                    stringResource(Res.string.main_menu_high_score_label, highScore!!)
-                } else {
-                    stringResource(Res.string.main_menu_high_score_placeholder)
-                },
+                text = stringResource(Res.string.main_menu_high_score_label, highScore ?: "--"),
                 fontSize = 24.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,

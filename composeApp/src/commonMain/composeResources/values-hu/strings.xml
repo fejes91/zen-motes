@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu Screen -->
+    <string name="main_menu_start_game">JÁTÉK INDÍTÁSA</string>
+    <string name="main_menu_high_score_label">CSÚCS: %1$d</string>
+
+    <!-- Game Screen -->
+    <string name="game_screen_pause">SZÜNET</string>
+    <string name="game_screen_score_label">PONTSZÁM: </string>
+    <string name="game_screen_time_label">IDŐ: </string>
+
+    <!-- Pause Dialog -->
+    <string name="pause_dialog_score">PONTSZÁM</string>
+    <string name="pause_dialog_time">IDŐ</string>
+    <string name="pause_dialog_resume">FOLYTATÁS</string>
+    <string name="pause_dialog_restart">ÚJRAKEZDÉS</string>
+    <string name="pause_dialog_sound_on">HANG BE</string>
+    <string name="pause_dialog_sound_off">HANG KI</string>
+
+    <!-- Game Over Dialog -->
+    <string name="game_over_dialog_title">VÉGE A JÁTÉKNAK</string>
+    <string name="game_over_dialog_new_high_score">ÚJ CSÚCS!</string>
+    <string name="game_over_dialog_score">PONTSZÁM</string>
+    <string name="game_over_dialog_high_score">CSÚCS</string>
+    <string name="game_over_dialog_restart">ÚJRAKEZDÉS</string>
+
+    <!-- Orientation Warning Dialog -->
+    <string name="orientation_warning_title">FORGASD EL A KÉSZÜLÉKET</string>
+    <string name="orientation_warning_message">Kérlek forgasd el a készüléket\nfüggőleges tájolásba a folytatáshoz</string>
+</resources>

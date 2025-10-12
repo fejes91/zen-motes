@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu Screen -->
+    <string name="main_menu_start_game">DÉMARRER LE JEU</string>
+    <string name="main_menu_high_score_label">MEILLEUR SCORE : %1$d</string>
+
+    <!-- Game Screen -->
+    <string name="game_screen_pause">PAUSE</string>
+    <string name="game_screen_score_label">SCORE : </string>
+    <string name="game_screen_time_label">TEMPS : </string>
+
+    <!-- Pause Dialog -->
+    <string name="pause_dialog_score">SCORE</string>
+    <string name="pause_dialog_time">TEMPS</string>
+    <string name="pause_dialog_resume">REPRENDRE</string>
+    <string name="pause_dialog_restart">RECOMMENCER</string>
+    <string name="pause_dialog_sound_on">SON ACTIVÉ</string>
+    <string name="pause_dialog_sound_off">SON DÉSACTIVÉ</string>
+
+    <!-- Game Over Dialog -->
+    <string name="game_over_dialog_title">FIN DU JEU</string>
+    <string name="game_over_dialog_new_high_score">NOUVEAU RECORD !</string>
+    <string name="game_over_dialog_score">SCORE</string>
+    <string name="game_over_dialog_high_score">MEILLEUR SCORE</string>
+    <string name="game_over_dialog_restart">RECOMMENCER</string>
+
+    <!-- Orientation Warning Dialog -->
+    <string name="orientation_warning_title">TOURNEZ VOTRE APPAREIL</string>
+    <string name="orientation_warning_message">Veuillez tourner votre téléphone en\norientation verticale pour continuer</string>
+</resources>

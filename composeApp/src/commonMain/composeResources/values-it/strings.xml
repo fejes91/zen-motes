@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu Screen -->
+    <string name="main_menu_start_game">INIZIA GIOCO</string>
+    <string name="main_menu_high_score_label">PUNTEGGIO MASSIMO: %1$d</string>
+
+    <!-- Game Screen -->
+    <string name="game_screen_pause">PAUSA</string>
+    <string name="game_screen_score_label">PUNTEGGIO: </string>
+    <string name="game_screen_time_label">TEMPO: </string>
+
+    <!-- Pause Dialog -->
+    <string name="pause_dialog_score">PUNTEGGIO</string>
+    <string name="pause_dialog_time">TEMPO</string>
+    <string name="pause_dialog_resume">RIPRENDI</string>
+    <string name="pause_dialog_restart">RICOMINCIA</string>
+    <string name="pause_dialog_sound_on">SUONO ATTIVO</string>
+    <string name="pause_dialog_sound_off">SUONO DISATTIVO</string>
+
+    <!-- Game Over Dialog -->
+    <string name="game_over_dialog_title">GAME OVER</string>
+    <string name="game_over_dialog_new_high_score">NUOVO RECORD!</string>
+    <string name="game_over_dialog_score">PUNTEGGIO</string>
+    <string name="game_over_dialog_high_score">PUNTEGGIO MASSIMO</string>
+    <string name="game_over_dialog_restart">RICOMINCIA</string>
+
+    <!-- Orientation Warning Dialog -->
+    <string name="orientation_warning_title">RUOTA IL DISPOSITIVO</string>
+    <string name="orientation_warning_message">Ruota il telefono in\norientamento verticale per continuare</string>
+</resources>

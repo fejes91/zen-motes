@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu Screen -->
+    <string name="main_menu_start_game">SPIEL STARTEN</string>
+    <string name="main_menu_high_score_label">HIGHSCORE: %1$d</string>
+
+    <!-- Game Screen -->
+    <string name="game_screen_pause">PAUSE</string>
+    <string name="game_screen_score_label">PUNKTE: </string>
+    <string name="game_screen_time_label">ZEIT: </string>
+
+    <!-- Pause Dialog -->
+    <string name="pause_dialog_score">PUNKTE</string>
+    <string name="pause_dialog_time">ZEIT</string>
+    <string name="pause_dialog_resume">FORTSETZEN</string>
+    <string name="pause_dialog_restart">NEUSTART</string>
+    <string name="pause_dialog_sound_on">TON AN</string>
+    <string name="pause_dialog_sound_off">TON AUS</string>
+
+    <!-- Game Over Dialog -->
+    <string name="game_over_dialog_title">SPIEL VORBEI</string>
+    <string name="game_over_dialog_new_high_score">NEUER HIGHSCORE!</string>
+    <string name="game_over_dialog_score">PUNKTE</string>
+    <string name="game_over_dialog_high_score">HIGHSCORE</string>
+    <string name="game_over_dialog_restart">NEUSTART</string>
+
+    <!-- Orientation Warning Dialog -->
+    <string name="orientation_warning_title">GERÄT DREHEN</string>
+    <string name="orientation_warning_message">Bitte drehen Sie Ihr Handy in die\nvertikale Ausrichtung, um fortzufahren</string>
+</resources>
