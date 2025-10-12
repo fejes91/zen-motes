@@ -27,4 +27,9 @@
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">FORGASD EL A KÉSZÜLÉKET</string>
     <string name="orientation_warning_message">Kérlek forgasd el a készüléket\nfüggőleges tájolásba a folytatáshoz</string>
+
+    <!-- Theme Switch -->
+    <string name="theme_light">VILÁGOS</string>
+    <string name="theme_dark">SÖTÉT</string>
+    <string name="theme_system">RENDSZER</string>
 </resources>

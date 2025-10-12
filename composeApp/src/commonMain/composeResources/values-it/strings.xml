@@ -27,4 +27,9 @@
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">RUOTA IL DISPOSITIVO</string>
     <string name="orientation_warning_message">Ruota il telefono in\norientamento verticale per continuare</string>
+
+    <!-- Theme Switch -->
+    <string name="theme_light">CHIARO</string>
+    <string name="theme_dark">SCURO</string>
+    <string name="theme_system">SISTEMA</string>
 </resources>

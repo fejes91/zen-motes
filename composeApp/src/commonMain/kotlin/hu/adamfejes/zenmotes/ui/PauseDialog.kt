@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.navigation.LocalTheme
-import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
+import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatTime
@@ -137,7 +137,7 @@ fun PauseDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                ThreeStateSwitch(
+                AppThemeSwitch(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),

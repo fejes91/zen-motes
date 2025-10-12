@@ -26,9 +26,14 @@ import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.getFontFamily
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import org.jetbrains.compose.resources.stringResource
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.theme_dark
+import zenmotescmp.composeapp.generated.resources.theme_light
+import zenmotescmp.composeapp.generated.resources.theme_system
 
 @Composable
-fun ThreeStateSwitch(
+fun AppThemeSwitch(
     modifier: Modifier = Modifier,
     currentState: AppTheme,
     onStateChange: (AppTheme) -> Unit
@@ -38,7 +43,11 @@ fun ThreeStateSwitch(
 
     val thumbOffset = remember { Animatable(0f) }
     val states = listOf(AppTheme.LIGHT, AppTheme.SYSTEM, AppTheme.DARK)
-    val labels = states.map { it.name.uppercase().replaceFirstChar { char -> char.uppercase() } }
+    val labels = listOf(
+        stringResource(Res.string.theme_light),
+        stringResource(Res.string.theme_system),
+        stringResource(Res.string.theme_dark)
+    )
     val currentIndex = states.indexOf(currentState)
 
     val colorScheme = LocalTheme.current.toColorScheme()

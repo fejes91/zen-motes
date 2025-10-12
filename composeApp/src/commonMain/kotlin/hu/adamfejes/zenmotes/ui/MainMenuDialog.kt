@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
-import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
+import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -124,7 +124,7 @@ fun MainMenuDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ThreeStateSwitch(
+                AppThemeSwitch(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),

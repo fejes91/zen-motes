@@ -27,4 +27,9 @@
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">GERÄT DREHEN</string>
     <string name="orientation_warning_message">Bitte drehen Sie Ihr Handy in die\nvertikale Ausrichtung, um fortzufahren</string>
+
+    <!-- Theme Switch -->
+    <string name="theme_light">HELL</string>
+    <string name="theme_dark">DUNKEL</string>
+    <string name="theme_system">SYSTEM</string>
 </resources>

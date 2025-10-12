@@ -27,4 +27,9 @@
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">TOURNEZ VOTRE APPAREIL</string>
     <string name="orientation_warning_message">Veuillez tourner votre téléphone en\norientation verticale pour continuer</string>
+
+    <!-- Theme Switch -->
+    <string name="theme_light">CLAIR</string>
+    <string name="theme_dark">SOMBRE</string>
+    <string name="theme_system">SYSTÈME</string>
 </resources>

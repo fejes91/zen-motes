@@ -28,4 +28,9 @@
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">ROTATE YOUR DEVICE</string>
     <string name="orientation_warning_message">Please rotate your phone to\nvertical orientation to continue</string>
+
+    <!-- Theme Switch -->
+    <string name="theme_light">LIGHT</string>
+    <string name="theme_dark">DARK</string>
+    <string name="theme_system">SYSTEM</string>
 </resources>
