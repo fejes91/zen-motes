@@ -37,8 +37,11 @@ import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.game_screen_pause
 
 @Composable
 fun GameScreen(
@@ -189,7 +192,7 @@ private fun PauseButton(onClick: () -> Unit) {
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = "PAUSE",
+                text = stringResource(Res.string.game_screen_pause),
                 fontSize = 10.sp,
                 color = colorScheme.pauseButtonIcon
             )

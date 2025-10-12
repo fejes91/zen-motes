@@ -20,6 +20,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
+    *  do not play failed sound on main menu
  */
 
 class MainActivity : ComponentActivity() {

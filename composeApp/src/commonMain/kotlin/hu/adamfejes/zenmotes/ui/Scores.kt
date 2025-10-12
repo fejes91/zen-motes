@@ -31,6 +31,10 @@ import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import org.jetbrains.compose.resources.stringResource
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.game_screen_score_label
+import zenmotescmp.composeapp.generated.resources.game_screen_time_label
 import kotlin.math.roundToInt
 
 @Composable
@@ -121,7 +125,7 @@ private fun ScoreDisplay(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = "SCORE: ",
+                    text = stringResource(Res.string.game_screen_score_label),
                     color = colorScheme.textColor,
                     textAlign = TextAlign.End,
                     fontSize = 16.sp,
@@ -140,7 +144,7 @@ private fun ScoreDisplay(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = "TIME: ",
+                    text = stringResource(Res.string.game_screen_time_label),
                     color = colorScheme.textColor,
                     textAlign = TextAlign.End,
                     fontSize = 16.sp,

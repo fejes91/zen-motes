@@ -32,8 +32,15 @@ import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.components.ThreeStateSwitch
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.main_menu_app_name
+import zenmotescmp.composeapp.generated.resources.main_menu_high_score_label
+import zenmotescmp.composeapp.generated.resources.main_menu_high_score_placeholder
+import zenmotescmp.composeapp.generated.resources.main_menu_start_game
+import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_off
+import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_on
 import zenmotescmp.composeapp.generated.resources.wider_tower
 
 @Composable
@@ -81,7 +88,7 @@ fun MainMenuDialog(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Castle Blaster",
+                text = stringResource(Res.string.main_menu_app_name),
                 fontSize = 48.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 48.sp,
@@ -97,7 +104,7 @@ fun MainMenuDialog(
                 )
             ) {
                 Text(
-                    text = "START GAME",
+                    text = stringResource(Res.string.main_menu_start_game),
                     color = colorScheme.primaryButtonText,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium
@@ -105,7 +112,11 @@ fun MainMenuDialog(
             }
 
             Text(
-                text = if (highScore != null) "HIGH SCORE: $highScore" else "HIGH SCORE: --",
+                text = if (highScore != null) {
+                    stringResource(Res.string.main_menu_high_score_label, highScore!!)
+                } else {
+                    stringResource(Res.string.main_menu_high_score_placeholder)
+                },
                 fontSize = 24.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
@@ -137,7 +148,7 @@ fun MainMenuDialog(
                     )
                 ) {
                     Text(
-                        text = if (soundEnabled) "SOUND ON" else "SOUND OFF",
+                        text = stringResource(if (soundEnabled) Res.string.pause_dialog_sound_on else Res.string.pause_dialog_sound_off),
                         color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText
                     )
                 }

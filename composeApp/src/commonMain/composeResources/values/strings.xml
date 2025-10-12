@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu Screen -->
+    <string translatable="false" name="main_menu_app_name">Castle Blaster</string>
+    <string name="main_menu_start_game">START GAME</string>
+    <string name="main_menu_high_score_label">HIGH SCORE: %1$d</string>
+    <string name="main_menu_high_score_placeholder">HIGH SCORE: --</string>
+
+    <!-- Game Screen -->
+    <string name="game_screen_pause">PAUSE</string>
+    <string name="game_screen_score_label">SCORE: </string>
+    <string name="game_screen_time_label">TIME: </string>
+
+    <!-- Pause Dialog -->
+    <string name="pause_dialog_score">SCORE</string>
+    <string name="pause_dialog_time">TIME</string>
+    <string name="pause_dialog_resume">RESUME</string>
+    <string name="pause_dialog_restart">RESTART</string>
+    <string name="pause_dialog_sound_on">SOUND ON</string>
+    <string name="pause_dialog_sound_off">SOUND OFF</string>
+
+    <!-- Game Over Dialog -->
+    <string name="game_over_dialog_title">GAME OVER</string>
+    <string name="game_over_dialog_new_high_score">NEW HIGH SCORE!</string>
+    <string name="game_over_dialog_score">SCORE</string>
+    <string name="game_over_dialog_high_score">HIGH SCORE</string>
+    <string name="game_over_dialog_restart">RESTART</string>
+
+    <!-- Orientation Warning Dialog -->
+    <string name="orientation_warning_title">ROTATE YOUR DEVICE</string>
+    <string name="orientation_warning_message">Please rotate your phone to\nvertical orientation to continue</string>
+</resources>

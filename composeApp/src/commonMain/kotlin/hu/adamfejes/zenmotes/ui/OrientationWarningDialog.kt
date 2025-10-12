@@ -22,7 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.orientation_warning_message
+import zenmotescmp.composeapp.generated.resources.orientation_warning_title
 
 @Composable
 fun OrientationWarningDialog(
@@ -49,7 +53,7 @@ fun OrientationWarningDialog(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Text(
-                text = "ROTATE YOUR DEVICE",
+                text = stringResource(Res.string.orientation_warning_title),
                 fontSize = 28.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
@@ -59,7 +63,7 @@ fun OrientationWarningDialog(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Please rotate your phone to\nvertical orientation to continue",
+                text = stringResource(Res.string.orientation_warning_message),
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,

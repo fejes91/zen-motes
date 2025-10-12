@@ -26,7 +26,14 @@ import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.game_over_dialog_high_score
+import zenmotescmp.composeapp.generated.resources.game_over_dialog_new_high_score
+import zenmotescmp.composeapp.generated.resources.game_over_dialog_restart
+import zenmotescmp.composeapp.generated.resources.game_over_dialog_score
+import zenmotescmp.composeapp.generated.resources.game_over_dialog_title
 
 @Composable
 fun GameOverDialog(
@@ -59,7 +66,7 @@ fun GameOverDialog(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Text(
-                text = "GAME OVER",
+                text = stringResource(Res.string.game_over_dialog_title),
                 fontSize = 36.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
@@ -93,7 +100,7 @@ fun GameOverDialog(
                 )
             ) {
                 Text(
-                    text = "RESTART",
+                    text = stringResource(Res.string.game_over_dialog_restart),
                     color = colorScheme.secondaryButtonText
                 )
             }
@@ -108,7 +115,7 @@ private fun NewHighScoreDisplay(score: Int, colorScheme: ColorScheme) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "NEW HIGH SCORE!",
+            text = stringResource(Res.string.game_over_dialog_new_high_score),
             fontSize = 28.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,
@@ -132,7 +139,7 @@ private fun RegularScoreDisplay(score: Int, highScore: Int?, colorScheme: ColorS
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "SCORE",
+            text = stringResource(Res.string.game_over_dialog_score),
             fontSize = 28.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,
@@ -151,7 +158,7 @@ private fun RegularScoreDisplay(score: Int, highScore: Int?, colorScheme: ColorS
 
         highScore?.let {
             Text(
-                text = "HIGH SCORE",
+                text = stringResource(Res.string.game_over_dialog_high_score),
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
