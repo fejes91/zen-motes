@@ -7,12 +7,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
+import zenmotescmp.composeapp.generated.resources.Pixellari
 import zenmotescmp.composeapp.generated.resources.Res
-import zenmotescmp.composeapp.generated.resources.Minecraft
 
 @Composable
 fun getFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.Minecraft),
+    Font(Res.font.Pixellari),
 )
 
 @Composable

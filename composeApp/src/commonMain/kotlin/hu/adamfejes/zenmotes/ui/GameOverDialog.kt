@@ -70,6 +70,7 @@ fun GameOverDialog(
                 fontSize = 36.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
+                lineHeight = 36.sp,
                 color = colorScheme.pausedTitleText
             )
 

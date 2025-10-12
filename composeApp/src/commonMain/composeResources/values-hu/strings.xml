@@ -5,12 +5,12 @@
     <string name="main_menu_high_score_label">CSÚCS: %1$d</string>
 
     <!-- Game Screen -->
-    <string name="game_screen_pause">SZÜNET</string>
+    <string name="game_screen_pause">ÁLLJ</string>
     <string name="game_screen_score_label">PONTSZÁM: </string>
     <string name="game_screen_time_label">IDŐ: </string>
 
     <!-- Pause Dialog -->
-    <string name="pause_dialog_score">PONTSZÁM</string>
+    <string name="pause_dialog_score">PONT</string>
     <string name="pause_dialog_time">IDŐ</string>
     <string name="pause_dialog_resume">FOLYTATÁS</string>
     <string name="pause_dialog_restart">ÚJRAKEZDÉS</string>

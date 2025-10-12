@@ -21,6 +21,8 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
     *  do not play failed sound on main menu
+    *  choose font which support accents in spanish and hungarian
+    *  iOS doesn't use custom font, except theme switcher
  */
 
 class MainActivity : ComponentActivity() {

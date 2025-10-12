@@ -2,15 +2,15 @@
 <resources>
     <!-- Main Menu Screen -->
     <string name="main_menu_start_game">INIZIA GIOCO</string>
-    <string name="main_menu_high_score_label">PUNTEGGIO MASSIMO: %1$d</string>
+    <string name="main_menu_high_score_label">PUNTO MASSIMO: %1$d</string>
 
     <!-- Game Screen -->
     <string name="game_screen_pause">PAUSA</string>
-    <string name="game_screen_score_label">PUNTEGGIO: </string>
+    <string name="game_screen_score_label">PUNTO: </string>
     <string name="game_screen_time_label">TEMPO: </string>
 
     <!-- Pause Dialog -->
-    <string name="pause_dialog_score">PUNTEGGIO</string>
+    <string name="pause_dialog_score">PUNTO</string>
     <string name="pause_dialog_time">TEMPO</string>
     <string name="pause_dialog_resume">RIPRENDI</string>
     <string name="pause_dialog_restart">RICOMINCIA</string>
@@ -18,10 +18,10 @@
     <string name="pause_dialog_sound_off">SUONO DISATTIVO</string>
 
     <!-- Game Over Dialog -->
-    <string name="game_over_dialog_title">GAME OVER</string>
+    <string name="game_over_dialog_title">IL GIOCO É FINITO</string>
     <string name="game_over_dialog_new_high_score">NUOVO RECORD!</string>
-    <string name="game_over_dialog_score">PUNTEGGIO</string>
-    <string name="game_over_dialog_high_score">PUNTEGGIO MASSIMO</string>
+    <string name="game_over_dialog_score">PUNTO</string>
+    <string name="game_over_dialog_high_score">PUNTO MASSIMO</string>
     <string name="game_over_dialog_restart">RICOMINCIA</string>
 
     <!-- Orientation Warning Dialog -->
