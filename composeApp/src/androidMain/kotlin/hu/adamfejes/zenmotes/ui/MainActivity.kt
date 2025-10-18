@@ -24,7 +24,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
-    *  do not play failed sound on main menu
     *  iOS doesn't use custom font, except theme switcher
     *  make full restart when game start to clean demo mode artifacts
     *  game balance

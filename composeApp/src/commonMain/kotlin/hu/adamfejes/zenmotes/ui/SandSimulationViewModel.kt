@@ -16,6 +16,7 @@ import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -82,11 +83,9 @@ open class SandSimulationViewModel(
 
     init {
         // Sync SoundManager with stored sound preference
-        soundEnabled
-            .onEach { enabled ->
-                soundManager.setSoundEnabled(enabled)
-            }
-            .launchIn(viewModelScope)
+        soundEnabled.combine(isDemoMode) { enabled, demoMode ->
+            soundManager.setSoundEnabled(enabled && !demoMode)
+        }.launchIn(viewModelScope)
     }
 
     fun increaseScore(slidingObstacle: SlidingObstacle, isBonus: Boolean = false) {
