@@ -8,6 +8,7 @@ import hu.adamfejes.zenmotes.logic.ScoreHolderImpl
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameOverViewModel
 import hu.adamfejes.zenmotes.ui.MainMenuViewModel
+import hu.adamfejes.zenmotes.ui.OrientationWarningViewModel
 import hu.adamfejes.zenmotes.ui.PauseViewModel
 import hu.adamfejes.zenmotes.ui.SandSimulationViewModel
 import org.koin.core.module.dsl.viewModel
@@ -18,11 +19,14 @@ val appModule = module {
     single { SandColorManager() }
     single { PreferencesService(get()) }
     single { SandGridHolder() }
-    single { GameStateHolder(
-        get(),
-        get(),
-        get()
-    ) }
+    single {
+        GameStateHolder(
+            get(),
+            get(),
+            get(),
+        )
+    }
+
     viewModel {
         SandSimulationViewModel(
             get(),
@@ -46,6 +50,7 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
@@ -54,4 +59,5 @@ val appModule = module {
             get()
         )
     }
+    viewModel { OrientationWarningViewModel(get()) }
 }

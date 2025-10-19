@@ -32,6 +32,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     private var soundEnabled: Boolean = true
     
     override fun init() {
+        Logger.d("AndroidSoundManager", "Initializing SoundManager")
         scope.launch {
             SoundSample.entries.forEach { sample ->
                 try {
@@ -61,20 +62,20 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
         }
     }
 
-    override fun playAsync(sample: SoundSample) {
+    override fun playAsync(sample: SoundSample, loop: Boolean) {
         scope.launch(Dispatchers.Main) {
             play(sample)
         }
     }
 
-    override suspend fun play(sample: SoundSample) {
-        Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName})")
+    override suspend fun play(sample: SoundSample, loop: Boolean) {
+        Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName}")
         if(paused) {
-            Logger.d("AndroidSoundManager", "SoundManager is paused, not playing sound: ${sample.fileName})")
+            Logger.d("AndroidSoundManager", "SoundManager is paused, not playing sound: ${sample.fileName}")
             return
         }
         if(!soundEnabled) {
-            Logger.d("AndroidSoundManager", "Sound is disabled, not playing sound: ${sample.fileName})")
+            Logger.d("AndroidSoundManager", "Sound is disabled, not playing sound: ${sample.fileName}")
             return
         }
 

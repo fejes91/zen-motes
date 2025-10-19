@@ -73,14 +73,6 @@ fun SandView(
 ) {
     val soundManager = getKoin().get<SoundManager>()
     val sandColorManager: SandColorManager = koinInject()
-    DisposableEffect(Unit) {
-        // Initialize sound manager with the current theme
-        soundManager.init()
-
-        onDispose {
-            soundManager.dispose()
-        }
-    }
 
     val sandGridHolder = koinInject<SandGridHolder>()
 

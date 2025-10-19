@@ -26,6 +26,7 @@ import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.rememberIsLandscape
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
+import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.GameOverDialog
 import hu.adamfejes.zenmotes.ui.MainMenuDialog
@@ -54,6 +55,8 @@ fun AppNavigation(
     val gameStateHolder = koinInject<GameStateHolder>()
     val preferencesService = koinInject<PreferencesService>()
     val analyticsService = koinInject<AnalyticsService>()
+    val soundManager = koinInject<SoundManager>()
+
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val isGameRunning = currentRoute == Screen.Game.route
@@ -64,6 +67,15 @@ fun AppNavigation(
             analyticsService.trackScreenView(route)
         }
         onDispose { }
+    }
+
+    DisposableEffect(Unit) {
+        // Initialize sound manager with the current theme
+        soundManager.init()
+
+        onDispose {
+            soundManager.dispose()
+        }
     }
 
     // Use preferences theme with system fallback

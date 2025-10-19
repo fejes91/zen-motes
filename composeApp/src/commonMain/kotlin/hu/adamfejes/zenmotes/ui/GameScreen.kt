@@ -68,7 +68,7 @@ fun GameScreen(
         updateScore = viewModel::updateScore,
         pauseSession = viewModel::pauseSession,
         sandColorManager = sandColorManager,
-        playSound = viewModel::playSound,
+        playSound = viewModel::playScoreSound,
         onNavigateToPause = onNavigateToPause,
         onNavigateToGameOver = onNavigateToGameOver,
     )

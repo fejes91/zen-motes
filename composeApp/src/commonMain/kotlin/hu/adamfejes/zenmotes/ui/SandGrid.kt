@@ -116,7 +116,6 @@ class SandGrid(
     fun onPause() {
         pauseStartTime = TimeUtils.currentTimeMillis()
         obstacleGenerator.onPause()
-        soundManager.onPause()
     }
 
     fun onResume() {
@@ -126,7 +125,6 @@ class SandGrid(
             pauseStartTime = null
         }
         obstacleGenerator.onResume()
-        soundManager.onResume()
     }
 
     fun update(
