@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -21,7 +19,7 @@ import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 fun ColorIndicatorBar(
     currentColor: ColorType,
     nextColor: ColorType?,
-    modifier: Modifier = Modifier.Companion
+    modifier: Modifier = Modifier
 ) {
     val theme = LocalTheme.current
     val colorScheme = theme.toColorScheme()
@@ -30,12 +28,11 @@ fun ColorIndicatorBar(
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
-            .height(16.dp)
+            .fillMaxSize()
     ) {
         // Current color (base layer)
         Box(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .background(currentColorValue)
         )
@@ -52,7 +49,7 @@ fun ColorIndicatorBar(
         // Next color (slides in from right when animation starts)
         if (nextColorValue != null) {
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(animatedWidthFraction)
                     .background(nextColorValue)

@@ -1,19 +1,20 @@
 package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,21 +27,12 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreEvent
-import hu.adamfejes.zenmotes.logic.SlidingObstacle
-import hu.adamfejes.zenmotes.logic.SlidingObstacleType
-import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.navigation.LocalTheme
-import hu.adamfejes.zenmotes.navigation.Screen
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
-import hu.adamfejes.zenmotes.utils.TimeUtils
 import hu.adamfejes.zenmotes.utils.createScoreDecreaseEvent
 import hu.adamfejes.zenmotes.utils.createScoreIncreaseEvent
 import kotlinx.coroutines.delay
@@ -112,6 +104,12 @@ private fun GameScreenContent(
     }
 
     val colorScheme = LocalTheme.current.toColorScheme()
+
+    ColorIndicatorBar(
+        currentColor = currentSandColor,
+        nextColor = nextSandColor,
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -120,6 +118,7 @@ private fun GameScreenContent(
                     .background(colorScheme.pauseOverlayBackground)
                 else Modifier
             )
+            .windowInsetsPadding(WindowInsets.statusBars)
     ) {
         // Sand simulation view - full edge-to-edge behind everything
         SandView(
@@ -139,14 +138,9 @@ private fun GameScreenContent(
             }
         )
 
-        // Color indicator bar at the very top
-        ColorIndicatorBar(
-            currentColor = currentSandColor,
-            nextColor = nextSandColor,
-        )
-
         // Score display at the top center
         Scores(
+            modifier = Modifier.padding(top = 8.dp),
             score = score,
             countDownTimeMillis = countDownTime,
             activeScoreEvents = activeScoreEvents,
@@ -164,7 +158,7 @@ private fun GameScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(end = 16.dp),
+                .padding(end = 16.dp, top = 8.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
             PauseButton {
