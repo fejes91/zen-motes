@@ -31,7 +31,6 @@ import kotlin.math.roundToInt
 fun AnimatedScoreLabel(
     scoreEvent: ScoreEvent,
     modifier: Modifier = Modifier,
-    onAnimationNearlyComplete: () -> Unit,
     onAnimationComplete: () -> Unit
 ) {
     val density = LocalDensity.current
@@ -46,9 +45,9 @@ fun AnimatedScoreLabel(
         with(density) { 180.toDp() } // Top of screen with some padding, matching ScoreDisplay
 
     // Animation state
-    val animatedX = remember(scoreEvent.obstacleId) { Animatable(startX.value) }
-    val animatedY = remember(scoreEvent.obstacleId) { Animatable(startY.value) }
-    val animatedAlpha = remember(scoreEvent.obstacleId) { Animatable(1f) }
+    val animatedX = remember(scoreEvent.obstacle.id) { Animatable(startX.value) }
+    val animatedY = remember(scoreEvent.obstacle.id) { Animatable(startY.value) }
+    val animatedAlpha = remember(scoreEvent.obstacle.id) { Animatable(1f) }
 
     LaunchedEffect(Unit) {
         launch {
@@ -63,21 +62,15 @@ fun AnimatedScoreLabel(
                 targetValue = targetY.value,
                 animationSpec = tween(durationMillis = SCORE_FLY_DURATION, easing = FastOutLinearInEasing)
             )
-        }
-
-        launch {
-            delay((SCORE_FLY_DURATION * 0.8f).toLong())
-            onAnimationNearlyComplete()
+            onAnimationComplete()
         }
 
         // Wait for most of the animation, then fade out
-        delay((SCORE_FLY_DURATION * 4 / 5).toLong())
+        delay((SCORE_FLY_DURATION * 0.8f).toLong())
         animatedAlpha.animateTo(
             targetValue = 0f,
             animationSpec = tween(durationMillis = 500)
         )
-
-        onAnimationComplete()
     }
 
     Box(

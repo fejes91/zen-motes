@@ -3,10 +3,7 @@ package hu.adamfejes.zenmotes.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
-import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
-import hu.adamfejes.zenmotes.logic.SlidingObstacle
-import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
@@ -18,10 +15,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 open class SandSimulationViewModel(
     private val gameStateHolder: GameStateHolder,
@@ -39,12 +34,6 @@ open class SandSimulationViewModel(
             started = SharingStarted.WhileSubscribed(),
             initialValue = 0
         )
-
-    val scoreEvent: StateFlow<ScoreEvent?> = scoreHolder.getScoreEvent().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = null
-    )
 
     val appTheme: StateFlow<AppTheme?> = preferencesService.getTheme
         .stateIn(
@@ -88,36 +77,9 @@ open class SandSimulationViewModel(
         }.launchIn(viewModelScope)
     }
 
-    fun increaseScore(slidingObstacle: SlidingObstacle, isBonus: Boolean = false) {
+    fun updateScore(score: Int) {
         viewModelScope.launch {
-            val finalScore = if (isBonus) {
-                slidingObstacle.getBallparkScore() * 2
-            } else {
-                slidingObstacle.getBallparkScore()
-            }
-            scoreHolder.increaseScore(
-                ScoreEvent(
-                    x = slidingObstacle.x.roundToInt(),
-                    y = slidingObstacle.y,
-                    score = finalScore,
-                    obstacleId = slidingObstacle.id,
-                    isBonus = isBonus
-                )
-            )
-        }
-    }
-
-    fun decreaseScore(slidingObstacle: SlidingObstacle) {
-        viewModelScope.launch {
-            // do not decrease score
-            scoreHolder.decreaseScore(
-                ScoreEvent(
-                    x = slidingObstacle.x.roundToInt(),
-                    y = slidingObstacle.y,
-                    score = -slidingObstacle.getBallparkScore() * 2,
-                    obstacleId = slidingObstacle.id
-                )
-            )
+            scoreHolder.updateScore(score)
         }
     }
 

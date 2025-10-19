@@ -1,6 +1,7 @@
 package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,14 +29,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.logic.SlidingObstacleType
+import hu.adamfejes.zenmotes.logic.getBallparkScore
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.navigation.Screen
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import hu.adamfejes.zenmotes.utils.TimeUtils
+import hu.adamfejes.zenmotes.utils.createScoreDecreaseEvent
+import hu.adamfejes.zenmotes.utils.createScoreIncreaseEvent
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -51,7 +58,6 @@ fun GameScreen(
 ) {
     val sandColorManager: SandColorManager = koinInject()
     val score by viewModel.score.collectAsState(0)
-    val scoreEvent by viewModel.scoreEvent.collectAsState(null)
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
     val isPaused by viewModel.isPaused.collectAsState()
@@ -61,16 +67,14 @@ fun GameScreen(
         isPaused = isPaused,
         isDemoMode = isDemoMode,
         currentAppTheme = currentAppTheme,
-        scoreEvent = scoreEvent,
         score = score,
         countDownTime = countDownTime,
-        increaseScore = viewModel::increaseScore,
-        decreaseScore = viewModel::decreaseScore,
+        updateScore = viewModel::updateScore,
         pauseSession = viewModel::pauseSession,
         sandColorManager = sandColorManager,
         playSound = viewModel::playSound,
         onNavigateToPause = onNavigateToPause,
-        onNavigateToGameOver = onNavigateToGameOver
+        onNavigateToGameOver = onNavigateToGameOver,
     )
 }
 
@@ -79,16 +83,14 @@ private fun GameScreenContent(
     isPaused: Boolean,
     isDemoMode: Boolean,
     currentAppTheme: AppTheme?,
-    scoreEvent: ScoreEvent?,
     score: Int,
     countDownTime: Long,
-    increaseScore: (SlidingObstacle, Boolean) -> Unit,
-    decreaseScore: (SlidingObstacle) -> Unit,
+    updateScore: (Int) -> Unit,
     pauseSession: () -> Unit,
     playSound: (Int) -> Unit,
     sandColorManager: SandColorManager,
     onNavigateToPause: () -> Unit,
-    onNavigateToGameOver: () -> Unit
+    onNavigateToGameOver: () -> Unit,
 ) {
     if (currentAppTheme == null) {
         return
@@ -96,13 +98,6 @@ private fun GameScreenContent(
 
     // Manage active score events for animation
     var activeScoreEvents by remember { mutableStateOf<Set<ScoreEvent>>(emptySet()) }
-
-    // Add new score events to the active list
-    LaunchedEffect(scoreEvent?.obstacleId) {
-        scoreEvent?.let { event ->
-            activeScoreEvents = activeScoreEvents + event
-        }
-    }
 
     val currentSandColor by sandColorManager.currentSandColor.collectAsState()
     val nextSandColor by sandColorManager.nextSandColor.collectAsState()
@@ -133,8 +128,15 @@ private fun GameScreenContent(
             sandGenerationAmount = 5,
             showPerformanceOverlay = false, // Toggle performance overlay for testing
             isPaused = isPaused,
-            increaseScore = increaseScore,
-            decreaseScore = decreaseScore
+            increaseScore = { slidingObstacle, isBonus ->
+                val event = createScoreIncreaseEvent(isBonus, slidingObstacle)
+                activeScoreEvents = activeScoreEvents + event
+
+            },
+            decreaseScore = { slidingObstacle ->
+                val event = createScoreDecreaseEvent(slidingObstacle)
+                activeScoreEvents = activeScoreEvents + event
+            }
         )
 
         // Color indicator bar at the very top
@@ -148,13 +150,13 @@ private fun GameScreenContent(
             score = score,
             countDownTimeMillis = countDownTime,
             activeScoreEvents = activeScoreEvents,
-            onAnimationNearlyComplete = { obstacleId ->
-                playSound(activeScoreEvents.first { it.obstacleId == obstacleId }.score)
-            },
-            onAnimationComplete = { obstacleId ->
+            onAnimationComplete = { event ->
+                playSound(activeScoreEvents.first { it.obstacle.id == event.obstacle.id }.score)
                 activeScoreEvents =
-                    activeScoreEvents.filter { it.obstacleId != obstacleId }
+                    activeScoreEvents.filter { it.obstacle.id != event.obstacle.id }
                         .toSet()
+
+                updateScore(event.score)
             })
 
         // Top UI overlay - pause button only

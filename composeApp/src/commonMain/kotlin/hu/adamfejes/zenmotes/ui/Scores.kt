@@ -24,13 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.navigation.LocalTheme
-import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_DISPLAY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatTime
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import org.jetbrains.compose.resources.stringResource
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.game_screen_score_label
@@ -42,42 +39,37 @@ fun Scores(
     score: Int,
     countDownTimeMillis: Long,
     activeScoreEvents: Set<ScoreEvent>,
-    onAnimationNearlyComplete: (String) -> Unit,
-    onAnimationComplete: (String) -> Unit,
+    onAnimationComplete: (ScoreEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scoreAnimatable = remember { Animatable(score.toFloat()) }
     val countDownAnimatable = remember { Animatable(countDownTimeMillis.toFloat()) }
     var targetScore by remember { mutableStateOf(score) }
     var targetCountDownTime by remember { mutableStateOf(countDownTimeMillis) }
-    var scoreAnimationTrigger by remember { mutableStateOf(0) }
 
     // Update target score when new score arrives, but don't animate yet
     LaunchedEffect(score, countDownTimeMillis) {
         targetScore = score
         targetCountDownTime = countDownTimeMillis
 
-        if(score == 0) {
+        if (score == 0) {
             scoreAnimatable.animateTo(0f)
         }
     }
 
     // Animate when triggered by score event completion
-    LaunchedEffect(scoreAnimationTrigger) {
+    LaunchedEffect(targetScore) {
         scoreAnimatable.animateTo(
             targetValue = targetScore.toFloat(),
             animationSpec = tween(durationMillis = SCORE_DISPLAY_DURATION)
         )
     }
 
-    LaunchedEffect(Unit) {
-        while(isActive) {
-            countDownAnimatable.animateTo(
-                targetValue = targetCountDownTime.toFloat(),
-                animationSpec = tween(durationMillis = SCORE_DISPLAY_DURATION)
-            )
-            delay(500)
-        }
+    LaunchedEffect(targetCountDownTime) {
+        countDownAnimatable.animateTo(
+            targetValue = targetCountDownTime.toFloat(),
+            animationSpec = tween(durationMillis = SCORE_DISPLAY_DURATION)
+        )
     }
 
     val currentAnimatedScore = scoreAnimatable.value
@@ -88,16 +80,12 @@ fun Scores(
         ScoreDisplay(colorScheme, currentAnimatedScore, currentCountDownTime)
 
         activeScoreEvents.forEach { event ->
-            key(event.obstacleId) {
+            key(event.obstacle.id) {
                 AnimatedScoreLabel(
                     scoreEvent = event,
                     modifier = Modifier.fillMaxSize(),
-                    onAnimationNearlyComplete = {
-                        scoreAnimationTrigger++
-                        onAnimationNearlyComplete(event.obstacleId)
-                    },
                     onAnimationComplete = {
-                        onAnimationComplete(event.obstacleId)
+                        onAnimationComplete(event)
                     }
                 )
             }

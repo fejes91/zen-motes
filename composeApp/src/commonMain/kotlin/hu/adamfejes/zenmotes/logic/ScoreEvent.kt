@@ -4,6 +4,6 @@ data class ScoreEvent(
     val x: Int,
     val y: Int,
     val score: Int,
-    val obstacleId: String,
+    val obstacle: SlidingObstacle,
     val isBonus: Boolean = false
 )

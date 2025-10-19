@@ -20,17 +20,11 @@ import kotlinx.coroutines.withContext
 interface ScoreHolder {
     fun getScore(): Flow<Int>
 
-    fun getScoreEvent(): Flow<ScoreEvent>
-
     fun getCountDownTimeMillis(): StateFlow<Long>
 
-    suspend fun increaseScore(scoreEvent: ScoreEvent)
-
-    suspend fun decreaseScore(scoreEvent: ScoreEvent)
+    suspend fun updateScore(score: Int)
 
     fun resetScore()
-
-    fun startTimer()
 
     fun pauseTimer()
 
@@ -44,8 +38,6 @@ interface ScoreHolder {
 class ScoreHolderImpl : ScoreHolder {
     private val _score = atomic(0)
     private val _scoreFlow = MutableStateFlow(0)
-
-    private val _scoreEventFlow = MutableSharedFlow<ScoreEvent?>()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val initialCountDown = INITIAL_COUNTDOWN_TIME_MILLIS
@@ -61,32 +53,18 @@ class ScoreHolderImpl : ScoreHolder {
 
     override fun getScore(): Flow<Int> = _scoreFlow.asStateFlow()
 
-    override fun getScoreEvent(): Flow<ScoreEvent> = _scoreEventFlow.filterNotNull()
-
-    override suspend fun increaseScore(scoreEvent: ScoreEvent) = withContext(Dispatchers.Default){
-        _scoreEventFlow.emit(scoreEvent)
-        val newScore = _score.addAndGet(scoreEvent.score / 10)
-        _scoreFlow.value = newScore
-        updateCountDownTime(scoreEvent.score.toLong())
-    }
-
-    override suspend fun decreaseScore(scoreEvent: ScoreEvent) = withContext(Dispatchers.Default) {
-        _scoreEventFlow.emit(scoreEvent)
-        updateCountDownTime(scoreEvent.score.toLong())
+    override suspend fun updateScore(score: Int) = withContext(Dispatchers.Default) {
+        if (score > 0) {
+            val newScore = _score.addAndGet(score / 10)
+            _scoreFlow.value = newScore
+        }
+        updateCountDownTime(score.toLong())
     }
 
     override fun resetScore() {
         _score.value = 0
         _scoreFlow.value = 0
         resetTimer()
-    }
-
-    override fun startTimer() {
-        if (!isRunning) {
-            startTime = TimeUtils.currentTimeMillis()
-            isRunning = true
-            startTimerLoop()
-        }
     }
 
     override fun pauseTimer() {
@@ -130,7 +108,8 @@ class ScoreHolderImpl : ScoreHolder {
             while (isRunning) {
                 val elapsed = TimeUtils.currentTimeMillis() - startTime
                 val currentCountDownElapsed = countDownAccumulatedTime + elapsed
-                val remainingCountDown = (initialCountDown - currentCountDownElapsed).coerceAtLeast(0L)
+                val remainingCountDown =
+                    (initialCountDown - currentCountDownElapsed).coerceAtLeast(0L)
 
                 _countDownTimeMillis.value = remainingCountDown
                 delay(100)
