@@ -57,6 +57,7 @@ import zenmotescmp.composeapp.generated.resources.background_daylight
 import zenmotescmp.composeapp.generated.resources.background_night
 import zenmotescmp.composeapp.generated.resources.tower
 import zenmotescmp.composeapp.generated.resources.wider_tower
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
@@ -256,7 +257,7 @@ private fun calculateGridDimensions(
 ): Pair<Int, Int> {
     return Pair(
         (size.width / cellSize).roundToInt(),
-        (size.height / cellSize).roundToInt()
+        (size.height / cellSize).roundToInt() + 5 // Extra rows for off-screen sand generation
     )
 }
 
