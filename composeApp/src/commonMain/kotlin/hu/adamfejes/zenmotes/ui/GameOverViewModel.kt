@@ -1,12 +1,12 @@
 package hu.adamfejes.zenmotes.ui
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
-import hu.adamfejes.zenmotes.ui.theme.AppTheme
+import hu.adamfejes.zenmotes.service.SoundManager
+import hu.adamfejes.zenmotes.service.SoundSample
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,12 +20,11 @@ class GameOverViewModel(
     private val scoreHolder: ScoreHolder,
     private val gameStateHolder: GameStateHolder,
     private val preferencesService: PreferencesService,
-    private val analyticsService: AnalyticsService
-) : ViewModel() {
+    private val analyticsService: AnalyticsService,
+    private val soundManager: SoundManager
+) : BaseViewModel(preferencesService) {
 
     val score: Flow<Int> = scoreHolder.getScore()
-    val appTheme: Flow<AppTheme> = preferencesService.getTheme
-
     val scoreComparison: StateFlow<ScoreComparison> = combine(
         scoreHolder.getScore(),
         preferencesService.getHighScore.take(1)
@@ -58,6 +57,8 @@ class GameOverViewModel(
                 isNewHighScore = isNewHighScore
             )
         }
+
+        soundManager.playAsync(SoundSample.GAME_OVER)
     }
 
     fun resetSession() {

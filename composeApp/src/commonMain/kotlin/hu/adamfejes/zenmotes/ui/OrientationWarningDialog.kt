@@ -30,7 +30,7 @@ import zenmotescmp.composeapp.generated.resources.orientation_warning_title
 
 @Composable
 fun OrientationWarningDialog(
-    viewModel: PauseViewModel = koinViewModel()
+    viewModel: OrientationWarningViewModel = koinViewModel()
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState()
 

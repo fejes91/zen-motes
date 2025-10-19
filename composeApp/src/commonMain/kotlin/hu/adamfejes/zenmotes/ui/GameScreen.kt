@@ -55,6 +55,10 @@ fun GameScreen(
     val isPaused by viewModel.isPaused.collectAsState()
     val isDemoMode by viewModel.isDemoMode.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.initialize()
+    }
+
     GameScreenContent(
         isPaused = isPaused,
         isDemoMode = isDemoMode,

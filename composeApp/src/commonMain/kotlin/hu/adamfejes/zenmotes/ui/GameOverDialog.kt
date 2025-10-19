@@ -76,7 +76,7 @@ fun GameOverDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            scoreComparison?.let { comparison ->
+            scoreComparison.let { comparison ->
                 when (comparison) {
                     is ScoreComparison.NewHighScore -> {
                         NewHighScoreDisplay(comparison.score, colorScheme)

@@ -8,23 +8,28 @@ import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.service.SoundSample
+import hu.adamfejes.zenmotes.ui.Constants.FAST_TICKING_THRESHOLD_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
+import hu.adamfejes.zenmotes.ui.Constants.SLOW_TICKING_THRESHOLD_MILLIS
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-open class SandSimulationViewModel(
+class SandSimulationViewModel(
     private val gameStateHolder: GameStateHolder,
     private val scoreHolder: ScoreHolder,
     private val preferencesService: PreferencesService,
     private val soundManager: SoundManager,
     private val analyticsService: AnalyticsService
-) : ViewModel() {
+) : BaseViewModel(preferencesService) {
 
     var soundJob: Job? = null
     val score: StateFlow<Int> = scoreHolder
@@ -33,20 +38,6 @@ open class SandSimulationViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = 0
-        )
-
-    val appTheme: StateFlow<AppTheme?> = preferencesService.getTheme
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null
-        )
-
-    val soundEnabled: StateFlow<Boolean> = preferencesService.getSoundEnabled
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = true
         )
 
     val countDownTimeMillis: StateFlow<Long> = scoreHolder.getCountDownTimeMillis()
@@ -70,11 +61,33 @@ open class SandSimulationViewModel(
             initialValue = false
         )
 
-    init {
+    fun initialize() {
         // Sync SoundManager with stored sound preference
         soundEnabled.combine(isDemoMode) { enabled, demoMode ->
             soundManager.setSoundEnabled(enabled && !demoMode)
         }.launchIn(viewModelScope)
+
+        countDownTimeMillis
+            .map { it < FAST_TICKING_THRESHOLD_MILLIS && it > 0L }
+            .distinctUntilChanged()
+            .onEach { triggerFastTicking ->
+                if (triggerFastTicking) {
+                    soundManager.playAsync(SoundSample.CLOCK_FAST, loop = true)
+                } else {
+                    soundManager.stop(SoundSample.CLOCK_FAST)
+                }
+            }.launchIn(viewModelScope)
+
+        countDownTimeMillis
+            .map { it < SLOW_TICKING_THRESHOLD_MILLIS && it >= FAST_TICKING_THRESHOLD_MILLIS }
+            .distinctUntilChanged()
+            .onEach { triggerSlowTicking ->
+                if (triggerSlowTicking) {
+                    soundManager.playAsync(SoundSample.CLOCK_SLOW, loop = true)
+                } else {
+                    soundManager.stop(SoundSample.CLOCK_SLOW)
+                }
+            }.launchIn(viewModelScope)
     }
 
     fun updateScore(score: Int) {
@@ -83,30 +96,12 @@ open class SandSimulationViewModel(
         }
     }
 
-    fun resetSession() {
-        gameStateHolder.restart()
-    }
-
     fun pauseSession() {
         gameStateHolder.onPause()
         analyticsService.trackGamePause()
     }
 
-    fun resumeSession() {
-        gameStateHolder.onResume()
-        analyticsService.trackGameResume()
-    }
-
-
-    fun setSoundEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            preferencesService.saveSoundEnabled(enabled)
-            soundManager.setSoundEnabled(enabled)
-            analyticsService.trackSettingsChanged("sound_enabled", enabled)
-        }
-    }
-
-    fun playSound(score: Int) {
+    fun playScoreSound(score: Int) {
         if (soundJob?.isActive == true) {
             return
         }
