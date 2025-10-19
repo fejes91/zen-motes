@@ -154,8 +154,7 @@ fun AppNavigation(
                 MainMenuDialog(
                     onStartGame = {
                         gameStateHolder.disableDemoMode()
-                        // todo reset instead?
-                        gameStateHolder.onResume()
+                        gameStateHolder.restart()
                         analyticsService.trackGameStart()
                         navController.popBackStack()
                     }

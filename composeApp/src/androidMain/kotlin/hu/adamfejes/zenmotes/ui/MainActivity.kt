@@ -25,7 +25,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other
     *  iOS doesn't use custom font, except theme switcher
-    *  make full restart when game start to clean demo mode artifacts
     *  game balance
     *   game is a bit hard in the beginning and after some time there is a threshold where a lot of time is banked in, then suddenly it ends
     *   make not fully random obstacle generation, make patterns?
