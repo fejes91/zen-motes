@@ -32,5 +32,5 @@
     <!-- Theme Switch -->
     <string name="theme_light">روشن</string>
     <string name="theme_dark">تاریک</string>
-    <string name="theme_system">سیستم</string>
+    <string name="theme_system">تنظیمات</string>
 </resources>
