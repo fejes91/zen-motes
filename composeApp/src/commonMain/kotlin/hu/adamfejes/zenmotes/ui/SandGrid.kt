@@ -6,7 +6,7 @@ import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.GridState
 import hu.adamfejes.zenmotes.logic.MovingParticle
 import hu.adamfejes.zenmotes.logic.ObstacleAnimator
-import hu.adamfejes.zenmotes.logic.ObstacleGenerator
+import hu.adamfejes.zenmotes.logic.ObstacleGeneratorProvider
 import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ParticlePosition
@@ -20,14 +20,12 @@ import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
-private const val slidingObstacleTransitTimeSeconds = 7.5f
-
-class SandGrid(
+class SandGrid  (
     private val width: Int,
     private val height: Int,
     private val soundManager: SoundManager,
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
-    private val sandColorManager: SandColorManager
+    private val obstacleGeneratorProvider: ObstacleGeneratorProvider
 ) {
     // Sand generation control
     private var isSandGenerationActive = false
@@ -38,9 +36,6 @@ class SandGrid(
     private val sandGenerationIntervalMs = 16L // ~60 FPS for sand generation
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
-
-    // Non-obstacle zone at top 15% of screen to prevent obstacles from sitting on top
-    private val nonObstacleZoneHeight = (height * 0.15f).toInt().coerceAtLeast(10)
 
     // Cleanup routine timing - run every 2 seconds
     private var lastCleanupTime = 0L
@@ -64,8 +59,6 @@ class SandGrid(
 
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
-    private val obstacleGenerator =
-        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds, sandColorManager)
 
     //ListBasedObstacleGenerator(width = width, height = height)
     private val obstacleAnimator = ObstacleAnimator(width)
@@ -115,7 +108,7 @@ class SandGrid(
 
     fun onPause() {
         pauseStartTime = TimeUtils.currentTimeMillis()
-        obstacleGenerator.onPause()
+        obstacleGeneratorProvider.getGenerator().onPause()
     }
 
     fun onResume() {
@@ -124,7 +117,7 @@ class SandGrid(
             totalPausedTime += pauseDuration
             pauseStartTime = null
         }
-        obstacleGenerator.onResume()
+        obstacleGeneratorProvider.getGenerator().onResume()
     }
 
     fun update(
@@ -243,7 +236,7 @@ class SandGrid(
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTime {
-            obstacleGenerator.generateSlidingObstacle(adjustedTime, obstacleTypes)?.let { newObstacle ->
+            obstacleGeneratorProvider.getGenerator().generateSlidingObstacle(adjustedTime, obstacleTypes)?.let { newObstacle ->
                 gridState.addSlidingObstacle(newObstacle)
                 Logger.d(
                     "SlidingObstacle",
@@ -446,8 +439,7 @@ class SandGrid(
             avgUpdateTime = avgUpdateDuration,
             movingParticles = gridState.getMovingParticles().size,
             settledParticles = gridState.getSettledParticles().size,
-            obstacles = gridState.getSlidingObstacles().size,
-            currentSlidingObstacleInterval = obstacleGenerator.getCurrentSlidingObstacleInterval()
+            obstacles = gridState.getSlidingObstacles().size
         )
     }
 
@@ -467,7 +459,7 @@ class SandGrid(
 
         // Reset all components
         gridState.reset()
-        obstacleGenerator.reset()
+        obstacleGeneratorProvider.getGenerator().reset()
     }
 
     // Helper functions for functional grid manipulation
@@ -828,6 +820,10 @@ class SandGrid(
     }
 
     fun setDemoMode(isDemoMode: Boolean) {
-        obstacleGenerator.setDemoMode(isDemoMode)
+        obstacleGeneratorProvider.getGenerator().setDemoMode(isDemoMode)
+    }
+
+    fun setTutorialMode(isTutorialMode: Boolean) {
+        obstacleGeneratorProvider.setTutorialMode(isTutorialMode)
     }
 }

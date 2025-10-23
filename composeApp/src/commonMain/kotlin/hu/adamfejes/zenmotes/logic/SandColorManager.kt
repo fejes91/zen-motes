@@ -8,9 +8,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class SandColorManager {
+class SandColorManager(
+    private val tutorialManager: TutorialManager
+) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val _currentSandColor = MutableStateFlow(ColorType.OBSTACLE_COLOR_1)
@@ -28,7 +31,17 @@ class SandColorManager {
     private fun startColorChangeLoop() {
         scope.launch {
             while (true) {
-                val delayTime = (8000..15000).random().toLong()
+                val tutorialStep = tutorialManager.currentStepFlow.first()
+                if(tutorialStep == TutorialStep.SAND_INTRO || tutorialStep == TutorialStep.SAME_COLOR_DESTRUCTION) {
+                    delay(1000L)
+                    continue
+                }
+
+                val delayTime = if(tutorialStep != TutorialStep.COMPLETED) {
+                    5000L
+                } else {
+                    (8000..15000).random().toLong()
+                }
 
                 delay(delayTime - COLOR_CHANGE_ANIMATION_DURATION)
 

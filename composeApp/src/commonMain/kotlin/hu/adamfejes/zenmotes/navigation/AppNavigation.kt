@@ -41,10 +41,10 @@ val LocalTheme = staticCompositionLocalOf {
 }
 
 sealed class Screen(val route: String) {
-    data object MainMenu : Screen("mainmenu")
+    data object MainMenu : Screen("main_menu")
     data object Game : Screen("game")
     data object Pause : Screen("pause")
-    data object GameOver : Screen("gameover")
+    data object GameOver : Screen("game_over")
     data object OrientationWarning : Screen("orientation_warning")
 }
 
@@ -56,6 +56,8 @@ fun AppNavigation(
     val preferencesService = koinInject<PreferencesService>()
     val analyticsService = koinInject<AnalyticsService>()
     val soundManager = koinInject<SoundManager>()
+
+    val tutorialCompleted =true //by preferencesService.getTutorialCompleted.collectAsState(initial = true)
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -167,6 +169,9 @@ fun AppNavigation(
                     onStartGame = {
                         gameStateHolder.disableDemoMode()
                         gameStateHolder.restart()
+                        if (!tutorialCompleted) {
+                            gameStateHolder.enableTutorialMode()
+                        }
                         analyticsService.trackGameStart()
                         navController.popBackStack()
                     }

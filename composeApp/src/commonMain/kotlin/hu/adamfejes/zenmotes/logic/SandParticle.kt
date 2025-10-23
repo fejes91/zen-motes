@@ -94,8 +94,7 @@ data class PerformanceData(
     val avgUpdateTime: Long,
     val movingParticles: Int,
     val settledParticles: Int,
-    val obstacles: Int,
-    val currentSlidingObstacleInterval: Long
+    val obstacles: Int
 )
 
 fun SlidingObstacle.getBallparkScore(): Int {

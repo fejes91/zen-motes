@@ -6,13 +6,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class GameStateHolder(
     private val sandColorManager: SandColorManager,
     private val sandGridHolder: SandGridHolder,
-    private val scoreHolder: ScoreHolder
+    private val scoreHolder: ScoreHolder,
+    private val tutorialManager: TutorialManager
 ) {
     private val isPausedState = MutableStateFlow(false)
     val isPaused: Flow<Boolean> = isPausedState
 
     private val isDemoModeState = MutableStateFlow(false)
     val isDemoMode: Flow<Boolean> = isDemoModeState
+
+    private val isTutorialModeState = MutableStateFlow(false)
+    val isTutorialMode: Flow<Boolean> = isTutorialModeState
 
     fun onPause() {
         isPausedState.value = true
@@ -25,7 +29,9 @@ class GameStateHolder(
     fun onResume() {
         isPausedState.value = false
 
-        scoreHolder.resumeTimer()
+        if (!isTutorialModeState.value) {
+            scoreHolder.resumeTimer()
+        }
         sandColorManager.resume()
         sandGridHolder.sandGrid?.onResume()
     }
@@ -36,6 +42,7 @@ class GameStateHolder(
         scoreHolder.resumeTimer()
         isPausedState.value = false
         isDemoModeState.value = false
+        isTutorialModeState.value = false
         sandGridHolder.sandGrid?.onResume()
         sandColorManager.resume()
     }
@@ -55,5 +62,22 @@ class GameStateHolder(
         scoreHolder.setDemoMode(false)
         sandGridHolder.sandGrid?.setDemoMode(false)
         sandGridHolder.sandGrid?.reset()
+    }
+
+    fun enableTutorialMode() {
+        isTutorialModeState.value = true
+        isPausedState.value = false
+        scoreHolder.pauseTimer()
+        sandColorManager.resume()
+        sandGridHolder.sandGrid?.onResume()
+        sandGridHolder.sandGrid?.setTutorialMode(true)
+        tutorialManager.startTutorial()
+    }
+
+    fun disableTutorialMode() {
+        isTutorialModeState.value = false
+        sandGridHolder.sandGrid?.setTutorialMode(false)
+        sandGridHolder.sandGrid?.reset()
+        tutorialManager.finishTutorial()
     }
 }

@@ -145,7 +145,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
-            sandGridHolder.initializeGridIfNeeded(soundManager, gridDimensions, images, sandColorManager)
+            sandGridHolder.initializeGridIfNeeded(gridDimensions, images)
 
             sandGridHolder.sandGrid?.let { grid ->
                 // 2. Update sand generation state based on user input
@@ -436,8 +436,7 @@ private fun DrawScope.drawPerformanceOverlay(grid: SandGrid, totalDrawTime: Int,
         "Update + Draw = Total: ${perfData.updateTime}ms + ${totalDrawTime}ms = ${perfData.updateTime + totalDrawTime}ms",
         "Avg: ${perfData.avgUpdateTime}ms",
         "Moving: ${perfData.movingParticles}",
-        "Settled: ${perfData.settledParticles}",
-        "Obstacle Interval: ${perfData.currentSlidingObstacleInterval}ms"
+        "Settled: ${perfData.settledParticles}"
     )
 
     drawTextLines(

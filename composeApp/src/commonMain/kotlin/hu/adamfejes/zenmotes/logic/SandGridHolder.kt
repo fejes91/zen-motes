@@ -4,20 +4,30 @@ import androidx.compose.ui.graphics.ImageBitmap
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.SandGrid
 
-class SandGridHolder {
+class SandGridHolder(
+    private val sandColorManager: SandColorManager,
+    private val soundManager: SoundManager,
+    private val obstacleGeneratorProvider: ObstacleGeneratorProvider
+) {
     var sandGrid: SandGrid? = null
 
     fun initializeGridIfNeeded(
-        soundManager: SoundManager,
         dimensions: Pair<Int, Int>,
-        images: List<ImageBitmap>,
-        sandColorManager: SandColorManager
+        images: List<ImageBitmap>
     ) {
         val (width, height) = dimensions
         val obstacleTypes = createObstacleTypes(images)
 
+        obstacleGeneratorProvider.setDimensions(width, height)
+
         sandGrid = if (sandGrid == null || sandGrid?.getWidth() != width || sandGrid?.getHeight() != height) {
-            val newGrid = SandGrid(width, height, soundManager, 1000, sandColorManager)
+            val newGrid = SandGrid(
+                width = width,
+                height = height,
+                soundManager = soundManager,
+                maxMovingParticles = 1000,
+                obstacleGeneratorProvider = obstacleGeneratorProvider
+            )
             newGrid.setObstacleTypes(obstacleTypes)
             newGrid
         } else {
