@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -125,24 +126,26 @@ private fun GameScreenContent(
             .windowInsetsPadding(WindowInsets.statusBars)
     ) {
         // Sand simulation view - full edge-to-edge behind everything
-        SandView(
-            modifier = Modifier.fillMaxSize(),
-            sandColorType = currentSandColor,
-            sandGenerationAmount = 5,
-            showPerformanceOverlay = false, // Toggle performance overlay for testing
-            isPaused = isPaused,
-            increaseScore = { slidingObstacle, isBonus ->
-                val event = createScoreIncreaseEvent(isBonus, slidingObstacle)
-                activeScoreEvents = activeScoreEvents + event
-
-            },
-            decreaseScore = { slidingObstacle ->
-                if(!isDemoMode) {
-                    val event = createScoreDecreaseEvent(slidingObstacle)
+        key(isDemoMode) {
+            SandView(
+                modifier = Modifier.fillMaxSize(),
+                sandColorType = currentSandColor,
+                sandGenerationAmount = 5,
+                showPerformanceOverlay = false, // Toggle performance overlay for testing
+                isPaused = isPaused,
+                increaseScore = { slidingObstacle, isBonus ->
+                    val event = createScoreIncreaseEvent(isBonus, slidingObstacle)
                     activeScoreEvents = activeScoreEvents + event
+
+                },
+                decreaseScore = { slidingObstacle ->
+                    if (!isDemoMode) {
+                        val event = createScoreDecreaseEvent(slidingObstacle)
+                        activeScoreEvents = activeScoreEvents + event
+                    }
                 }
-            }
-        )
+            )
+        }
 
         // Score display at the top center
         Scores(
