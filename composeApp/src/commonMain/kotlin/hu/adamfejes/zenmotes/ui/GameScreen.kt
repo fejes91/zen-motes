@@ -137,8 +137,10 @@ private fun GameScreenContent(
 
             },
             decreaseScore = { slidingObstacle ->
-                val event = createScoreDecreaseEvent(slidingObstacle)
-                activeScoreEvents = activeScoreEvents + event
+                if(!isDemoMode) {
+                    val event = createScoreDecreaseEvent(slidingObstacle)
+                    activeScoreEvents = activeScoreEvents + event
+                }
             }
         )
 
