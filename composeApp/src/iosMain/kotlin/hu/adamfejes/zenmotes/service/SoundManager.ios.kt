@@ -58,13 +58,19 @@ class IOSSoundManager : SoundManager {
         soundEnabled = enabled
     }
 
-    override fun playAsync(sample: SoundSample) {
+    override fun playAsync(
+        sample: SoundSample,
+        loop: Boolean
+    ) {
         scope.launch(Dispatchers.Main) {
             play(sample)
         }
     }
 
-    override suspend fun play(sample: SoundSample) {
+    override suspend fun play(
+        sample: SoundSample,
+        loop: Boolean
+    ) {
         if (paused) return
 
         if (!soundEnabled) return
@@ -72,7 +78,7 @@ class IOSSoundManager : SoundManager {
         audioPlayers[sample]?.let { player ->
             player.stop()
             player.currentTime = 0.0
-            player.numberOfLoops = 0
+            player.numberOfLoops = if(loop) -1 else 0
             player.play()
         }
         // iOS audio implementation not available - just delay for the duration
