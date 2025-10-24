@@ -102,7 +102,7 @@ private fun GameScreenContent(
     // Game over logic - watch for when countdown reaches zero
     LaunchedEffect(countDownTime) {
         if (countDownTime == 0L && !isPaused) {
-            delay(SCORE_FLY_DURATION.toLong()) // Wait for any final animations
+//            delay(SCORE_FLY_DURATION.toLong()) // Wait for any final animations
             pauseSession()
             onNavigateToGameOver()
         }

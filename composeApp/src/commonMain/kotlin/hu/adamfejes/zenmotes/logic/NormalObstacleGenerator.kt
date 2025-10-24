@@ -5,24 +5,9 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-private const val slidingObstacleTransitTimeSeconds = 7.5f
 class NormalObstacleGenerator(
     private val sandColorManager: SandColorManager
 ) : BaseObstacleGenerator() {
-    var width: Int = 0
-        set(value) {
-            field = value
-            slidingSpeed = value / slidingObstacleTransitTimeSeconds // pixels per second
-        }
-    var height: Int = 0
-        set(value) {
-            field = value
-            nonObstacleZoneHeight = (value * 0.15f).toInt().coerceAtLeast(10)
-        }
-
-    // Non-obstacle zone at top 15% of screen to prevent obstacles from sitting on top
-    private var nonObstacleZoneHeight = 0
-    private var slidingSpeed = 0f
     private val initialSlidingObstacleInterval = 2000L
     private val minSlidingObstacleInterval = 300L
     private val demoModeObstacleInterval = 500L
@@ -31,7 +16,6 @@ class NormalObstacleGenerator(
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
     private var lastDifficultyIncreaseTime = 0L
     private var lastSlidingObstacleTime = 0L
-    private var isPaused = false
     private var isDemoMode = false
 
     // Use domain-layer color types
@@ -138,12 +122,8 @@ class NormalObstacleGenerator(
         currentSlidingObstacleInterval = initialSlidingObstacleInterval
     }
 
-    override fun onPause() {
-        isPaused = true
-    }
-
     override fun onResume() {
-        isPaused = false
+        super.onResume()
         // Reset timing to restart obstacle generation immediately
         lastSlidingObstacleTime = 0L
         lastDifficultyIncreaseTime = 0L

@@ -21,6 +21,7 @@ class ObstacleGeneratorProvider(
     fun setDimensions(width: Int, height: Int) {
         normalObstacleGenerator.width = width
         normalObstacleGenerator.height = height
-        // todo tutorial generator might need dimensions in the future as well
+        tutorialObstacleGenerator.width = width
+        tutorialObstacleGenerator.height = height
     }
 }

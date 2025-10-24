@@ -57,7 +57,7 @@ fun AppNavigation(
     val analyticsService = koinInject<AnalyticsService>()
     val soundManager = koinInject<SoundManager>()
 
-    val tutorialCompleted =true //by preferencesService.getTutorialCompleted.collectAsState(initial = true)
+    val tutorialCompleted by preferencesService.getTutorialCompleted.collectAsState(initial = true)
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route

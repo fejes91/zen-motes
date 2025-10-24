@@ -33,7 +33,7 @@ class TutorialManager(
     }
 
     fun startTutorial() {
-        currentStep.value = TutorialStep.SAND_INTRO
+        currentStep.value = TutorialStep.SAME_COLOR_DESTRUCTION// SAND_INTRO
     }
 
     fun finishTutorial() {
