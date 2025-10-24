@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.logic.SandColorManager
@@ -37,15 +39,18 @@ import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.createScoreDecreaseEvent
 import hu.adamfejes.zenmotes.utils.createScoreIncreaseEvent
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.game_screen_pause
+import zenmotescmp.composeapp.generated.resources.ic_pause
 
 @Composable
 fun GameScreen(
     viewModel: SandSimulationViewModel = koinViewModel(),
+    onNavigateToTutorial: () -> Unit,
     onNavigateToPause: () -> Unit,
     onNavigateToGameOver: () -> Unit
 ) {
@@ -55,9 +60,17 @@ fun GameScreen(
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
     val isPaused by viewModel.isPaused.collectAsState()
     val isDemoMode by viewModel.isDemoMode.collectAsState()
+    val isTutorialShown by viewModel.isTutorialShown.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.initialize()
+    }
+
+    LaunchedEffect(isTutorialShown, isPaused, isDemoMode) {
+        if (!isTutorialShown && !isPaused && !isDemoMode) {
+            viewModel.pauseSession()
+            onNavigateToTutorial()
+        }
     }
 
     GameScreenContent(
@@ -72,6 +85,7 @@ fun GameScreen(
         playSound = viewModel::playScoreSound,
         onNavigateToPause = onNavigateToPause,
         onNavigateToGameOver = onNavigateToGameOver,
+        onNavigateToTutorial = onNavigateToTutorial
     )
 }
 
@@ -88,6 +102,7 @@ private fun GameScreenContent(
     sandColorManager: SandColorManager,
     onNavigateToPause: () -> Unit,
     onNavigateToGameOver: () -> Unit,
+    onNavigateToTutorial: () -> Unit
 ) {
     if (currentAppTheme == null) {
         return
@@ -162,7 +177,28 @@ private fun GameScreenContent(
                 updateScore(event.score)
             })
 
-        // Top UI overlay - pause button only
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(start = 16.dp, top = 8.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            ControlButton(onClick = {
+                pauseSession()
+                onNavigateToTutorial()
+            }) {
+                Text(
+                    modifier = Modifier
+                        .padding(top = 6.dp),
+                    text = "?",
+                    fontSize = 32.sp,
+                    textAlign = TextAlign.Center,
+                    color = colorScheme.pauseButtonIcon,
+                )
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -170,16 +206,21 @@ private fun GameScreenContent(
                 .padding(end = 16.dp, top = 8.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
-            PauseButton {
+            ControlButton(onClick = {
                 pauseSession()
                 onNavigateToPause()
+            }) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_pause),
+                    contentDescription = stringResource(Res.string.game_screen_pause),
+                )
             }
         }
     }
 }
 
 @Composable
-private fun PauseButton(onClick: () -> Unit) {
+private fun ControlButton(onClick: () -> Unit, content: @Composable () -> Unit) {
     val colorScheme = LocalTheme.current.toColorScheme()
     Box(
         modifier = Modifier
@@ -189,18 +230,14 @@ private fun PauseButton(onClick: () -> Unit) {
     ) {
         Button(
             onClick = onClick,
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier.size(48.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = colorScheme.pauseButtonIcon
             ),
             contentPadding = PaddingValues(0.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.game_screen_pause),
-                fontSize = 10.sp,
-                color = colorScheme.pauseButtonIcon
-            )
+            content()
         }
     }
 }

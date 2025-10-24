@@ -28,6 +28,16 @@
     <string name="orientation_warning_title">GIRA TU DISPOSITIVO</string>
     <string name="orientation_warning_message">Por favor gira tu teléfono a\norientación vertical para continuar</string>
 
+    <!-- Tutorial Dialog -->
+    <string name="tutorial_dialog_title">CÓMO JUGAR</string>
+    <string name="tutorial_dialog_instruction_1">Mantén presionada la pantalla para lanzar arena</string>
+    <string name="tutorial_dialog_instruction_2">El color de la arena cambia de vez en cuando</string>
+    <string name="tutorial_dialog_instruction_3">Los castillos se destruyen más fácilmente con arena del mismo color</string>
+    <string name="tutorial_dialog_instruction_4">Destruir un castillo te dará más tiempo</string>
+    <string name="tutorial_dialog_instruction_5">Dejar escapar castillos te dará una penalización de tiempo</string>
+    <string name="tutorial_dialog_instruction_6">Cuando un castillo destruido destruye otros, obtienes un bonus</string>
+    <string name="tutorial_dialog_button">OK</string>
+
     <!-- Theme Switch -->
     <string name="theme_light">CLARO</string>
     <string name="theme_dark">OSCURO</string>

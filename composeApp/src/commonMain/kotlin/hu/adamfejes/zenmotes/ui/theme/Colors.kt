@@ -13,8 +13,8 @@ object ZenColors {
             Color(0xFF80C0FF), // More saturated blue
             Color(0xFF80FF80), // More saturated green
             Color(0xFFFFD040), // More saturated yellow
-            Color(0xFFD080FF), // More saturated purple
-            Color(0xFFFF8040)  // More saturated orange
+//            Color(0xFFD080FF), // More saturated purple
+//            Color(0xFFFF8040)  // More saturated orange
         )
         
         // Obstacle colors - more saturated with slight variations
@@ -23,8 +23,8 @@ object ZenColors {
             Color(0xFF66B3FF), // More saturated blue
             Color(0xFF66FF66), // More saturated green
             Color(0xFFFFCC00), // More saturated yellow
-            Color(0xFFB366FF), // More saturated purple
-            Color(0xFFFF6600)  // More saturated orange
+//            Color(0xFFB366FF), // More saturated purple
+//            Color(0xFFFF6600)  // More saturated orange
         )
         
         
@@ -48,6 +48,10 @@ object ZenColors {
         internal val positiveBackground = Color(0xFFE8F8E8) // Light green pastel for positive actions
 
         internal val negativeBackground = Color(0xFFFFE8E8) // Light pink pastel for negative actions
+
+        internal val positiveText = Color(0xFF4CAF50) // Soft green for positive text
+
+        internal val negativeText = Color(0xFFE57373) // Soft pink/red for negative text
     }
     
     object Dark {
@@ -94,6 +98,10 @@ object ZenColors {
         internal val positiveBackground = Color(0xFF1A2D1A) // Dark green pastel for positive actions
 
         internal val negativeBackground = Color(0xFF2D1A1A) // Dark pink pastel for negative actions
+
+        internal val positiveText = Color(0xFF6BE66B) // Muted green for positive text
+
+        internal val negativeText = Color(0xFFD1668A) // Muted pink for negative text
     }
 }
 
@@ -122,7 +130,9 @@ data class ColorScheme(
     val textBackground: Color,
     val textColor: Color,
     val positiveBackground: Color,
-    val negativeBackground: Color
+    val negativeBackground: Color,
+    val positiveText: Color,
+    val negativeText: Color
 )
 
 fun getColorScheme(theme: Theme): ColorScheme {
@@ -143,7 +153,9 @@ fun getColorScheme(theme: Theme): ColorScheme {
             textBackground = ZenColors.Light.themeSwitchBackground,
             textColor = ZenColors.Light.themeSwitchText,
             positiveBackground = ZenColors.Light.positiveBackground,
-            negativeBackground = ZenColors.Light.negativeBackground
+            negativeBackground = ZenColors.Light.negativeBackground,
+            positiveText = ZenColors.Light.positiveText,
+            negativeText = ZenColors.Light.negativeText
         )
         Theme.DARK -> ColorScheme(
             background = ZenColors.Dark.background,
@@ -161,7 +173,9 @@ fun getColorScheme(theme: Theme): ColorScheme {
             textBackground = ZenColors.Dark.themeSwitchBackground,
             textColor = ZenColors.Dark.themeSwitchText,
             positiveBackground = ZenColors.Dark.positiveBackground,
-            negativeBackground = ZenColors.Dark.negativeBackground
+            negativeBackground = ZenColors.Dark.negativeBackground,
+            positiveText = ZenColors.Dark.positiveText,
+            negativeText = ZenColors.Dark.negativeText
         )
     }
 }

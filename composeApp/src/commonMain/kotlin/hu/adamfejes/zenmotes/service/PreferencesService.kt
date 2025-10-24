@@ -24,6 +24,10 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         preferences[HIGH_SCORE_KEY]
     }
 
+    val isTutorialShown: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[TUTORIAL_SHOWN] ?: false
+    }
+
     suspend fun saveTheme(theme: AppTheme) {
         dataStore.edit { preferences ->
             preferences[THEME_KEY] = theme.name
@@ -42,9 +46,17 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    suspend fun saveTutorialShown(shown: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[TUTORIAL_SHOWN] = shown
+        }
+    }
+
     companion object {
         private val THEME_KEY = stringPreferencesKey("selected_theme")
         private val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled")
         private val HIGH_SCORE_KEY = intPreferencesKey("high_score")
+
+        private val TUTORIAL_SHOWN = booleanPreferencesKey("tutorial_shown")
     }
 }

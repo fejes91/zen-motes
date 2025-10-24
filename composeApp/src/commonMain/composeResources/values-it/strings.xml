@@ -28,6 +28,16 @@
     <string name="orientation_warning_title">RUOTA IL DISPOSITIVO</string>
     <string name="orientation_warning_message">Ruota il telefono in\norientamento verticale per continuare</string>
 
+    <!-- Tutorial Dialog -->
+    <string name="tutorial_dialog_title">COME GIOCARE</string>
+    <string name="tutorial_dialog_instruction_1">Tieni premuto sullo schermo per lanciare sabbia</string>
+    <string name="tutorial_dialog_instruction_2">Il colore della sabbia cambia di tanto in tanto</string>
+    <string name="tutorial_dialog_instruction_3">I castelli vengono distrutti più facilmente con sabbia dello stesso colore</string>
+    <string name="tutorial_dialog_instruction_4">Distruggere un castello ti darà più tempo</string>
+    <string name="tutorial_dialog_instruction_5">Lasciare scappare i castelli ti darà una penalità di tempo</string>
+    <string name="tutorial_dialog_instruction_6">Quando un castello distrutto ne distrugge altri, ottieni un bonus</string>
+    <string name="tutorial_dialog_button">OK</string>
+
     <!-- Theme Switch -->
     <string name="theme_light">CHIARO</string>
     <string name="theme_dark">SCURO</string>

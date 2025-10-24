@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Main Menu Screen -->
-    <string translatable="false" name="main_menu_app_name">Castle Blaster</string>
     <string name="main_menu_start_game">شروع بازی</string>
     <string name="main_menu_high_score_label">بالاترین امتیاز: %1$d</string>
 
@@ -28,6 +27,16 @@
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">دستگاه خود را بچرخانید</string>
     <string name="orientation_warning_message">لطفاً گوشی خود را به حالت\nعمودی بچرخانید تا ادامه دهید</string>
+
+    <!-- Tutorial Dialog -->
+    <string name="tutorial_dialog_title">نحوه بازی</string>
+    <string name="tutorial_dialog_instruction_1">صفحه را نگه دارید تا شن پرتاب کنید</string>
+    <string name="tutorial_dialog_instruction_2">رنگ شن هر از گاهی تغییر می‌کند</string>
+    <string name="tutorial_dialog_instruction_3">قلعه‌ها با شن هم‌رنگ راحت‌تر نابود می‌شوند</string>
+    <string name="tutorial_dialog_instruction_4">نابود کردن یک قلعه به شما زمان می‌دهد</string>
+    <string name="tutorial_dialog_instruction_5">رها کردن قلعه‌ها جریمه زمانی به شما می‌دهد</string>
+    <string name="tutorial_dialog_instruction_6">وقتی یک قلعه نابود شده، قلعه‌های دیگر را نابود کند، جایزه می‌گیرید</string>
+    <string name="tutorial_dialog_button">باشه</string>
 
     <!-- Theme Switch -->
     <string name="theme_light">روشن</string>

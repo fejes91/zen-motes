@@ -24,13 +24,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SandSimulationViewModel(
+    preferencesService: PreferencesService,
     private val gameStateHolder: GameStateHolder,
     private val scoreHolder: ScoreHolder,
-    private val preferencesService: PreferencesService,
     private val soundManager: SoundManager,
     private val analyticsService: AnalyticsService
 ) : BaseViewModel(preferencesService) {
 
+    val isTutorialShown: StateFlow<Boolean> = preferencesService.isTutorialShown
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = true
+        )
     var soundJob: Job? = null
     val score: StateFlow<Int> = scoreHolder
         .getScore()

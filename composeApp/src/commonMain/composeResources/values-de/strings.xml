@@ -28,6 +28,16 @@
     <string name="orientation_warning_title">GERÄT DREHEN</string>
     <string name="orientation_warning_message">Bitte drehen Sie Ihr Handy in die\nvertikale Ausrichtung, um fortzufahren</string>
 
+    <!-- Tutorial Dialog -->
+    <string name="tutorial_dialog_title">WIE MAN SPIELT</string>
+    <string name="tutorial_dialog_instruction_1">Halte den Bildschirm gedrückt, um Sand zu werfen</string>
+    <string name="tutorial_dialog_instruction_2">Die Sandfarbe ändert sich von Zeit zu Zeit</string>
+    <string name="tutorial_dialog_instruction_3">Burgen können leichter mit farblich passendem Sand zerstört werden</string>
+    <string name="tutorial_dialog_instruction_4">Eine Burg zu zerstören verschafft dir Zeit</string>
+    <string name="tutorial_dialog_instruction_5">Burgen entkommen zu lassen gibt dir eine Zeitstrafe</string>
+    <string name="tutorial_dialog_instruction_6">Wenn eine zerstörte Burg andere zerstört, erhältst du einen Bonus</string>
+    <string name="tutorial_dialog_button">OK</string>
+
     <!-- Theme Switch -->
     <string name="theme_light">HELL</string>
     <string name="theme_dark">DUNKEL</string>

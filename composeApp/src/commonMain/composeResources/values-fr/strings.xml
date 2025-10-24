@@ -28,6 +28,16 @@
     <string name="orientation_warning_title">TOURNEZ VOTRE APPAREIL</string>
     <string name="orientation_warning_message">Veuillez tourner votre téléphone en\norientation verticale pour continuer</string>
 
+    <!-- Tutorial Dialog -->
+    <string name="tutorial_dialog_title">COMMENT JOUER</string>
+    <string name="tutorial_dialog_instruction_1">Restez appuyé sur l\'écran pour lancer du sable</string>
+    <string name="tutorial_dialog_instruction_2">La couleur du sable change de temps en temps</string>
+    <string name="tutorial_dialog_instruction_3">Les châteaux sont plus facilement détruits avec du sable de couleur assortie</string>
+    <string name="tutorial_dialog_instruction_4">Détruire un château vous fait gagner du temps</string>
+    <string name="tutorial_dialog_instruction_5">Laisser les châteaux s\'échapper vous donne une pénalité de temps</string>
+    <string name="tutorial_dialog_instruction_6">Quand un château détruit en détruit d\'autres, vous obtenez un bonus</string>
+    <string name="tutorial_dialog_button">OK</string>
+
     <!-- Theme Switch -->
     <string name="theme_light">CLAIR</string>
     <string name="theme_dark">SOMBRE</string>

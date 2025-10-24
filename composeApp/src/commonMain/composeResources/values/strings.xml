@@ -29,6 +29,16 @@
     <string name="orientation_warning_title">ROTATE YOUR DEVICE</string>
     <string name="orientation_warning_message">Please rotate your phone to\nvertical orientation to continue</string>
 
+    <!-- Tutorial Dialog -->
+    <string name="tutorial_dialog_title">HOW TO PLAY</string>
+    <string name="tutorial_dialog_instruction_1">Keep pressing on the screen to throw sand</string>
+    <string name="tutorial_dialog_instruction_2">Sand color changes from time to time</string>
+    <string name="tutorial_dialog_instruction_3">Castles are more easily destroyed with matching-colored sand</string>
+    <string name="tutorial_dialog_instruction_4">Destroying a castle will buy you time</string>
+    <string name="tutorial_dialog_instruction_5">Letting castles escape will give you a time penalty</string>
+    <string name="tutorial_dialog_instruction_6">When a destroyed castle destroys others, you get a bonus</string>
+    <string name="tutorial_dialog_button">OK</string>
+
     <!-- Theme Switch -->
     <string name="theme_light">LIGHT</string>
     <string name="theme_dark">DARK</string>

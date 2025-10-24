@@ -32,6 +32,7 @@ import hu.adamfejes.zenmotes.ui.GameOverDialog
 import hu.adamfejes.zenmotes.ui.MainMenuDialog
 import hu.adamfejes.zenmotes.ui.OrientationWarningDialog
 import hu.adamfejes.zenmotes.ui.PauseDialog
+import hu.adamfejes.zenmotes.ui.TutorialDialog
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import hu.adamfejes.zenmotes.ui.theme.Theme
 import org.koin.compose.koinInject
@@ -46,6 +47,8 @@ sealed class Screen(val route: String) {
     data object Pause : Screen("pause")
     data object GameOver : Screen("gameover")
     data object OrientationWarning : Screen("orientation_warning")
+
+    data object Tutorial : Screen("tutorial")
 }
 
 @Composable
@@ -146,6 +149,9 @@ fun AppNavigation(
         ) {
             composable(Screen.Game.route) {
                 GameScreen(
+                    onNavigateToTutorial = {
+                        navController.navigate(Screen.Tutorial.route)
+                    },
                     onNavigateToPause = {
                         navController.navigate(Screen.Pause.route)
                     },
@@ -216,6 +222,21 @@ fun AppNavigation(
                 )
             ) {
                 OrientationWarningDialog()
+            }
+
+            dialog(
+                route = Screen.Tutorial.route,
+                dialogProperties = DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
+                )
+            ) {
+                TutorialDialog(onDismiss = {
+                    gameStateHolder.onResume()
+                    analyticsService.trackGameResume()
+                    navController.popBackStack()
+                })
             }
         }
     }

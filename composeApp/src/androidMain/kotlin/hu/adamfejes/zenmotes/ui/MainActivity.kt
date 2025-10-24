@@ -28,6 +28,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *  game balance
     *   game is a bit hard in the beginning and after some time there is a threshold where a lot of time is banked in, then suddenly it ends
     *   make not fully random obstacle generation, make patterns?
+    *   stop playing sound when game goes to background
  */
 
 class MainActivity : ComponentActivity() {
