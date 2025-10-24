@@ -21,6 +21,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *   show destruction with different color
     *   show chain reaction
     *  Hire designer
+    * Report FPS stats to analytics
 
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other

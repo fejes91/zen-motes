@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -104,7 +105,12 @@ class SandSimulationViewModel(
 
     fun pauseSession() {
         gameStateHolder.onPause()
-        analyticsService.trackGamePause()
+        viewModelScope.launch {
+            analyticsService.trackGamePause(
+                currentScore = scoreHolder.getScore().first(),
+                countdownTime = scoreHolder.getCountDownTimeMillis().first()
+            )
+        }
     }
 
     fun playScoreSound(score: Int) {

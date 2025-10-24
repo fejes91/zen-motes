@@ -10,6 +10,7 @@ import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -35,6 +36,7 @@ class PauseViewModel(
             started = SharingStarted.WhileSubscribed(),
             initialValue = INITIAL_COUNTDOWN_TIME_MILLIS
         )
+
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch {
             preferencesService.saveTheme(theme)
@@ -44,9 +46,14 @@ class PauseViewModel(
 
     fun resumeSession() {
         gameStateHolder.onResume()
-        analyticsService.trackGameResume()
-    }
+        viewModelScope.launch {
+            analyticsService.trackGameResume(
+                currentScore = score.first(),
+                countdownTime = countDownTimeMillis.first()
+            )
+        }
 
+    }
 
     fun setSoundEnabled(enabled: Boolean) {
         viewModelScope.launch {

@@ -234,7 +234,6 @@ fun AppNavigation(
             ) {
                 TutorialDialog(onDismiss = {
                     gameStateHolder.onResume()
-                    analyticsService.trackGameResume()
                     navController.popBackStack()
                 })
             }
