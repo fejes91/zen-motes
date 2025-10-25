@@ -45,6 +45,15 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
         trackEvent("game_start")
     }
 
+    override fun trackScoreUpdate(amount: Int, isBonus: Boolean) {
+        trackEvent(
+            "score_update", mapOf(
+                "increase_amount" to amount,
+                "is_bonus" to isBonus
+            )
+        )
+    }
+
     override fun trackGameOver(achievedScore: Long, highScore: Long, isNewHighScore: Boolean) {
         trackEvent(
             "game_over", mapOf(

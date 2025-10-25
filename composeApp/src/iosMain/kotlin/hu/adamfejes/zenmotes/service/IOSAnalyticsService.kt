@@ -8,12 +8,23 @@ class IOSAnalyticsService : AnalyticsService {
         // TODO: Implement iOS-specific analytics (Firebase, App Store Connect, etc.)
     }
 
+    // TODO implement tracking functions in common code.
+    // TODO Platform specific code should only handle the actual sending of events to the analytics service.
     override fun trackScreenView(screenName: String) {
         trackEvent("screen_view", mapOf("screen_name" to screenName))
     }
 
     override fun trackGameStart() {
         trackEvent("game_start")
+    }
+
+    override fun trackScoreUpdate(amount: Int, isBonus: Boolean) {
+        trackEvent(
+            "score_update", mapOf(
+                "increase_amount" to amount,
+                "is_bonus" to isBonus
+            )
+        )
     }
 
     override fun trackGameOver(achievedScore: Long, highScore: Long, isNewHighScore: Boolean) {

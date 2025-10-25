@@ -96,7 +96,7 @@ private fun GameScreenContent(
     currentAppTheme: AppTheme?,
     score: Int,
     countDownTime: Long,
-    updateScore: (Int) -> Unit,
+    updateScore: (ScoreEvent) -> Unit,
     pauseSession: () -> Unit,
     playSound: (Int) -> Unit,
     sandColorManager: SandColorManager,
@@ -174,7 +174,7 @@ private fun GameScreenContent(
                     activeScoreEvents.filter { it.obstacle.id != event.obstacle.id }
                         .toSet()
 
-                updateScore(event.score)
+                updateScore(event)
             })
 
         Box(

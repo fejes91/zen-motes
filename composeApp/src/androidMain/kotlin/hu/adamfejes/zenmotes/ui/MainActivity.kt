@@ -22,6 +22,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *   show chain reaction
     *  Hire designer
     * Report FPS stats to analytics
+    * Setup Firebase analytics for iOS
 
     * Bugs:
     *  Fix obstacle generator to not generate obstacles on each other

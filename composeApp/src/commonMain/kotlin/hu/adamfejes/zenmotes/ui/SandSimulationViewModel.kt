@@ -3,6 +3,7 @@ package hu.adamfejes.zenmotes.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
+import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
@@ -97,9 +98,10 @@ class SandSimulationViewModel(
             }.launchIn(viewModelScope)
     }
 
-    fun updateScore(score: Int) {
+    fun updateScore(scoreEvent: ScoreEvent) {
         viewModelScope.launch {
-            scoreHolder.updateScore(score)
+            scoreHolder.updateScore(scoreEvent.score)
+            analyticsService.trackScoreUpdate(scoreEvent.score, scoreEvent.isBonus)
         }
     }
 
