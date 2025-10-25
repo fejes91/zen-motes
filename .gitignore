@@ -50,6 +50,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+UserInterfaceState.xcuserstate
 project.xcworkspace
 
 # Build directories
