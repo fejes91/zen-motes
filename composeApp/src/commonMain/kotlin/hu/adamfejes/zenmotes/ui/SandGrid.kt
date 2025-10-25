@@ -180,7 +180,7 @@ class SandGrid(
         avgUpdateDuration = (avgUpdateDuration * 0.8 + totalTime * 0.2).toLong()
 
         // Calculate FPS every 20 frames
-        if (frameCount % 10 == 0) {
+        if (frameCount % 20 == 0) {
             lastUpdateDuration = totalTime
         }
 

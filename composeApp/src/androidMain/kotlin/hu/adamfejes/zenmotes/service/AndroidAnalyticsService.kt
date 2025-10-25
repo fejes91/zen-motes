@@ -11,7 +11,7 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(context)
     private val isReleaseBuild = !BuildConfig.DEBUG
 
-    override fun trackEvent(eventName: String, parameters: Map<String, Any>) {
+    private fun trackEvent(eventName: String, parameters: Map<String, Any> = emptyMap()) {
         Logger.d(
             "Analytics",
             "Event: $eventName, Parameters: $parameters, Reported to Firebase: $isReleaseBuild"
@@ -87,6 +87,14 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
             "settings_changed", mapOf(
                 "setting_name" to settingName,
                 "new_value" to newValue
+            )
+        )
+    }
+
+    override fun trackAverageFPS(average: Int) {
+        trackEvent(
+            "average_fps", mapOf(
+                "average_fps" to average
             )
         )
     }

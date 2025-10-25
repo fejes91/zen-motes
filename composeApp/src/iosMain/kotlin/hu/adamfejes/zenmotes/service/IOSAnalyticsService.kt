@@ -3,7 +3,7 @@ package hu.adamfejes.zenmotes.service
 import hu.adamfejes.zenmotes.utils.Logger
 
 class IOSAnalyticsService : AnalyticsService {
-    override fun trackEvent(eventName: String, parameters: Map<String, Any>) {
+    private fun trackEvent(eventName: String, parameters: Map<String, Any> = emptyMap()) {
         Logger.d("Analytics", "Event: $eventName, Parameters: $parameters")
         // TODO: Implement iOS-specific analytics (Firebase, App Store Connect, etc.)
     }
@@ -60,6 +60,14 @@ class IOSAnalyticsService : AnalyticsService {
             "settings_changed", mapOf(
                 "setting_name" to settingName,
                 "new_value" to newValue
+            )
+        )
+    }
+
+    override fun trackAverageFPS(average: Int) {
+        trackEvent(
+            "average_fps", mapOf(
+                "average_fps" to average
             )
         )
     }

@@ -83,6 +83,7 @@ fun GameScreen(
         pauseSession = viewModel::pauseSession,
         sandColorManager = sandColorManager,
         playSound = viewModel::playScoreSound,
+        reportFPS = viewModel::reportFPS,
         onNavigateToPause = onNavigateToPause,
         onNavigateToGameOver = onNavigateToGameOver,
         onNavigateToTutorial = onNavigateToTutorial
@@ -99,6 +100,7 @@ private fun GameScreenContent(
     updateScore: (ScoreEvent) -> Unit,
     pauseSession: () -> Unit,
     playSound: (Int) -> Unit,
+    reportFPS: (Int) -> Unit,
     sandColorManager: SandColorManager,
     onNavigateToPause: () -> Unit,
     onNavigateToGameOver: () -> Unit,
@@ -148,6 +150,7 @@ private fun GameScreenContent(
                 sandGenerationAmount = 5,
                 showPerformanceOverlay = false, // Toggle performance overlay for testing
                 isPaused = isPaused,
+                reportFPS = reportFPS,
                 increaseScore = { slidingObstacle, isBonus ->
                     val event = createScoreIncreaseEvent(isBonus, slidingObstacle)
                     activeScoreEvents = activeScoreEvents + event

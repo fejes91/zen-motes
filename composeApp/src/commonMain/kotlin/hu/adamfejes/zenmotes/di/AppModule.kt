@@ -12,6 +12,7 @@ import hu.adamfejes.zenmotes.ui.OrientationWarningViewModel
 import hu.adamfejes.zenmotes.ui.PauseViewModel
 import hu.adamfejes.zenmotes.ui.SandSimulationViewModel
 import hu.adamfejes.zenmotes.ui.TutorialViewModel
+import hu.adamfejes.zenmotes.utils.FpsAverageCalculator
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -29,8 +30,11 @@ val appModule = module {
         )
     }
 
+    factory { FpsAverageCalculator() }
+
     viewModel {
         SandSimulationViewModel(
+            get(),
             get(),
             get(),
             get(),

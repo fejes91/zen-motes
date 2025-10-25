@@ -69,7 +69,8 @@ fun SandView(
     showPerformanceOverlay: Boolean, // Easy toggle for performance display
     isPaused: Boolean,
     increaseScore: (slidingObstacle: SlidingObstacle, isBonus: Boolean) -> Unit,
-    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit
+    decreaseScore: (slidingObstacle: SlidingObstacle) -> Unit,
+    reportFPS: (Int) -> Unit
 ) {
     val soundManager = getKoin().get<SoundManager>()
     val sandColorManager: SandColorManager = koinInject()
@@ -182,13 +183,14 @@ fun SandView(
                     if (frameCount % 10 == 0) { // Update every 10 frames
                         actualFps = if (totalFrameTime > 0) (1000 / totalFrameTime).toInt() else 0
                         totalDrawTime = drawTime
+                        reportFPS(actualFps)
                     }
                 }
                 lastFrameTime = frameStartTime
 
                 val overallDrawTime = drawTime + grid.getPerformanceData().updateTime
                 val fps = if (overallDrawTime > 0) {
-                    1000 / (drawTime + grid.getPerformanceData().updateTime)
+                    1000 / overallDrawTime
                 } else {
                     0
                 }

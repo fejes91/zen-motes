@@ -1,6 +1,5 @@
 package hu.adamfejes.zenmotes.ui
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreEvent
@@ -12,7 +11,7 @@ import hu.adamfejes.zenmotes.service.SoundSample
 import hu.adamfejes.zenmotes.ui.Constants.FAST_TICKING_THRESHOLD_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.SLOW_TICKING_THRESHOLD_MILLIS
-import hu.adamfejes.zenmotes.ui.theme.AppTheme
+import hu.adamfejes.zenmotes.utils.FpsAverageCalculator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,15 +23,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class SandSimulationViewModel(
     preferencesService: PreferencesService,
     private val gameStateHolder: GameStateHolder,
     private val scoreHolder: ScoreHolder,
     private val soundManager: SoundManager,
-    private val analyticsService: AnalyticsService
+    private val analyticsService: AnalyticsService,
+    private val fpsAverageCalculator: FpsAverageCalculator
 ) : BaseViewModel(preferencesService) {
-
     val isTutorialShown: StateFlow<Boolean> = preferencesService.isTutorialShown
         .stateIn(
             scope = viewModelScope,
@@ -96,6 +96,15 @@ class SandSimulationViewModel(
                     soundManager.stop(SoundSample.CLOCK_SLOW)
                 }
             }.launchIn(viewModelScope)
+
+        countDownTimeMillis.map { it <= 0L }
+            .distinctUntilChanged()
+            .onEach { isTimeUp ->
+                if (isTimeUp) {
+                    analyticsService.trackAverageFPS(fpsAverageCalculator.average().roundToInt())
+                    fpsAverageCalculator.reset()
+                }
+            }.launchIn(viewModelScope)
     }
 
     fun updateScore(scoreEvent: ScoreEvent) {
@@ -123,5 +132,9 @@ class SandSimulationViewModel(
         soundJob = viewModelScope.launch {
             soundManager.play(if (score < 0) SoundSample.NEGATIVE else SoundSample.POSITIVE)
         }
+    }
+
+    fun reportFPS(fps: Int) {
+        fpsAverageCalculator.record(fps)
     }
 }
