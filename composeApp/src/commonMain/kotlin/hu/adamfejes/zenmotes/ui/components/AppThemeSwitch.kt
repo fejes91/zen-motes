@@ -51,7 +51,7 @@ fun AppThemeSwitch(
     val currentIndex = states.indexOf(currentState)
 
     val colorScheme = LocalTheme.current.toColorScheme()
-    val textColor = colorScheme.textColor
+    val textColor = colorScheme.textColorOnBackground
     val trackColor = colorScheme.background
     val thumbColor = colorScheme.textBackground
     val fontFamily = getFontFamily()

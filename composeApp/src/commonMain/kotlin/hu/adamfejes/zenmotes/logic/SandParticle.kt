@@ -26,15 +26,15 @@ sealed class SlidingObstacleType(
         soundSample = SoundSample.SAND_BLAST_SHORT,
         value = 2000,
         width = 10,
-        height = 17
+        height = 21
     )
 
     class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST,
         value = 5000,
-        width = 28,
-        height = 34
+        width = 22,
+        height = 38
     )
 }
 

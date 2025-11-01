@@ -114,14 +114,14 @@ private fun ScoreDisplay(
             ) {
                 Text(
                     text = stringResource(Res.string.game_screen_score_label),
-                    color = colorScheme.textColor,
+                    color = colorScheme.pausedTitleText,
                     textAlign = TextAlign.End,
                     fontSize = 16.sp,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Text(
                     text = "${currentAnimatedScore.roundToInt()}",
-                    color = colorScheme.textColor,
+                    color = colorScheme.pausedTitleText,
                     textAlign = TextAlign.Start,
                     fontSize = 22.sp,
                     modifier = Modifier.fillMaxWidth().weight(1f)
@@ -133,14 +133,14 @@ private fun ScoreDisplay(
             ) {
                 Text(
                     text = stringResource(Res.string.game_screen_time_label),
-                    color = colorScheme.textColor,
+                    color = colorScheme.pausedTitleText,
                     textAlign = TextAlign.End,
                     fontSize = 16.sp,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Text(
                     text = formatTime(countDownTimeMillis),
-                    color = colorScheme.textColor,
+                    color = colorScheme.pausedTitleText,
                     textAlign = TextAlign.Start,
                     fontSize = 22.sp,
                     modifier = Modifier.fillMaxWidth().weight(1f)

@@ -2,8 +2,6 @@ package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -13,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,7 +77,7 @@ fun AnimatedScoreLabel(
             text = if (scoreEvent.score > 0) "+${(scoreEvent.score / 1000f).roundToInt()}" else "${(scoreEvent.score / 1000f).roundToInt()}",
             color = when {
                 scoreEvent.isBonus -> colorScheme.positiveText
-                scoreEvent.score > 0 -> colorScheme.textColor
+                scoreEvent.score > 0 -> colorScheme.textColorOnBackground
                 else -> colorScheme.negativeText
             },
             fontSize = if(scoreEvent.isBonus) 24.sp else 20.sp,

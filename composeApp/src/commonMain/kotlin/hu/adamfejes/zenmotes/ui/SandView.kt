@@ -239,8 +239,7 @@ private fun BackgroundImage() {
         contentDescription = null,
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.background)
-            .alpha(0.8f),
+            .background(colorScheme.background),
         contentScale = ContentScale.Crop
     )
 }

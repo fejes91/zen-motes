@@ -273,7 +273,7 @@ class SandGrid(
             // Check if obstacle should be destroyed by sand weight
             val (sandHeight, isBonus) = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
             val weightThreshold =
-                obstacle.width * obstacle.height / 2f * 0.9f // Threshold based on obstacle area
+                obstacle.width * obstacle.height / 2f * 0.8f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
                 Logger.d(
