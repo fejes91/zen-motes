@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -24,11 +26,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -51,22 +55,45 @@ import zenmotescmp.composeapp.generated.resources.tutorial_dialog_title
 
 sealed class TutorialPage(
     val firstTextRes: StringResource,
-    val secondTextRes: StringResource
+    val secondTextRes: StringResource,
+    val gifFileName: String
 ) {
     data object Page1 : TutorialPage(
         firstTextRes = Res.string.tutorial_dialog_instruction_1,
-        secondTextRes = Res.string.tutorial_dialog_instruction_2
+        secondTextRes = Res.string.tutorial_dialog_instruction_2,
+        gifFileName = "files/sand_color.gif"
     )
 
     data object Page2 : TutorialPage(
         firstTextRes = Res.string.tutorial_dialog_instruction_3,
-        secondTextRes = Res.string.tutorial_dialog_instruction_4
+        secondTextRes = Res.string.tutorial_dialog_instruction_4,
+        gifFileName = "files/sand_color.gif"
     )
 
     data object Page3 : TutorialPage(
         firstTextRes = Res.string.tutorial_dialog_instruction_5,
-        secondTextRes = Res.string.tutorial_dialog_instruction_6
+        secondTextRes = Res.string.tutorial_dialog_instruction_6,
+        gifFileName = "files/sand_color.gif"
     )
+}
+
+@Composable
+private fun TutorialGifPlayer(
+    gifFileName: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f)
+            .clip(RoundedCornerShape(8.dp))
+    ) {
+        AsyncImage(
+            model = Res.getUri(gifFileName),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 @Composable
@@ -110,9 +137,7 @@ private fun TutorialDialogContent(
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-
-        ) {
+        Box {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center
@@ -136,6 +161,13 @@ private fun TutorialDialogContent(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        TutorialGifPlayer(
+                            gifFileName = page.gifFileName,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
                             modifier = Modifier.fillMaxWidth(),
                             text = stringResource(page.firstTextRes),

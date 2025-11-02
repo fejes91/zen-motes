@@ -57,6 +57,8 @@ kotlin {
             implementation(libs.atomicfu)
             implementation(libs.datastore)
             implementation(libs.datastore.preferences)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.gif)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
