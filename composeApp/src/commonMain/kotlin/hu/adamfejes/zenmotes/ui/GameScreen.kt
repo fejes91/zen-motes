@@ -81,6 +81,7 @@ fun GameScreen(
         countDownTime = countDownTime,
         updateScore = viewModel::updateScore,
         pauseSession = viewModel::pauseSession,
+        finishSession = viewModel::finishSession,
         sandColorManager = sandColorManager,
         playSound = viewModel::playScoreSound,
         reportFPS = viewModel::reportFPS,
@@ -99,6 +100,7 @@ private fun GameScreenContent(
     countDownTime: Long,
     updateScore: (ScoreEvent) -> Unit,
     pauseSession: () -> Unit,
+    finishSession: () -> Unit,
     playSound: (Int) -> Unit,
     reportFPS: (Int) -> Unit,
     sandColorManager: SandColorManager,
@@ -117,10 +119,10 @@ private fun GameScreenContent(
     val nextSandColor by sandColorManager.nextSandColor.collectAsState()
 
     // Game over logic - watch for when countdown reaches zero
-    LaunchedEffect(countDownTime) {
+    LaunchedEffect(countDownTime, isPaused) {
         if (countDownTime == 0L && !isPaused) {
             delay(SCORE_FLY_DURATION.toLong()) // Wait for any final animations
-            pauseSession()
+            finishSession()
             onNavigateToGameOver()
         }
     }

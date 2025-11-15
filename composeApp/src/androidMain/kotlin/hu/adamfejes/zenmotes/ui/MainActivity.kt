@@ -12,8 +12,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * TODOs:
     *  Game mode: Zen / Time attack?
     *  More obstacle designs?
-    *  Play ticking sound when time is running out
-    *  Play game over sound
     *  Add tutorial in the beginning
     *   show sand control
     *   show destruction with same color
@@ -21,7 +19,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     *   show destruction with different color
     *   show chain reaction
     *  Hire designer
-    * Report FPS stats to analytics
     * Setup Firebase analytics for iOS
 
     * Bugs:

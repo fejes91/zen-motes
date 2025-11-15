@@ -1,13 +1,13 @@
 package hu.adamfejes.zenmotes.service
 
-enum class SoundSample(val fileName: String, val durationMillis: Long) {
-    SAND_BLAST("sand-blast.m4a", 1000),
-    SAND_BLAST_SHORT("sand-blast-short.m4a", 700),
-    POSITIVE("positive.m4a", 300),
-    NEGATIVE("negative.m4a", 200),
-    CLOCK_FAST("clock-ticking-fast.mp3", 5000),
-    CLOCK_SLOW("clock-ticking-slow.m4a", 7000),
-    GAME_OVER("game-over.mp3", 1000)
+enum class SoundSample(val isGameScene: Boolean, val fileName: String, val durationMillis: Long) {
+    SAND_BLAST(isGameScene = true,"sand-blast.m4a", 1000),
+    SAND_BLAST_SHORT(isGameScene = true,"sand-blast-short.m4a", 700),
+    POSITIVE(isGameScene = true,"positive.m4a", 300),
+    NEGATIVE(isGameScene = true,"negative.m4a", 200),
+    CLOCK_FAST(isGameScene = true,"clock-ticking-fast.mp3", 5000),
+    CLOCK_SLOW(isGameScene = true,"clock-ticking-slow.m4a", 7000),
+    GAME_OVER(isGameScene = false,"game-over.mp3", 1000)
 }
 
 interface SoundManager {
@@ -22,4 +22,5 @@ interface SoundManager {
     fun onPause()
 
     fun onResume()
+    fun stopGameSceneSounds()
 }

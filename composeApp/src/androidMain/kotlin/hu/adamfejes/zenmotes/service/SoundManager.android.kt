@@ -29,6 +29,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     private val streamIds = ConcurrentHashMap<SoundSample, Int>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var paused: Boolean = false
+    private var gameScenePaused = false
     private var soundEnabled: Boolean = true
     
     override fun init() {
@@ -63,8 +64,8 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     }
 
     override fun playAsync(sample: SoundSample, loop: Boolean) {
-        scope.launch(Dispatchers.Main) {
-            play(sample)
+        scope.launch(Dispatchers.Default) {
+            play(sample, loop)
         }
     }
 
@@ -74,6 +75,12 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
             Logger.d("AndroidSoundManager", "SoundManager is paused, not playing sound: ${sample.fileName}")
             return
         }
+
+        if(gameScenePaused && sample.isGameScene) {
+            Logger.d("AndroidSoundManager", "Game scene is paused, not playing game scene sound: ${sample.fileName}")
+            return
+        }
+
         if(!soundEnabled) {
             Logger.d("AndroidSoundManager", "Sound is disabled, not playing sound: ${sample.fileName}")
             return
@@ -85,7 +92,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
                 1.0f, // left volume
                 1.0f, // right volume
                 1, // priority
-                0, // loop (-1 = infinite, 0 = no loop)
+                if(loop) -1 else 0, // loop
                 1.0f // rate
             )
 
@@ -95,27 +102,25 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
 
             delay(sample.durationMillis)
 
-            streamIds.remove(sample)
+            Logger.d("AndroidSoundManager", "Finished playing sound: ${sample.fileName}")
         }
     }
 
     override fun stop(sample: SoundSample) {
         Logger.d("AndroidSoundManager", "Stopping sound: ${sample.fileName}")
-        scope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Default) {
             streamIds[sample]?.let { streamId ->
                 soundPool.stop(streamId)
-                streamIds.remove(sample)
             }
         }
     }
     
     override fun stopAll() {
         Logger.d("AndroidSoundManager", "Stopping all sounds")
-        scope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Default) {
             streamIds.values.forEach { streamId ->
                 soundPool.stop(streamId)
             }
-            streamIds.clear()
         }
     }
     
@@ -134,5 +139,13 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
 
     override fun onResume() {
         paused = false
+        gameScenePaused = false
+    }
+
+    override fun stopGameSceneSounds() {
+        SoundSample.entries.onEach {
+            stop(it)
+        }
+        gameScenePaused = true
     }
 }

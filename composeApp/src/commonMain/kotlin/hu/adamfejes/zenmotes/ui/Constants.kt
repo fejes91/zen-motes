@@ -7,7 +7,7 @@ object Constants {
     const val COLOR_CHANGE_ANIMATION_DURATION: Long = 3000L
     const val INITIAL_COUNTDOWN_TIME_MILLIS: Long = 60000L
 
-    const val SLOW_TICKING_THRESHOLD_MILLIS: Long = 20000L
+    const val SLOW_TICKING_THRESHOLD_MILLIS: Long = 50000L
 
     const val FAST_TICKING_THRESHOLD_MILLIS: Long = 10000L
 }

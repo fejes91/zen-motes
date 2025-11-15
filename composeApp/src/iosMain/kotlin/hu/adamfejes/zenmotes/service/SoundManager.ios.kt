@@ -18,6 +18,7 @@ class IOSSoundManager : SoundManager {
     private val audioPlayers = mutableMapOf<SoundSample, AVAudioPlayer>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var paused: Boolean = false
+    private var gameScenePaused = false
     private var soundEnabled: Boolean = true
 
     @OptIn(ExperimentalForeignApi::class)
@@ -113,5 +114,13 @@ class IOSSoundManager : SoundManager {
 
     override fun onResume() {
         paused = false
+        gameScenePaused = false
+    }
+
+    override fun stopGameSceneSounds() {
+        SoundSample.entries.onEach {
+            stop(it)
+        }
+        gameScenePaused = true
     }
 }

@@ -17,47 +17,60 @@ class GameStateHolder(
     val isDemoMode: Flow<Boolean> = isDemoModeState
 
     fun onPause() {
-        isPausedState.value = true
-
         scoreHolder.pauseTimer()
         sandColorManager.pause()
         sandGridHolder.sandGrid?.onPause()
         soundManager.onPause()
+
+        isPausedState.value = true
     }
 
     fun onResume() {
-        isPausedState.value = false
-
         scoreHolder.resumeTimer()
         sandColorManager.resume()
         sandGridHolder.sandGrid?.onResume()
         soundManager.onResume()
+
+        isPausedState.value = false
+    }
+
+    fun onFinish() {
+        scoreHolder.pauseTimer()
+        sandColorManager.pause()
+        sandGridHolder.sandGrid?.onPause()
+        soundManager.stopGameSceneSounds()
+
+        isPausedState.value = true
     }
 
     fun restart() {
         sandGridHolder.sandGrid?.reset()
         scoreHolder.resetScore()
         scoreHolder.resumeTimer()
-        isPausedState.value = false
         isDemoModeState.value = false
         sandGridHolder.sandGrid?.onResume()
         sandColorManager.resume()
+        soundManager.onResume()
+
+        isPausedState.value = false
     }
 
     fun enableDemoMode() {
         isDemoModeState.value = true
-        isPausedState.value = false
         scoreHolder.pauseTimer()
         scoreHolder.setDemoMode(true)
         sandColorManager.resume()
         sandGridHolder.sandGrid?.onResume()
         sandGridHolder.sandGrid?.setDemoMode(true)
+
+        isPausedState.value = false
     }
 
     fun disableDemoMode() {
-        isDemoModeState.value = false
         scoreHolder.setDemoMode(false)
         sandGridHolder.sandGrid?.setDemoMode(false)
         sandGridHolder.sandGrid?.reset()
+
+        isDemoModeState.value = false
     }
 }

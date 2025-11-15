@@ -12,6 +12,7 @@ import hu.adamfejes.zenmotes.ui.Constants.FAST_TICKING_THRESHOLD_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
 import hu.adamfejes.zenmotes.ui.Constants.SLOW_TICKING_THRESHOLD_MILLIS
 import hu.adamfejes.zenmotes.utils.FpsAverageCalculator
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -69,14 +70,16 @@ class SandSimulationViewModel(
             initialValue = false
         )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun initialize() {
         // Sync SoundManager with stored sound preference
         soundEnabled.combine(isDemoMode) { enabled, demoMode ->
             soundManager.setSoundEnabled(enabled && !demoMode)
         }.launchIn(viewModelScope)
 
-        countDownTimeMillis
-            .map { it < FAST_TICKING_THRESHOLD_MILLIS && it > 0L }
+        countDownTimeMillis.combine(gameStateHolder.isPaused) { timeMillis, isPaused ->
+            timeMillis < FAST_TICKING_THRESHOLD_MILLIS && !isPaused
+        }
             .distinctUntilChanged()
             .onEach { triggerFastTicking ->
                 if (triggerFastTicking) {
@@ -86,8 +89,9 @@ class SandSimulationViewModel(
                 }
             }.launchIn(viewModelScope)
 
-        countDownTimeMillis
-            .map { it < SLOW_TICKING_THRESHOLD_MILLIS && it >= FAST_TICKING_THRESHOLD_MILLIS }
+        countDownTimeMillis.combine(gameStateHolder.isPaused) { timeMillis, isPaused ->
+            timeMillis < SLOW_TICKING_THRESHOLD_MILLIS && timeMillis >= FAST_TICKING_THRESHOLD_MILLIS && !isPaused
+        }
             .distinctUntilChanged()
             .onEach { triggerSlowTicking ->
                 if (triggerSlowTicking) {
@@ -122,6 +126,10 @@ class SandSimulationViewModel(
                 countdownTime = scoreHolder.getCountDownTimeMillis().first()
             )
         }
+    }
+
+    fun finishSession() {
+        gameStateHolder.onFinish()
     }
 
     fun playScoreSound(score: Int) {
