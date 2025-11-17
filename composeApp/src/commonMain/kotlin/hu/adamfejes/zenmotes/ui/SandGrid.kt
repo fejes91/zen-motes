@@ -36,6 +36,7 @@ class SandGrid(
     private var sandGenerationAmount = 1
     private var lastSandGenerationTime = 0L
     private val sandGenerationIntervalMs = 16L // ~60 FPS for sand generation
+
     // Non-settle zone at top 5% of screen to prevent stuck particles
     private val nonSettleZoneHeight = (height * 0.05f).toInt().coerceAtLeast(3)
 
@@ -65,7 +66,13 @@ class SandGrid(
     // Separate components for different responsibilities
     private val gridState = GridState(width, height)
     private val obstacleGenerator =
-        ObstacleGenerator(width, height, nonObstacleZoneHeight, slidingObstacleTransitTimeSeconds, sandColorManager)
+        ObstacleGenerator(
+            width,
+            height,
+            nonObstacleZoneHeight,
+            slidingObstacleTransitTimeSeconds,
+            sandColorManager
+        )
 
     //ListBasedObstacleGenerator(width = width, height = height)
     private val obstacleAnimator = ObstacleAnimator(width)
@@ -89,27 +96,8 @@ class SandGrid(
             sandGenerationSourceX = sourceX
             sandGenerationColorType = colorType
             sandGenerationAmount = amount
-        }
-    }
-
-    fun getCell(x: Int, y: Int): Cell? = gridState.getCell(x, y)
-
-    fun setCell(x: Int, y: Int, cell: Cell) = gridState.setCell(x, y, cell)
-
-    fun addSand(
-        x: Int,
-        y: Int,
-        colorType: ColorType,
-        currentTime: Long = TimeUtils.currentTimeMillis()
-    ) {
-        if (x in 0 until width && y in 0 until height && gridState.getCell(
-                x,
-                y
-            )?.type == CellType.EMPTY
-        ) {
-            val particle = particlePhysics.createSandParticle(colorType, currentTime)
-            setCell(x, y, Cell(CellType.SAND, particle))
-            gridState.addMovingParticle(MovingParticle(x, y, particle))
+        } else {
+            lastSandGenerationTime = 0L // Reset timer when deactivating
         }
     }
 
@@ -162,7 +150,6 @@ class SandGrid(
             gridState.updateGrid(gridAfterParticles)
         }.inWholeMilliseconds
 
-//        manageSounds(previousNumberOfMovingParticles, gridState.getMovingParticles().size)
         previousNumberOfMovingParticles = gridState.getMovingParticles().size
 
         // 5. Cleanup routine (periodic)
@@ -206,20 +193,31 @@ class SandGrid(
         frameTime: Long
     ): Array<Array<Cell>> {
         // Only generate sand if active and enough time has passed
-        if (!isSandGenerationActive || frameTime - lastSandGenerationTime < sandGenerationIntervalMs) {
+        if (!isSandGenerationActive) {
             return grid
         }
+
+        if(lastSandGenerationTime == 0L) {
+            lastSandGenerationTime = frameTime
+            return grid
+        }
+
+        val amountToGenerate =
+            ((frameTime - lastSandGenerationTime) / sandGenerationIntervalMs * sandGenerationAmount).toInt()
+
+        println("!!!!! Amount to generate: $amountToGenerate")
 
         val centerX = sandGenerationSourceX.roundToInt().coerceIn(0, width - 1)
 
         // Generate multiple sand particles in a sprinkle pattern at the top of the screen
         var particlesAdded = 0
-        repeat(sandGenerationAmount) {
-            val spreadX = centerX + (-3..3).random()
+        repeat(amountToGenerate) {
+            val spreadX = centerX - it + amountToGenerate / 2 // Spread around source X
             val spreadY = 0 // Always spawn at the top of the screen
 
             if (spreadX in 0 until width && grid[spreadY][spreadX].type == CellType.EMPTY) {
-                val particle = particlePhysics.createSandParticle(sandGenerationColorType, frameTime)
+                val particle =
+                    particlePhysics.createSandParticle(sandGenerationColorType, frameTime)
                 grid[spreadY][spreadX] = Cell(CellType.SAND, particle)
                 gridState.addMovingParticle(MovingParticle(spreadX, spreadY, particle))
                 particlesAdded++
@@ -243,13 +241,14 @@ class SandGrid(
         // Generate new sliding obstacles if needed (using adjusted time)
         val adjustedTime = frameTime - totalPausedTime
         val generationTime = measureTime {
-            obstacleGenerator.generateSlidingObstacle(adjustedTime, obstacleTypes)?.let { newObstacle ->
-                gridState.addSlidingObstacle(newObstacle)
-                Logger.d(
-                    "SlidingObstacle",
-                    "🎯 Generated sliding obstacle: ${newObstacle.width}x${newObstacle.height} at y=${newObstacle.y}"
-                )
-            }
+            obstacleGenerator.generateSlidingObstacle(adjustedTime, obstacleTypes)
+                ?.let { newObstacle ->
+                    gridState.addSlidingObstacle(newObstacle)
+                    Logger.d(
+                        "SlidingObstacle",
+                        "🎯 Generated sliding obstacle: ${newObstacle.width}x${newObstacle.height} at y=${newObstacle.y}"
+                    )
+                }
         }.inWholeMilliseconds
 
         // Update existing sliding obstacles
@@ -271,7 +270,10 @@ class SandGrid(
             clearTime += (TimeUtils.nanoTime() - clearStartTime)
 
             // Check if obstacle should be destroyed by sand weight
-            val (sandHeight, isBonus) = calculateSandHeightAboveSlidingObstacle(workingGrid, obstacle)
+            val (sandHeight, isBonus) = calculateSandHeightAboveSlidingObstacle(
+                workingGrid,
+                obstacle
+            )
             val weightThreshold =
                 obstacle.width * obstacle.height / 2f * 0.8f // Threshold based on obstacle area
 
@@ -345,7 +347,10 @@ class SandGrid(
 
         if (!shouldRunPhysics) {
             // Skip physics processing but still return current moving particles
-            Logger.d("PhysicsThrottle", "Skipping physics - not enough time passed (${frameTime - lastPhysicsUpdateTime}ms < ${physicsTargetIntervalMs}ms)")
+            Logger.d(
+                "PhysicsThrottle",
+                "Skipping physics - not enough time passed (${frameTime - lastPhysicsUpdateTime}ms < ${physicsTargetIntervalMs}ms)"
+            )
             return grid
         }
 
@@ -656,7 +661,8 @@ class SandGrid(
         val calculationTime = (TimeUtils.nanoTime() - calculationStartTime) / 1_000_000.0
 
         // Check for bonus condition: at least 10% of sand from other obstacles
-        val isBonus = particleCount > 0 && (fromObstacleParticles.toFloat() / particleCount.toFloat()) >= 0.1f
+        val isBonus =
+            particleCount > 0 && (fromObstacleParticles.toFloat() / particleCount.toFloat()) >= 0.1f
 
         val totalTime = (TimeUtils.nanoTime() - startTime) / 1_000_000.0
 
