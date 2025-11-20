@@ -30,12 +30,12 @@
 
     <!-- Tutorial Dialog -->
     <string name="tutorial_dialog_title">Szabályok</string>
-    <string name="tutorial_dialog_instruction_1">Tartsd nyomva a képernyőt a homok szórásához</string>
+    <string name="tutorial_dialog_instruction_1">Tartsd az ujjad a képernyőn a homok szórásához</string>
     <string name="tutorial_dialog_instruction_2">A homok színe időről időre változik</string>
     <string name="tutorial_dialog_instruction_3">A várak könnyebben rombolhatók azonos színű homokkal</string>
     <string name="tutorial_dialog_instruction_4">Egy vár lerombolásával időt nyersz</string>
     <string name="tutorial_dialog_instruction_5">Ha kihagysz egy várat, időbüntetést kapsz</string>
-    <string name="tutorial_dialog_instruction_6">Ha egy lerombolt vár másokat is lerombol, bónuszt kapsz</string>
+    <string name="tutorial_dialog_instruction_6">Ha egy lerombolt vár egy másikat is lerombol, bónuszt kapsz</string>
     <string name="tutorial_dialog_button">OK</string>
 
     <!-- Theme Switch -->
