@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,19 +62,19 @@ sealed class TutorialPage(
     data object Page1 : TutorialPage(
         firstTextRes = Res.string.tutorial_dialog_instruction_1,
         secondTextRes = Res.string.tutorial_dialog_instruction_2,
-        gifFileName = "files/sand_color.gif"
+        gifFileName = "files/tutorial1.gif"
     )
 
     data object Page2 : TutorialPage(
         firstTextRes = Res.string.tutorial_dialog_instruction_3,
         secondTextRes = Res.string.tutorial_dialog_instruction_4,
-        gifFileName = "files/sand_color.gif"
+        gifFileName = "files/tutorial2.gif"
     )
 
     data object Page3 : TutorialPage(
         firstTextRes = Res.string.tutorial_dialog_instruction_5,
         secondTextRes = Res.string.tutorial_dialog_instruction_6,
-        gifFileName = "files/sand_color.gif"
+        gifFileName = "files/tutorial3.gif"
     )
 }
 
@@ -101,17 +102,21 @@ fun TutorialDialog(
     viewModel: TutorialViewModel = koinViewModel(),
     onDismiss: () -> Unit
 ) {
+    val wasTutorialShown by viewModel.wasTutorialShown.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.initializeTutorial()
     }
 
     TutorialDialogContent(
+        wasTutorialShown = wasTutorialShown,
         onDismiss = onDismiss
     )
 }
 
 @Composable
 private fun TutorialDialogContent(
+    wasTutorialShown: Boolean,
     onDismiss: () -> Unit
 ) {
     val colorScheme = LocalTheme.current.toColorScheme()
@@ -138,6 +143,23 @@ private fun TutorialDialogContent(
         contentAlignment = Alignment.Center
     ) {
         Box {
+            if (wasTutorialShown) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(top = 32.dp)
+                ) {
+                    ControlButton(onClick = onDismiss) {
+                        Text(
+                            modifier = Modifier
+                                .padding(top = 6.dp),
+                            text = "X",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center
@@ -287,6 +309,7 @@ private fun TutorialDialogContent(
 fun TutorialDialogPreview() {
     ZenMotesTheme {
         TutorialDialogContent(
+            wasTutorialShown = true,
             onDismiss = {}
         )
     }

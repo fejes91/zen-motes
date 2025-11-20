@@ -2,17 +2,13 @@ package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -220,29 +215,6 @@ private fun GameScreenContent(
                     contentDescription = stringResource(Res.string.game_screen_pause),
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ControlButton(onClick: () -> Unit, content: @Composable () -> Unit) {
-    val colorScheme = LocalTheme.current.toColorScheme()
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .background(colorScheme.pauseButtonBackground),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(
-            onClick = onClick,
-            modifier = Modifier.size(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = colorScheme.pauseButtonIcon
-            ),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            content()
         }
     }
 }
