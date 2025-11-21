@@ -48,8 +48,8 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     override fun trackScoreUpdate(amount: Int, isBonus: Boolean) {
         trackEvent(
             "score_update", mapOf(
-                "increase_amount" to amount,
-                "is_bonus" to isBonus
+                FirebaseAnalytics.Param.VALUE to amount,
+                FirebaseAnalytics.Param.CONTENT_TYPE to isBonus
             )
         )
     }
@@ -57,9 +57,9 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     override fun trackGameOver(achievedScore: Long, highScore: Long, isNewHighScore: Boolean) {
         trackEvent(
             "game_over", mapOf(
-                "achieved_score" to achievedScore,
-                "high_score" to highScore,
-                "is_new_high_score" to isNewHighScore
+                FirebaseAnalytics.Param.SCORE to achievedScore,
+                FirebaseAnalytics.Param.VALUE to highScore,
+                FirebaseAnalytics.Param.CONTENT_TYPE to isNewHighScore
             )
         )
     }
@@ -67,8 +67,8 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     override fun trackGamePause(currentScore: Int, countdownTime: Long) {
         trackEvent(
             "game_pause", mapOf(
-                "current_score" to currentScore,
-                "countdown_time" to countdownTime
+                FirebaseAnalytics.Param.SCORE to currentScore,
+                FirebaseAnalytics.Param.VALUE to countdownTime
             )
         )
     }
@@ -76,8 +76,8 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     override fun trackGameResume(currentScore: Int, countdownTime: Long) {
         trackEvent(
             "game_resume", mapOf(
-                "current_score" to currentScore,
-                "countdown_time" to countdownTime
+                FirebaseAnalytics.Param.SCORE to currentScore,
+                FirebaseAnalytics.Param.VALUE to countdownTime
             )
         )
     }
@@ -85,8 +85,8 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     override fun trackSettingsChanged(settingName: String, newValue: Any) {
         trackEvent(
             "settings_changed", mapOf(
-                "setting_name" to settingName,
-                "new_value" to newValue
+                FirebaseAnalytics.Param.ITEM_NAME to settingName,
+                FirebaseAnalytics.Param.VALUE to newValue
             )
         )
     }
@@ -94,7 +94,7 @@ class AndroidAnalyticsService(context: Context) : AnalyticsService {
     override fun trackAverageFPS(average: Int) {
         trackEvent(
             "average_fps", mapOf(
-                "average_fps" to average
+                FirebaseAnalytics.Param.VALUE to average
             )
         )
     }
