@@ -1,5 +1,6 @@
 package hu.adamfejes.zenmotes.di
 
+import hu.adamfejes.zenmotes.config.KoinNames
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.SandGridHolder
 import hu.adamfejes.zenmotes.logic.SandColorManager
@@ -14,6 +15,7 @@ import hu.adamfejes.zenmotes.ui.SandSimulationViewModel
 import hu.adamfejes.zenmotes.ui.TutorialViewModel
 import hu.adamfejes.zenmotes.utils.FpsAverageCalculator
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
@@ -57,13 +59,12 @@ val appModule = module {
             get(),
             get(),
             get(),
-            get()
+            get(),
+            get(named(KoinNames.ADMOB_UNIT_ID))
         )
     }
     viewModel {
-        MainMenuViewModel(
-            get()
-        )
+        MainMenuViewModel(get())
     }
     viewModel { OrientationWarningViewModel(get()) }
 

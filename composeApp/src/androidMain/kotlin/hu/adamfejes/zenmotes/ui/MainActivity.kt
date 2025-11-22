@@ -11,7 +11,8 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * ZenMotes
     * TODOs:
     *  Game mode: Zen / Time attack?
-    * Setup Google Ad Mob
+    * Configure admob after publishing
+    * Control ads from Firebase remote config
     * Setup Firebase analytics for iOS
 
     * Bugs:

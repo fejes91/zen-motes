@@ -18,9 +18,11 @@ atomicfu = "0.26.1"
 datastore = "1.1.7"
 firebase-bom = "34.3.0"
 google-services = "4.4.3"
+admob-sdk = "24.8.0"
 crashlytics-plugin = "3.0.6"
 kamel = "1.0.8"
 coil = "3.0.4"
+adsMobileSdk = "0.22.0-beta01"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -48,6 +50,7 @@ firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ndk"
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
+google-admob = { module = "com.google.android.gms:play-services-ads", version.ref = "admob-sdk" }
 
 
 [plugins]

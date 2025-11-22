@@ -21,7 +21,8 @@ class GameOverViewModel(
     private val gameStateHolder: GameStateHolder,
     private val preferencesService: PreferencesService,
     private val analyticsService: AnalyticsService,
-    private val soundManager: SoundManager
+    private val soundManager: SoundManager,
+    val adUnitId: String
 ) : BaseViewModel(preferencesService) {
 
     val score: Flow<Int> = scoreHolder.getScore()

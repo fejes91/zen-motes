@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.firebase.config)
             implementation(libs.firebase.crashlytics)
             implementation(libs.firebase.analytics)
+            implementation(libs.google.admob)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -76,7 +77,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 5
         versionName = "0.0.10"
-
+        manifestPlaceholders["ADMOB_APP_ID"] = project.findProperty("admob.appid") ?: ""
     }
     packaging {
         resources {
@@ -86,17 +87,21 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("cert/castle-blaster.jks")
-            storePassword = System.getenv("KS_PASS")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASS")
+            storeFile = file(project.findProperty("store.file").toString())
+            storePassword = project.findProperty("ks.pass").toString()
+            keyAlias = project.findProperty("key.alias").toString()
+            keyPassword = project.findProperty("key.pass").toString()
         }
     }
 
     buildTypes {
+        getByName("debug") {
+            buildConfigField("String", "ADMOB_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
+        }
         getByName("release") {
             isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "ADMOB_AD_UNIT_ID", "\"${project.findProperty("admob.adUnitId") ?: ""}\"")
         }
     }
 
