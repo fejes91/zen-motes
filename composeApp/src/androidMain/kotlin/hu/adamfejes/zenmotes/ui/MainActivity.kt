@@ -11,17 +11,16 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * ZenMotes
     * TODOs:
     *  Game mode: Zen / Time attack?
-    *  More obstacle designs?
-    *  Hire designer
+    * Setup Google Ad Mob
     * Setup Firebase analytics for iOS
 
     * Bugs:
+    *  Move signing credentials to global gradle properties
     *  Fix obstacle generator to not generate obstacles on each other
     *  iOS doesn't use custom font, except theme switcher
     *  game balance
     *   game is a bit hard in the beginning and after some time there is a threshold where a lot of time is banked in, then suddenly it ends
     *   make not fully random obstacle generation, make patterns?
-    *   stop playing sound when game goes to background
  */
 
 class MainActivity : ComponentActivity() {

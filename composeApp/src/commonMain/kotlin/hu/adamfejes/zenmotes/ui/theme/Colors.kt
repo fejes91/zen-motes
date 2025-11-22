@@ -6,25 +6,13 @@ object ZenColors {
     
     object Light {
         internal val background = Color.White
-
-        // Sand colors - more saturated, same brightness
-        internal val sandColors = listOf(
-            Color(0xFFFF80B3), // More saturated pink
-            Color(0xFF80C0FF), // More saturated blue
-            Color(0xFF80FF80), // More saturated green
-            Color(0xFFFFD040), // More saturated yellow
-//            Color(0xFFD080FF), // More saturated purple
-//            Color(0xFFFF8040)  // More saturated orange
-        )
         
         // Obstacle colors - more saturated with slight variations
         internal val obstacleColors = listOf(
-            Color(0xFFFF6699), // More saturated pink
-            Color(0xFF66B3FF), // More saturated blue
-            Color(0xFF66FF66), // More saturated green
-            Color(0xFFFFCC00), // More saturated yellow
-//            Color(0xFFB366FF), // More saturated purple
-//            Color(0xFFFF6600)  // More saturated orange
+            Color(0xFFFF6699), // pink
+            Color(0xFFF27C0C), // orange
+            Color(0xFF66FF66), // green
+            Color(0xFFFCD63D), // yellow
         )
         
         
@@ -56,25 +44,13 @@ object ZenColors {
     
     object Dark {
         internal val background = Color.Black
-
-        // Sand colors - brighter pastels for dark theme
-        internal val sandColors = listOf(
-            Color(0xFFFF85B5), // Bright pink
-            Color(0xFF85CFFF), // Bright blue
-            Color(0xFF85FF85), // Bright green
-            Color(0xFFFFE666), // Bright yellow
-            Color(0xFFCC85FF), // Bright purple
-            Color(0xFFFF8566)  // Bright orange
-        )
         
         // Obstacle colors - matching darker pastels
         internal val obstacleColors = listOf(
-            Color(0xFFB85578), // Deeper muted pink
-            Color(0xFF5291D1), // Deeper muted blue
-            Color(0xFF52D152), // Deeper muted green
-            Color(0xFFD1B820), // Deeper muted yellow
-            Color(0xFF9F52D1), // Deeper muted purple
-            Color(0xFFD15220)  // Deeper muted orange
+            Color(0xFFB85578), // pink
+            Color(0xFFF59E4C), // orange
+            Color(0xFF52D152), // green
+            Color(0xFFD1B820), // yellow
         )
         
         
@@ -116,7 +92,6 @@ fun Theme.toColorScheme(): ColorScheme {
 
 data class ColorScheme(
     val background: Color,
-    val sandColors: List<Color>,
     val obstacleColors: List<Color>,
     val paletteBorder: Color,
     val pauseButtonBackground: Color,
@@ -139,7 +114,6 @@ fun getColorScheme(theme: Theme): ColorScheme {
     return when (theme) {
         Theme.LIGHT -> ColorScheme(
             background = ZenColors.Light.background,
-            sandColors = ZenColors.Light.sandColors,
             obstacleColors = ZenColors.Light.obstacleColors,
             paletteBorder = ZenColors.Light.paletteBorder,
             pauseButtonBackground = ZenColors.Light.pauseButtonBackground,
@@ -159,7 +133,6 @@ fun getColorScheme(theme: Theme): ColorScheme {
         )
         Theme.DARK -> ColorScheme(
             background = ZenColors.Dark.background,
-            sandColors = ZenColors.Dark.sandColors,
             paletteBorder = ZenColors.Dark.paletteBorder,
             obstacleColors = ZenColors.Dark.obstacleColors,
             pauseButtonBackground = ZenColors.Dark.pauseButtonBackground,

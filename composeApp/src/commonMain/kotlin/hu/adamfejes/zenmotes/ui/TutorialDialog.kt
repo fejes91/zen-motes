@@ -124,11 +124,11 @@ private fun TutorialDialogContent(
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
 
-    var sandColor by remember { mutableStateOf(colorScheme.sandColors.random()) }
+    var sandColor by remember { mutableStateOf(colorScheme.obstacleColors.random()) }
 
     LaunchedEffect(Unit) {
         while (isActive) {
-            sandColor = colorScheme.sandColors.random()
+            sandColor = colorScheme.obstacleColors.random()
             delay(3000L)
         }
     }

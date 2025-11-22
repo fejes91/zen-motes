@@ -9,9 +9,7 @@ enum class ColorType {
     OBSTACLE_COLOR_1,
     OBSTACLE_COLOR_2,
     OBSTACLE_COLOR_3,
-    OBSTACLE_COLOR_4,
-    // OBSTACLE_COLOR_5,
-    // OBSTACLE_COLOR_6
+    OBSTACLE_COLOR_4
 }
 
 sealed class SlidingObstacleType(
