@@ -9,10 +9,10 @@ object ZenColors {
         
         // Obstacle colors - more saturated with slight variations
         internal val obstacleColors = listOf(
-            Color(0xFFFF6699), // pink
-            Color(0xFFF27C0C), // orange
-            Color(0xFF66FF66), // green
-            Color(0xFFFCD63D), // yellow
+            Color(0xFFB06EEA), // purple
+            Color(0xFF8FEBAD), // green
+            Color(0xFFEBD57C), // yellow
+            Color(0xFFEB8F8D), // red
         )
         
         
@@ -47,10 +47,10 @@ object ZenColors {
         
         // Obstacle colors - matching darker pastels
         internal val obstacleColors = listOf(
-            Color(0xFFB85578), // pink
-            Color(0xFFF59E4C), // orange
-            Color(0xFF52D152), // green
-            Color(0xFFD1B820), // yellow
+            Color(0xFF8F93EA), // blue
+            Color(0xFF8FEBAD), // green
+            Color(0xFFEBD57C), // yellow
+            Color(0xFFEB8F8D), // red
         )
         
         
