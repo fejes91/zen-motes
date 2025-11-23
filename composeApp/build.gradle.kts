@@ -96,7 +96,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "ADMOB_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
+            buildConfigField("String", "ADMOB_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/9214589741\"") // test ad unit id
         }
         getByName("release") {
             isMinifyEnabled = true

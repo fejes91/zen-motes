@@ -61,6 +61,13 @@ fun GameOverDialog(
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        AdMobBanner(
+            unitId = adUnitId,
+            modifier = Modifier.align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 24.dp)
+        )
+
         Column(
             modifier = Modifier
                 .padding(32.dp)
@@ -110,13 +117,6 @@ fun GameOverDialog(
                 )
             }
         }
-
-        AdMobBanner(
-            unitId = adUnitId,
-            modifier = Modifier.align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = 24.dp)
-        )
     }
 }
 
