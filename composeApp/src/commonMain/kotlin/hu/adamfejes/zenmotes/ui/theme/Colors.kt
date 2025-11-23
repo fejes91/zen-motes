@@ -10,7 +10,7 @@ object ZenColors {
         // Obstacle colors - more saturated with slight variations
         internal val obstacleColors = listOf(
             Color(0xFF9760EA), // purple
-            Color(0xFF60EBCE), // green
+            Color(0xFF4EEB60), // green
             Color(0xFFEBE660), // yellow
             Color(0xFFEB8560), // red
         )
