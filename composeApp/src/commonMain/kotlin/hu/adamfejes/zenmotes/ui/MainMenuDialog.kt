@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
@@ -152,7 +153,7 @@ fun MainMenuDialog(
 
         Text(
             text = appVersion ?: "",
-            fontSize = 12.sp,
+            fontSize = 10.sp,
             color = colorScheme.pausedTitleText.copy(alpha = 0.6f),
             modifier = Modifier
                 .align(Alignment.BottomStart)

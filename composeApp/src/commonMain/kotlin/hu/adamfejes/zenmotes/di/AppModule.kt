@@ -50,7 +50,8 @@ val appModule = module {
             get(),
             get(),
             get(),
-            get()
+            get(),
+            get(named(KoinNames.ADMOB_UNIT_ID))
         )
     }
     viewModel {

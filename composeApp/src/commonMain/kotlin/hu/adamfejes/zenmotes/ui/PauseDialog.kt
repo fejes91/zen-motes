@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.navigation.LocalTheme
+import hu.adamfejes.zenmotes.ui.admob.AdMobBanner
 import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
@@ -47,6 +49,7 @@ fun PauseDialog(
     val soundEnabled by viewModel.soundEnabled.collectAsState()
     val score by viewModel.score.collectAsState(0)
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
+    val adUnitId = viewModel.adUnitId
 
     if (currentAppTheme == null) {
         return
@@ -59,6 +62,13 @@ fun PauseDialog(
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        AdMobBanner(
+            unitId = adUnitId,
+            modifier = Modifier.align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 16.dp)
+        )
+
         Column(
             modifier = Modifier
                 .padding(32.dp)

@@ -65,7 +65,7 @@ fun GameOverDialog(
             unitId = adUnitId,
             modifier = Modifier.align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 24.dp)
+                .padding(bottom = 16.dp)
         )
 
         Column(

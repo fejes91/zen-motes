@@ -19,7 +19,8 @@ class PauseViewModel(
     private val analyticsService: AnalyticsService,
     private val preferencesService: PreferencesService,
     private val gameStateHolder: GameStateHolder,
-    private val soundManager: SoundManager
+    private val soundManager: SoundManager,
+    val adUnitId: String
 ) : BaseViewModel(preferencesService) {
 
     val score: StateFlow<Int> = scoreHolder
