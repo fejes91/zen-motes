@@ -297,7 +297,7 @@ private fun DrawScope.drawSandGrid(
 
                         val drawOpStartTime = TimeUtils.nanoTime()
                         val baseColor = mapObstacleColorToTheme(particle.colorType, colorScheme)
-                        val brightnessMultiplier = if (particle.fromObstacle) 1.3f else 0.9f
+                        val brightnessMultiplier = if (particle.fromObstacle) 1.1f else 0.9f
                         val noiseVariation = particle.noiseVariation.apply {
                             if(this < 1f && particle.fromObstacle) {
                                 // Make sure particles from obstacles are not too dark
