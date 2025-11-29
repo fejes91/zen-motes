@@ -16,7 +16,6 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Setup Firebase analytics for iOS
 
     * TODOs for release
-    *   turn off ads until publishing
     *   implement consent dialog for GDPR https://developers.google.com/admob/android/privacy
     *   implement about screen with privacy policy link and 3rd party licenses
     *   add redesigned app icon with multiple castles depicted
