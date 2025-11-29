@@ -57,6 +57,8 @@ fun MainMenuDialog(
         return
     }
 
+    ConsentDialog()
+
     val colorScheme = LocalTheme.current.toColorScheme()
 
     // Get random color from palette for tower

@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.firebase.crashlytics)
             implementation(libs.firebase.analytics)
             implementation(libs.google.admob)
+            implementation(libs.google.messaging)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
