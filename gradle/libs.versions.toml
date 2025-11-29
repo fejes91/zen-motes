@@ -22,6 +22,7 @@ admob-sdk = "24.8.0"
 crashlytics-plugin = "3.0.6"
 coil = "3.0.4"
 messaging-platform = "4.0.0"
+licensee = "1.14.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -61,3 +62,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics-plugin" }
+licensee = { id = "app.cash.licensee", version.ref = "licensee" }

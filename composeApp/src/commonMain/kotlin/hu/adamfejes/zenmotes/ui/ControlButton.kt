@@ -15,10 +15,14 @@ import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 
 @Composable
-fun ControlButton(onClick: () -> Unit, content: @Composable () -> Unit) {
+fun ControlButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     val colorScheme = LocalTheme.current.toColorScheme()
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(48.dp)
             .background(colorScheme.pauseButtonBackground),
         contentAlignment = Alignment.Center

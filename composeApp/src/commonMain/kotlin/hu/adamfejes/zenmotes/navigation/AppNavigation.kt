@@ -29,6 +29,7 @@ import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.GameScreen
 import hu.adamfejes.zenmotes.ui.GameOverDialog
+import hu.adamfejes.zenmotes.ui.InfoDialog
 import hu.adamfejes.zenmotes.ui.MainMenuDialog
 import hu.adamfejes.zenmotes.ui.OrientationWarningDialog
 import hu.adamfejes.zenmotes.ui.PauseDialog
@@ -47,8 +48,8 @@ sealed class Screen(val route: String) {
     data object Pause : Screen("pause")
     data object GameOver : Screen("gameover")
     data object OrientationWarning : Screen("orientation_warning")
-
     data object Tutorial : Screen("tutorial")
+    data object Info : Screen("info")
 }
 
 @Composable
@@ -175,6 +176,9 @@ fun AppNavigation(
                         gameStateHolder.restart()
                         analyticsService.trackGameStart()
                         navController.popBackStack()
+                    },
+                    onShowInfo = {
+                        navController.navigate(Screen.Info.route)
                     }
                 )
             }
@@ -236,6 +240,21 @@ fun AppNavigation(
                     gameStateHolder.onResume()
                     navController.popBackStack()
                 })
+            }
+
+            dialog(
+                route = Screen.Info.route,
+                dialogProperties = DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = true,
+                    dismissOnClickOutside = true
+                )
+            ) {
+                InfoDialog(
+                    onDismiss = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }

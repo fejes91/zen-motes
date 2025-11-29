@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.licensee)
 }
 
 kotlin {
@@ -123,5 +124,32 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+}
+
+licensee {
+    allow("Apache-2.0")
+    allow("MIT")
+    allow("MIT-0")
+    allow("BSD-2-Clause")
+    allow("BSD-3-Clause")
+
+    allowUrl("https://developer.android.com/studio/terms.html")
+}
+
+// Manual task to copy licensee artifacts to Android assets
+tasks.register<Copy>("copyLicenseeToAssets") {
+    from(layout.buildDirectory.file("reports/licensee/androidRelease/artifacts.json"))
+    into("src/androidMain/assets")
+    rename { "licenses.json" }
+    dependsOn("licenseeAndroidRelease")
+}
+
+// Make Android asset merge tasks depend on license copy
+project.afterEvaluate {
+    tasks.filter {
+        it.name.startsWith("merge") && it.name.contains("Assets")
+    }.forEach {
+        it.dependsOn("copyLicenseeToAssets")
+    }
 }
 

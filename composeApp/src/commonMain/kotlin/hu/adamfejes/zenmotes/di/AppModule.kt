@@ -8,6 +8,7 @@ import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolderImpl
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.GameOverViewModel
+import hu.adamfejes.zenmotes.ui.InfoViewModel
 import hu.adamfejes.zenmotes.ui.MainMenuViewModel
 import hu.adamfejes.zenmotes.ui.OrientationWarningViewModel
 import hu.adamfejes.zenmotes.ui.PauseViewModel
@@ -71,5 +72,8 @@ val appModule = module {
 
     viewModel {
         TutorialViewModel(get())
+    }
+    viewModel {
+        InfoViewModel(get())
     }
 }

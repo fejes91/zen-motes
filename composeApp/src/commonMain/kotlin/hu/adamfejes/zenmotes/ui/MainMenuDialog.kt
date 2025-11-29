@@ -46,7 +46,8 @@ import zenmotescmp.composeapp.generated.resources.wider_tower
 @Composable
 fun MainMenuDialog(
     viewModel: MainMenuViewModel = koinViewModel(),
-    onStartGame: () -> Unit
+    onStartGame: () -> Unit,
+    onShowInfo: () -> Unit = {}
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val soundEnabled by viewModel.soundEnabled.collectAsState()
@@ -161,5 +162,18 @@ fun MainMenuDialog(
                 .align(Alignment.BottomStart)
                 .padding(16.dp)
         )
+
+        ControlButton(
+            onClick = onShowInfo,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
+        ) {
+            Text(
+                text = "i",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
