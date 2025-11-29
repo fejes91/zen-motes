@@ -15,8 +15,14 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Control ads from Firebase remote config
     * Setup Firebase analytics for iOS
 
+    * TODOs for release
+    *   turn off ads until publishing
+    *   implement consent dialog for GDPR https://developers.google.com/admob/android/privacy
+    *   implement about screen with privacy policy link and 3rd party licenses
+    *   add redesigned app icon with multiple castles depicted
+
     * Bugs:
-    *  Move signing credentials to global gradle properties
+    *  After restart sand color indicator is inconsistent until next color change
     *  Fix obstacle generator to not generate obstacles on each other
     *  iOS doesn't use custom font, except theme switcher
     *  game balance
