@@ -77,8 +77,8 @@ android {
         applicationId = "hu.adamfejes.castleblaster"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 5
-        versionName = "0.0.10"
+        versionCode = 6
+        versionName = "0.0.11"
         manifestPlaceholders["ADMOB_APP_ID"] = project.findProperty("admob.appid") ?: ""
     }
     packaging {
