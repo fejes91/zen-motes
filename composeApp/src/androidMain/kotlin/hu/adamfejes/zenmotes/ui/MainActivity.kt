@@ -16,16 +16,16 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Setup Firebase analytics for iOS
 
     * TODOs for release
-    *   implement about screen with privacy policy link and 3rd party licenses
-    *   add redesigned app icon with multiple castles depicted
+    *   After restart sand color indicator is inconsistent until next color change
+    *   Fix sand collision. when two different heap  intersects, one should fall down? Or mix? Or disappear?
+    *   Music theme - getting faster as the game gets more difficult
+    *   Hardest difficulty could be harder
+    *       Faster castles?
+    *       Lower chance for matching color?
 
     * Bugs:
-    *  After restart sand color indicator is inconsistent until next color change
     *  Fix obstacle generator to not generate obstacles on each other
     *  iOS doesn't use custom font, except theme switcher
-    *  game balance
-    *   game is a bit hard in the beginning and after some time there is a threshold where a lot of time is banked in, then suddenly it ends
-    *   make not fully random obstacle generation, make patterns?
  */
 
 class MainActivity : ComponentActivity() {
