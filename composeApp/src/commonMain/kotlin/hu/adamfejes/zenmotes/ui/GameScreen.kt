@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreEvent
+import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_FLY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
@@ -96,7 +97,7 @@ private fun GameScreenContent(
     updateScore: (ScoreEvent) -> Unit,
     pauseSession: () -> Unit,
     finishSession: () -> Unit,
-    playSound: (Int) -> Unit,
+    playSound: (SlidingObstacleType, Int, Boolean) -> Unit,
     reportFPS: (Int) -> Unit,
     sandColorManager: SandColorManager,
     onNavigateToPause: () -> Unit,
@@ -169,7 +170,8 @@ private fun GameScreenContent(
             countDownTimeMillis = countDownTime,
             activeScoreEvents = activeScoreEvents,
             onAnimationComplete = { event ->
-                playSound(activeScoreEvents.first { it.obstacle.id == event.obstacle.id }.score)
+                val scoreEvent = activeScoreEvents.first { it.obstacle.id == event.obstacle.id }
+                playSound(scoreEvent.obstacle.type, scoreEvent.score, scoreEvent.isBonus)
                 activeScoreEvents =
                     activeScoreEvents.filter { it.obstacle.id != event.obstacle.id }
                         .toSet()

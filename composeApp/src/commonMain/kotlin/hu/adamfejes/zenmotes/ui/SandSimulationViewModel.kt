@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
+import hu.adamfejes.zenmotes.logic.SlidingObstacle
+import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.service.AnalyticsService
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
@@ -132,13 +134,20 @@ class SandSimulationViewModel(
         gameStateHolder.onFinish()
     }
 
-    fun playScoreSound(score: Int) {
+    fun playScoreSound(slidingObstacleType: SlidingObstacleType, score: Int, isBonus: Boolean) {
         if (soundJob?.isActive == true) {
             return
         }
 
+        val soundSample = when {
+            isBonus -> SoundSample.BONUS
+            slidingObstacleType is SlidingObstacleType.Big -> if (score < 0) SoundSample.LOSS1 else SoundSample.GAIN1
+            slidingObstacleType is SlidingObstacleType.Small -> if (score < 0) SoundSample.LOSS2 else SoundSample.GAIN2
+            else -> return
+        }
+
         soundJob = viewModelScope.launch {
-            soundManager.play(if (score < 0) SoundSample.NEGATIVE else SoundSample.POSITIVE)
+            soundManager.play(soundSample)
         }
     }
 

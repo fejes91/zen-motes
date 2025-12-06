@@ -16,9 +16,7 @@ import hu.adamfejes.zenmotes.ui.theme.ZenMotesTheme
     * Setup Firebase analytics for iOS
 
     * TODOs for release
-    *   After restart sand color indicator is inconsistent until next color change
-    *   Fix sand collision. when two different heap  intersects, one should fall down? Or mix? Or disappear?
-    *   Music theme - getting faster as the game gets more difficult
+    *   Fix sand collision when two different heap intersects, one should fall down? Or mix? Or disappear?
     *   Hardest difficulty could be harder
     *       Faster castles?
     *       Lower chance for matching color?
