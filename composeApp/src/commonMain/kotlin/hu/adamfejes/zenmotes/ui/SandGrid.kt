@@ -205,8 +205,6 @@ class SandGrid(
         val amountToGenerate =
             ((frameTime - lastSandGenerationTime) / sandGenerationIntervalMs * sandGenerationAmount).toInt()
 
-        println("!!!!! Amount to generate: $amountToGenerate")
-
         val centerX = sandGenerationSourceX.roundToInt().coerceIn(0, width - 1)
 
         // Generate multiple sand particles in a sprinkle pattern at the top of the screen
