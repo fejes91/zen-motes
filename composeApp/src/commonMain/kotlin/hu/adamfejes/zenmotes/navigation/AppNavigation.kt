@@ -74,7 +74,6 @@ fun AppNavigation(
     }
 
     DisposableEffect(Unit) {
-        // Initialize sound manager with the current theme
         soundManager.init()
 
         onDispose {

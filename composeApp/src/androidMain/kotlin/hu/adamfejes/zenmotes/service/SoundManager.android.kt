@@ -41,7 +41,9 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
                     val soundId = soundPool.load(assetFileDescriptor, 1)
                     soundIds[sample] = soundId
                     assetFileDescriptor.close()
+                    Logger.d("AndroidSoundManager", "Loaded sound: ${sample.fileName} with soundId: $soundId")
                 } catch (e: Exception) {
+                    Logger.e("AndroidSoundManager", "Error loading sound: ${sample.fileName} - ${e.message}")
                     e.printStackTrace()
                 }
             }
@@ -64,7 +66,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     }
 
     override fun playAsync(sample: SoundSample, loop: Boolean) {
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.Main) {
             play(sample, loop)
         }
     }
