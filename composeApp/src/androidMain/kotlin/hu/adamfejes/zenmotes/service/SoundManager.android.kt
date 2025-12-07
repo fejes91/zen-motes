@@ -91,8 +91,8 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
         soundIds[sample]?.let { soundId ->
             val streamId = soundPool.play(
                 soundId,
-                1.0f, // left volume
-                1.0f, // right volume
+                sample.volume,
+                sample.volume, // leftVolume
                 1, // priority
                 if(loop) -1 else 0, // loop
                 1.0f // rate

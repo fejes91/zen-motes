@@ -80,6 +80,7 @@ class IOSSoundManager : SoundManager {
             player.stop()
             player.currentTime = 0.0
             player.numberOfLoops = if(loop) -1 else 0
+            player.volume = sample.volume
             player.play()
         }
         // iOS audio implementation not available - just delay for the duration
