@@ -16,7 +16,7 @@ class ObstacleGenerator(
     private val sandColorManager: SandColorManager
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 1500L
-    private val minSlidingObstacleInterval = 300L
+    private val minSlidingObstacleInterval = 350L
     private val demoModeObstacleInterval = 500L
     private val intervalReductionMultiplier = 0.95f
     private val difficultyIncreaseInterval = 10000L
