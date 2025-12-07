@@ -7,7 +7,8 @@ enum class SoundSample(val isGameScene: Boolean, val fileName: String, val durat
     GAIN2(isGameScene = true, "gain2.m4a", 150),
     LOSS1(isGameScene = true, "loss1.m4a", 150),
     LOSS2(isGameScene = true, "loss2.m4a", 150),
-    BONUS(isGameScene = true, "bonus.m4a", 150),
+    BONUS1(isGameScene = true, "bonus1.m4a", 150),
+    BONUS2(isGameScene = true, "bonus2.m4a", 150),
     CLOCK_FAST(isGameScene = true, "clock-ticking-fast.mp3", 5000),
     CLOCK_SLOW(isGameScene = true, "clock-ticking-slow.m4a", 7000),
     GAME_OVER(isGameScene = false, "game-over.mp3", 3000)
