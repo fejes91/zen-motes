@@ -28,3 +28,8 @@ actual fun rememberIsLandscape(): State<Boolean> {
         }
     }
 }
+
+@Composable
+actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
+    androidx.activity.compose.BackHandler(enabled = enabled, onBack = onBack)
+}

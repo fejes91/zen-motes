@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.BackHandler
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
@@ -47,12 +48,15 @@ import zenmotescmp.composeapp.generated.resources.wider_tower
 fun MainMenuDialog(
     viewModel: MainMenuViewModel = koinViewModel(),
     onStartGame: () -> Unit,
-    onShowInfo: () -> Unit = {}
+    onShowInfo: () -> Unit = {},
+    onExit: () -> Unit = {}
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val soundEnabled by viewModel.soundEnabled.collectAsState()
     val highScore by viewModel.highScore.collectAsState()
     val appVersion by viewModel.appVersion.collectAsState()
+
+    BackHandler(onBack = onExit)
 
     if (currentAppTheme == null) {
         return

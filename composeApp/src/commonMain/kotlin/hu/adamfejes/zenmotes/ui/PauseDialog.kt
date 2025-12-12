@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.BackHandler
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.admob.AdMobBanner
 import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
@@ -52,6 +53,8 @@ fun PauseDialog(
     val score by viewModel.score.collectAsState(0)
     val countDownTime by viewModel.countDownTimeMillis.collectAsState()
     val adUnitId = viewModel.adUnitId
+
+    BackHandler(onBack = onBack)
 
     if (currentAppTheme == null) {
         return

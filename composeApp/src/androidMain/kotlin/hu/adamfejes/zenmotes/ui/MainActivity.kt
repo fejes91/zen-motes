@@ -33,7 +33,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ZenMotesTheme {
-                AppNavigation()
+                AppNavigation(
+                    onFinish = { finish() }
+                )
             }
         }
     }

@@ -25,6 +25,7 @@
     <string name="game_over_dialog_score">SCORE</string>
     <string name="game_over_dialog_high_score">HIGH SCORE</string>
     <string name="game_over_dialog_restart">RESTART</string>
+    <string name="game_over_dialog_main_menu">MAIN MENU</string>
 
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">ROTATE YOUR DEVICE</string>

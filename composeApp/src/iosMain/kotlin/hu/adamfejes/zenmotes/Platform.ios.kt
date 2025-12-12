@@ -44,3 +44,9 @@ actual fun rememberIsLandscape(): State<Boolean> {
         }
     }
 }
+
+@Composable
+actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
+    // iOS doesn't have a system back button like Android
+    // No-op implementation
+}

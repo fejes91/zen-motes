@@ -14,3 +14,6 @@ expect fun getScreenWidth(): Int
 
 @Composable
 expect fun rememberIsLandscape(): State<Boolean>
+
+@Composable
+expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)

@@ -54,7 +54,8 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    onFinish: () -> Unit = {}
 ) {
     val gameStateHolder = koinInject<GameStateHolder>()
     val preferencesService = koinInject<PreferencesService>()
@@ -178,7 +179,8 @@ fun AppNavigation(
                     },
                     onShowInfo = {
                         navController.navigate(Screen.Info.route)
-                    }
+                    },
+                    onExit = onFinish
                 )
             }
 
@@ -192,6 +194,7 @@ fun AppNavigation(
             ) {
                 PauseDialog(
                     onBack = {
+                        gameStateHolder.onResume()
                         navController.popBackStack()
                     },
                     onNavigateToMainMenu = {
@@ -218,6 +221,14 @@ fun AppNavigation(
                         navController.navigate(Screen.Game.route) {
                             popUpTo(Screen.Game.route) {
                                 inclusive = true
+                            }
+                        }
+                    },
+                    onNavigateToMainMenu = {
+                        gameStateHolder.enableDemoMode()
+                        navController.navigate(Screen.MainMenu.route) {
+                            popUpTo(Screen.Game.route) {
+                                inclusive = false
                             }
                         }
                     }

@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.BackHandler
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
@@ -67,6 +68,11 @@ fun GameScreen(
             viewModel.pauseSession()
             onNavigateToTutorial()
         }
+    }
+
+    BackHandler(enabled = !isPaused && !isDemoMode) {
+        viewModel.pauseSession()
+        onNavigateToPause()
     }
 
     GameScreenContent(
@@ -116,7 +122,7 @@ private fun GameScreenContent(
 
     // Game over logic - watch for when countdown reaches zero
     LaunchedEffect(countDownTime, isPaused) {
-        if (countDownTime == 0L && !isPaused) {
+        if (countDownTime == 0L && !isPaused && !isDemoMode) {
             delay(SCORE_FLY_DURATION.toLong()) // Wait for any final animations
             finishSession()
             onNavigateToGameOver()

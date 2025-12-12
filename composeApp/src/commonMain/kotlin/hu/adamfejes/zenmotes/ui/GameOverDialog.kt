@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.adamfejes.zenmotes.BackHandler
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.admob.AdMobBanner
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
@@ -32,6 +33,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
 import zenmotescmp.composeapp.generated.resources.game_over_dialog_high_score
+import zenmotescmp.composeapp.generated.resources.game_over_dialog_main_menu
 import zenmotescmp.composeapp.generated.resources.game_over_dialog_new_high_score
 import zenmotescmp.composeapp.generated.resources.game_over_dialog_restart
 import zenmotescmp.composeapp.generated.resources.game_over_dialog_score
@@ -41,10 +43,13 @@ import zenmotescmp.composeapp.generated.resources.game_over_dialog_title
 fun GameOverDialog(
     viewModel: GameOverViewModel = koinViewModel(),
     onBack: () -> Unit,
+    onNavigateToMainMenu: () -> Unit = {}
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState(initial = null)
     val scoreComparison by viewModel.scoreComparison.collectAsState()
     val adUnitId = viewModel.adUnitId
+
+    BackHandler(onBack = onNavigateToMainMenu)
 
     LaunchedEffect(Unit) {
         viewModel.initialize()
@@ -100,21 +105,40 @@ fun GameOverDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    viewModel.resetSession()
-                    onBack()
-                },
+            Column (
                 modifier = Modifier.fillMaxWidth(),
-                shape = RectangleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.secondaryButtonBackground
-                )
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = stringResource(Res.string.game_over_dialog_restart),
-                    color = colorScheme.secondaryButtonText
-                )
+                Button(
+                    onClick = {
+                        viewModel.resetSession()
+                        onBack()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorScheme.secondaryButtonBackground
+                    )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.game_over_dialog_restart),
+                        color = colorScheme.secondaryButtonText
+                    )
+                }
+
+                Button(
+                    onClick = onNavigateToMainMenu,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorScheme.secondaryButtonBackground
+                    )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.game_over_dialog_main_menu),
+                        color = colorScheme.secondaryButtonText
+                    )
+                }
             }
         }
     }
