@@ -117,12 +117,12 @@ fun GameOverDialog(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RectangleShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.secondaryButtonBackground
+                        containerColor = colorScheme.primaryButtonBackground
                     )
                 ) {
                     Text(
                         text = stringResource(Res.string.game_over_dialog_restart),
-                        color = colorScheme.secondaryButtonText
+                        color = colorScheme.primaryButtonText
                     )
                 }
 
