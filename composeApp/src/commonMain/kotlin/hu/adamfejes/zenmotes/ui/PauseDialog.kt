@@ -33,6 +33,7 @@ import hu.adamfejes.zenmotes.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
+import zenmotescmp.composeapp.generated.resources.pause_dialog_main_menu
 import zenmotescmp.composeapp.generated.resources.pause_dialog_restart
 import zenmotescmp.composeapp.generated.resources.pause_dialog_resume
 import zenmotescmp.composeapp.generated.resources.pause_dialog_score
@@ -43,7 +44,8 @@ import zenmotescmp.composeapp.generated.resources.pause_dialog_time
 @Composable
 fun PauseDialog(
     viewModel: PauseViewModel = koinViewModel(),
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToMainMenu: () -> Unit = {}
 ) {
     val currentAppTheme by viewModel.appTheme.collectAsState()
     val soundEnabled by viewModel.soundEnabled.collectAsState()
@@ -142,7 +144,8 @@ fun PauseDialog(
                     onRestart = {
                         viewModel.resetSession()
                         onBack()
-                    }
+                    },
+                    onMainMenu = onNavigateToMainMenu
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -179,24 +182,44 @@ fun PauseDialog(
 private fun PauseScreenButtons(
     colorScheme: ColorScheme,
     onResume: () -> Unit,
-    onRestart: () -> Unit
+    onRestart: () -> Unit,
+    onMainMenu: () -> Unit
 ) {
-    Button(
-        onClick = onResume,
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        shape = RectangleShape,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colorScheme.primaryButtonBackground
-        )
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.pause_dialog_resume),
-            color = colorScheme.primaryButtonText
-        )
+        Button(
+            onClick = onResume,
+            modifier = Modifier.weight(1f),
+            shape = RectangleShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.primaryButtonBackground
+            )
+        ) {
+            Text(
+                text = stringResource(Res.string.pause_dialog_resume),
+                color = colorScheme.primaryButtonText
+            )
+        }
+
+        Button(
+            onClick = onRestart,
+            modifier = Modifier.weight(1f),
+            shape = RectangleShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.secondaryButtonBackground
+            )
+        ) {
+            Text(
+                text = stringResource(Res.string.pause_dialog_restart),
+                color = colorScheme.secondaryButtonText
+            )
+        }
     }
 
     Button(
-        onClick = onRestart,
+        onClick = onMainMenu,
         modifier = Modifier.fillMaxWidth(),
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
@@ -204,7 +227,7 @@ private fun PauseScreenButtons(
         )
     ) {
         Text(
-            text = stringResource(Res.string.pause_dialog_restart),
+            text = stringResource(Res.string.pause_dialog_main_menu),
             color = colorScheme.secondaryButtonText
         )
     }

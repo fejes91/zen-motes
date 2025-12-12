@@ -193,6 +193,14 @@ fun AppNavigation(
                 PauseDialog(
                     onBack = {
                         navController.popBackStack()
+                    },
+                    onNavigateToMainMenu = {
+                        gameStateHolder.enableDemoMode()
+                        navController.navigate(Screen.MainMenu.route) {
+                            popUpTo(Screen.Game.route) {
+                                inclusive = false
+                            }
+                        }
                     }
                 )
             }
