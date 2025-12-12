@@ -15,35 +15,48 @@ import java.util.concurrent.ConcurrentHashMap
 
 @OptIn(ExperimentalResourceApi::class)
 class AndroidSoundManager(private val context: Context) : SoundManager {
-    private val soundPool: SoundPool = SoundPool.Builder()
-        .setMaxStreams(10)
-        .setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-        )
-        .build()
-    
+    private var soundPool: SoundPool? = null
+
     private val soundIds = ConcurrentHashMap<SoundSample, Int>()
     private val streamIds = ConcurrentHashMap<SoundSample, Int>()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var scope: CoroutineScope? = null
     private var paused: Boolean = false
     private var gameScenePaused = false
     private var soundEnabled: Boolean = true
-    
+
     override fun init() {
         Logger.d("AndroidSoundManager", "Initializing SoundManager")
-        scope.launch {
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+        val localSoundPool = SoundPool.Builder()
+            .setMaxStreams(10)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .build()
+
+        soundPool = localSoundPool
+
+        scope?.launch {
             SoundSample.entries.forEach { sample ->
                 try {
-                    val assetFileDescriptor = context.assets.openFd("composeResources/zenmotescmp.composeapp.generated.resources/files/${sample.fileName}")
-                    val soundId = soundPool.load(assetFileDescriptor, 1)
+                    val assetFileDescriptor =
+                        context.assets.openFd("composeResources/zenmotescmp.composeapp.generated.resources/files/${sample.fileName}")
+                    val soundId = localSoundPool.load(assetFileDescriptor, 1)
                     soundIds[sample] = soundId
                     assetFileDescriptor.close()
-                    Logger.d("AndroidSoundManager", "Loaded sound: ${sample.fileName} with soundId: $soundId")
+                    Logger.d(
+                        "AndroidSoundManager",
+                        "Loaded sound: ${sample.fileName} with soundId: $soundId"
+                    )
                 } catch (e: Exception) {
-                    Logger.e("AndroidSoundManager", "Error loading sound: ${sample.fileName} - ${e.message}")
+                    Logger.e(
+                        "AndroidSoundManager",
+                        "Error loading sound: ${sample.fileName} - ${e.message}"
+                    )
                     e.printStackTrace()
                 }
             }
@@ -53,7 +66,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     override fun setVolume(volume: Float) {
         Logger.d("AndroidSoundManager", "Setting volume to $volume")
         soundIds.values.forEach { soundId ->
-            soundPool.setVolume(soundId, volume, volume)
+            soundPool?.setVolume(soundId, volume, volume)
         }
     }
 
@@ -66,40 +79,49 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     }
 
     override fun playAsync(sample: SoundSample, loop: Boolean) {
-        scope.launch(Dispatchers.Main) {
+        scope?.launch {
             play(sample, loop)
         }
     }
 
     override suspend fun play(sample: SoundSample, loop: Boolean) {
         Logger.d("AndroidSoundManager", "Playing sound: ${sample.fileName}")
-        if(paused) {
-            Logger.d("AndroidSoundManager", "SoundManager is paused, not playing sound: ${sample.fileName}")
+        if (paused) {
+            Logger.d(
+                "AndroidSoundManager",
+                "SoundManager is paused, not playing sound: ${sample.fileName}"
+            )
             return
         }
 
-        if(gameScenePaused && sample.isGameScene) {
-            Logger.d("AndroidSoundManager", "Game scene is paused, not playing game scene sound: ${sample.fileName}")
+        if (gameScenePaused && sample.isGameScene) {
+            Logger.d(
+                "AndroidSoundManager",
+                "Game scene is paused, not playing game scene sound: ${sample.fileName}"
+            )
             return
         }
 
-        if(!soundEnabled) {
-            Logger.d("AndroidSoundManager", "Sound is disabled, not playing sound: ${sample.fileName}")
+        if (!soundEnabled) {
+            Logger.d(
+                "AndroidSoundManager",
+                "Sound is disabled, not playing sound: ${sample.fileName}"
+            )
             return
         }
 
         soundIds[sample]?.let { soundId ->
-            val streamId = soundPool.play(
+            val streamId = soundPool?.play(
                 soundId,
                 sample.volume,
                 sample.volume, // leftVolume
                 1, // priority
-                if(loop) -1 else 0, // loop
+                if (loop) -1 else 0, // loop
                 1.0f // rate
-            )
-
-            if (streamId != 0) {
-                streamIds[sample] = streamId
+            )?.let {
+                if (it != 0) {
+                    streamIds[sample] = it
+                }
             }
 
             delay(sample.durationMillis)
@@ -110,28 +132,28 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
 
     override fun stop(sample: SoundSample) {
         Logger.d("AndroidSoundManager", "Stopping sound: ${sample.fileName}")
-        scope.launch(Dispatchers.Default) {
+        scope?.launch {
             streamIds[sample]?.let { streamId ->
-                soundPool.stop(streamId)
+                soundPool?.stop(streamId)
             }
         }
     }
-    
+
     override fun stopAll() {
         Logger.d("AndroidSoundManager", "Stopping all sounds")
-        scope.launch(Dispatchers.Default) {
+        scope?.launch {
             streamIds.values.forEach { streamId ->
-                soundPool.stop(streamId)
+                soundPool?.stop(streamId)
             }
         }
     }
-    
+
     override fun dispose() {
         Logger.d("AndroidSoundManager", "Disposing SoundManager")
-        scope.launch {
-            soundPool.release()
-        }
-        scope.cancel()
+        soundPool?.release()
+        soundPool = null
+        scope?.cancel()
+        scope = null
     }
 
     override fun onPause() {
@@ -145,9 +167,11 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
     }
 
     override fun stopGameSceneSounds() {
-        SoundSample.entries.onEach {
-            stop(it)
-        }
+        SoundSample.entries
+            .filter { it.isGameScene }
+            .onEach {
+                stop(it)
+            }
         gameScenePaused = true
     }
 }

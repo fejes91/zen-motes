@@ -57,9 +57,9 @@ class GameOverViewModel(
                 highScore = savedHighScore?.toLong() ?: 0L,
                 isNewHighScore = isNewHighScore
             )
-        }
 
-        soundManager.playAsync(SoundSample.GAME_OVER)
+            soundManager.play(SoundSample.GAME_OVER)
+        }
     }
 
     fun resetSession() {
