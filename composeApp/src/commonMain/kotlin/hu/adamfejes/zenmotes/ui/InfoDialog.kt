@@ -1,6 +1,7 @@
 package hu.adamfejes.zenmotes.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,12 +22,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import hu.adamfejes.zenmotes.model.LicenseInfo
 import hu.adamfejes.zenmotes.navigation.LocalTheme
+import hu.adamfejes.zenmotes.rememberOpenUrl
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -37,6 +40,7 @@ fun InfoDialog(
 ) {
     val licenses by viewModel.licenses.collectAsState()
     val colorScheme = LocalTheme.current.toColorScheme()
+    val openUrl = rememberOpenUrl()
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -71,6 +75,18 @@ fun InfoDialog(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Privacy and Terms",
+                    fontSize = 14.sp,
+                    color = colorScheme.textColorOnBackground,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable {
+                        openUrl("https://fejes91.github.io/castle-blaster/")
+                    }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 

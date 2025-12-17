@@ -10,6 +10,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreGraphics.CGRectGetHeight
 import platform.CoreGraphics.CGRectGetWidth
 import platform.Foundation.NSBundle
+import platform.Foundation.NSURL
+import platform.UIKit.UIApplication
 import platform.UIKit.UIDevice
 import platform.UIKit.UIScreen
 import kotlin.math.roundToInt
@@ -49,4 +51,15 @@ actual fun rememberIsLandscape(): State<Boolean> {
 actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
     // iOS doesn't have a system back button like Android
     // No-op implementation
+}
+
+@Composable
+actual fun rememberOpenUrl(): (String) -> Unit {
+    return remember {
+        { url: String ->
+            NSURL.URLWithString(url)?.let { nsUrl ->
+                UIApplication.sharedApplication.openURL(nsUrl)
+            }
+        }
+    }
 }

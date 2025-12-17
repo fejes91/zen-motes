@@ -17,3 +17,6 @@ expect fun rememberIsLandscape(): State<Boolean>
 
 @Composable
 expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)
+
+@Composable
+expect fun rememberOpenUrl(): (String) -> Unit
