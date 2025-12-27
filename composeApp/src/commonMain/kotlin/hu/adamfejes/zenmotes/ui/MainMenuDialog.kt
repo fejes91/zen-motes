@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,13 +22,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.BackHandler
@@ -79,58 +80,68 @@ fun MainMenuDialog(
     ) {
         Column(
             modifier = Modifier
-                .padding(32.dp)
+                .padding(horizontal = 32.dp, vertical = 64.dp)
                 .widthIn(min = 280.dp)
+                .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painterResource(Res.drawable.wider_tower),
-                contentDescription = "Castle Tower",
-                modifier = Modifier
-                    .size(100.dp),
-                colorFilter = ColorFilter.tint(
-                    color = mapObstacleColorToTheme(randomColorType, colorScheme),
-                    blendMode = BlendMode.Modulate
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(Res.drawable.wider_tower),
+                    contentDescription = "Castle Tower",
+                    modifier = Modifier
+                        .size(100.dp),
+                    colorFilter = ColorFilter.tint(
+                        color = mapObstacleColorToTheme(randomColorType, colorScheme),
+                        blendMode = BlendMode.Modulate
+                    )
                 )
-            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = stringResource(Res.string.main_menu_app_name),
-                fontSize = 48.sp,
-                textAlign = TextAlign.Center,
-                lineHeight = 48.sp,
-                color = colorScheme.pausedTitleText
-            )
-
-            Button(
-                onClick = onStartGame,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RectangleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.primaryButtonBackground
-                )
-            ) {
                 Text(
-                    text = stringResource(Res.string.main_menu_start_game),
-                    color = colorScheme.primaryButtonText,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
+                    text = stringResource(Res.string.main_menu_app_name),
+                    fontSize = 48.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 48.sp,
+                    color = colorScheme.pausedTitleText
                 )
             }
 
-            Text(
-                text = stringResource(Res.string.main_menu_high_score_label, highScore?.formatScore() ?: "--"),
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                color = colorScheme.pausedTitleText
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Button(
+                    onClick = onStartGame,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorScheme.primaryButtonBackground
+                    )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.main_menu_start_game),
+                        color = colorScheme.primaryButtonText,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(
+                        Res.string.main_menu_high_score_label,
+                        highScore?.formatScore() ?: "--"
+                    ),
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    color = colorScheme.pausedTitleText
+                )
+            }
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -156,7 +167,9 @@ fun MainMenuDialog(
                 ) {
                     Text(
                         text = stringResource(if (soundEnabled) Res.string.pause_dialog_sound_on else Res.string.pause_dialog_sound_off),
-                        color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText
+                        color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 }
             }
