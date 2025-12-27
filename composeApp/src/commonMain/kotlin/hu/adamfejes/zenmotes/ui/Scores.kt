@@ -27,6 +27,7 @@ import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_DISPLAY_DURATION
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import hu.adamfejes.zenmotes.utils.formatScore
 import hu.adamfejes.zenmotes.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
 import zenmotescmp.composeapp.generated.resources.Res
@@ -120,7 +121,7 @@ private fun ScoreDisplay(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Text(
-                    text = "${currentAnimatedScore.roundToInt()}",
+                    text = currentAnimatedScore.roundToInt().formatScore(),
                     color = colorScheme.pausedTitleText,
                     textAlign = TextAlign.Start,
                     fontSize = 22.sp,
@@ -139,7 +140,7 @@ private fun ScoreDisplay(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Text(
-                    text = formatTime(countDownTimeMillis),
+                    text = countDownTimeMillis.formatTime(),
                     color = colorScheme.pausedTitleText,
                     textAlign = TextAlign.Start,
                     fontSize = 22.sp,

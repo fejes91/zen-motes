@@ -29,6 +29,7 @@ import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.admob.AdMobBanner
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import hu.adamfejes.zenmotes.utils.formatScore
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
@@ -159,7 +160,7 @@ private fun NewHighScoreDisplay(score: Int, colorScheme: ColorScheme) {
         )
 
         Text(
-            text = score.toString(),
+            text = score.formatScore(),
             fontSize = 42.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,

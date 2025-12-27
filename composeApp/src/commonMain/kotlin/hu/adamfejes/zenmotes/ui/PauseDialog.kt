@@ -30,6 +30,7 @@ import hu.adamfejes.zenmotes.ui.admob.AdMobBanner
 import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import hu.adamfejes.zenmotes.utils.formatScore
 import hu.adamfejes.zenmotes.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -114,7 +115,7 @@ fun PauseDialog(
                 ) {
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = score.toString(),
+                        text = score.formatScore(),
                         fontSize = 32.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,
@@ -123,7 +124,7 @@ fun PauseDialog(
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = formatTime(countDownTime),
+                        text = countDownTime.formatTime(),
                         fontSize = 32.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium,

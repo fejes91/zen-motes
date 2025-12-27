@@ -35,6 +35,7 @@ import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
+import hu.adamfejes.zenmotes.utils.formatScore
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -122,7 +123,7 @@ fun MainMenuDialog(
             }
 
             Text(
-                text = stringResource(Res.string.main_menu_high_score_label, highScore ?: "--"),
+                text = stringResource(Res.string.main_menu_high_score_label, highScore?.formatScore() ?: "--"),
                 fontSize = 24.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
