@@ -84,7 +84,7 @@ class SandSimulationViewModel(
             .distinctUntilChanged()
             .onEach { triggerFastTicking ->
                 if (triggerFastTicking) {
-                    soundManager.play(SoundSample.CLOCK_FAST, loop = true)
+                    soundManager.playAsync(SoundSample.CLOCK_FAST, loop = true)
                 } else {
                     soundManager.stop(SoundSample.CLOCK_FAST)
                 }
@@ -96,7 +96,7 @@ class SandSimulationViewModel(
             .distinctUntilChanged()
             .onEach { triggerSlowTicking ->
                 if (triggerSlowTicking) {
-                    soundManager.play(SoundSample.CLOCK_SLOW, loop = true)
+                    soundManager.playAsync(SoundSample.CLOCK_SLOW, loop = true)
                 } else {
                     soundManager.stop(SoundSample.CLOCK_SLOW)
                 }
