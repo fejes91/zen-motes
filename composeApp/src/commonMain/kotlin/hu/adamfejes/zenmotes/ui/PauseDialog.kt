@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.BackHandler
@@ -174,7 +175,9 @@ fun PauseDialog(
                 ) {
                     Text(
                         text = stringResource(if (soundEnabled) Res.string.pause_dialog_sound_on else Res.string.pause_dialog_sound_off),
-                        color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText
+                        color = if (soundEnabled) colorScheme.primaryButtonText else colorScheme.secondaryButtonText,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 }
             }
@@ -203,7 +206,8 @@ private fun PauseScreenButtons(
         ) {
             Text(
                 text = stringResource(Res.string.pause_dialog_resume),
-                color = colorScheme.primaryButtonText
+                color = colorScheme.primaryButtonText,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
@@ -217,7 +221,9 @@ private fun PauseScreenButtons(
         ) {
             Text(
                 text = stringResource(Res.string.pause_dialog_restart),
-                color = colorScheme.secondaryButtonText
+                color = colorScheme.secondaryButtonText,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
         }
     }
@@ -232,7 +238,9 @@ private fun PauseScreenButtons(
     ) {
         Text(
             text = stringResource(Res.string.pause_dialog_main_menu),
-            color = colorScheme.secondaryButtonText
+            color = colorScheme.secondaryButtonText,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
         )
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.BackHandler
@@ -123,7 +124,9 @@ fun GameOverDialog(
                 ) {
                     Text(
                         text = stringResource(Res.string.game_over_dialog_restart),
-                        color = colorScheme.primaryButtonText
+                        color = colorScheme.primaryButtonText,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 }
 
