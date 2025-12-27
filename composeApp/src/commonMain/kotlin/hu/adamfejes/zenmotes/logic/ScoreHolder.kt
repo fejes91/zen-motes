@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 interface ScoreHolder {
-    fun getScore(): Flow<Int>
+    fun getScore(): StateFlow<Int>
 
     fun getCountDownTimeMillis(): StateFlow<Long>
 
@@ -51,7 +51,7 @@ class ScoreHolderImpl : ScoreHolder {
     private var isRunning: Boolean = false
     private var isDemoMode: Boolean = false
 
-    override fun getScore(): Flow<Int> = _scoreFlow.asStateFlow()
+    override fun getScore(): StateFlow<Int> = _scoreFlow.asStateFlow()
 
     override suspend fun updateScore(score: Int) = withContext(Dispatchers.Default) {
         if (score > 0) {

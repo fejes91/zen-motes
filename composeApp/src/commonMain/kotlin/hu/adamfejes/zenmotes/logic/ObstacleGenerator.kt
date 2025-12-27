@@ -13,7 +13,8 @@ class ObstacleGenerator(
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
     slidingObstacleTransitTimeSeconds: Float,
-    private val sandColorManager: SandColorManager
+    private val sandColorManager: SandColorManager,
+    private val scoreHolder: ScoreHolder
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 1500L
     private val minSlidingObstacleInterval = 350L
@@ -100,17 +101,25 @@ class ObstacleGenerator(
         val obstacleHeight = obstacleType.getHeight()
 
         // Determine color: use current sand color if flag is set, otherwise random with bias
+        val currentColor = sandColorManager.currentSandColor.value
         val obstacleColor = if (useCurrentSandColorForNext) {
             useCurrentSandColorForNext = false // Reset flag after using
-            sandColorManager.currentSandColor.value
+            currentColor
         } else {
-            // Random selection with double chance for current sand color
-            val currentColor = sandColorManager.currentSandColor.value
-            val colorPool = colorTypes.toMutableList().apply {
-                add(currentColor)
-                add(currentColor) // Add current color twice fro having 50% chance
+            val currentScore = scoreHolder.getScore().value
+            val currentScoreTier = when {
+                currentScore >= ScoreTier.HIGH.minScore -> ScoreTier.HIGH
+                currentScore >= ScoreTier.MEDIUM.minScore -> ScoreTier.MEDIUM
+                else -> ScoreTier.LOW
             }
-            colorPool.random()
+
+            if(Random.nextFloat() < currentScoreTier.colorMatchProbability) {
+                currentColor
+            } else {
+                // Random selection excluding current color
+                val filteredColors = colorTypes.filter { it != currentColor }
+                filteredColors.random()
+            }
         }
 
         return SlidingObstacle(
@@ -153,5 +162,11 @@ class ObstacleGenerator(
             lastSlidingObstacleTime = 0L
             lastDifficultyIncreaseTime = 0L
         }
+    }
+
+    private enum class ScoreTier(val minScore: Int, val colorMatchProbability: Float) {
+        LOW(0, 0.8f),
+        MEDIUM(30000, 0.5f),
+        HIGH(300000, 0.3f)
     }
 }

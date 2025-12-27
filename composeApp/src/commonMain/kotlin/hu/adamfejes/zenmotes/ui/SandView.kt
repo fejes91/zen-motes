@@ -38,8 +38,8 @@ import hu.adamfejes.zenmotes.logic.CellType
 import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.SandGridHolder
+import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
-import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.Constants.CELL_SIZE
@@ -74,6 +74,7 @@ fun SandView(
 ) {
     val soundManager = getKoin().get<SoundManager>()
     val sandColorManager: SandColorManager = koinInject()
+    val scoreHolder = koinInject<ScoreHolder>()
 
     val sandGridHolder = koinInject<SandGridHolder>()
 
@@ -146,7 +147,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
-            sandGridHolder.initializeGridIfNeeded(soundManager, gridDimensions, images, sandColorManager)
+            sandGridHolder.initializeGridIfNeeded(soundManager, gridDimensions, images, sandColorManager, scoreHolder)
 
             sandGridHolder.sandGrid?.let { grid ->
                 // 2. Update sand generation state based on user input

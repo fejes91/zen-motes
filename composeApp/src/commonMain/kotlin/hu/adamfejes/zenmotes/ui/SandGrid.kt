@@ -11,6 +11,7 @@ import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
+import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.logic.setCell
@@ -27,7 +28,8 @@ class SandGrid(
     private val height: Int,
     private val soundManager: SoundManager,
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
-    private val sandColorManager: SandColorManager
+    sandColorManager: SandColorManager,
+    scoreHolder: ScoreHolder
 ) {
     // Sand generation control
     private var isSandGenerationActive = false
@@ -71,7 +73,8 @@ class SandGrid(
             height,
             nonObstacleZoneHeight,
             slidingObstacleTransitTimeSeconds,
-            sandColorManager
+            sandColorManager,
+            scoreHolder
         )
 
     //ListBasedObstacleGenerator(width = width, height = height)
