@@ -184,7 +184,7 @@ private fun RegularScoreDisplay(score: Int, highScore: Int?, colorScheme: ColorS
         )
 
         Text(
-            text = score.toString(),
+            text = score.formatScore(),
             fontSize = 32.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,
@@ -203,7 +203,7 @@ private fun RegularScoreDisplay(score: Int, highScore: Int?, colorScheme: ColorS
             )
 
             Text(
-                text = it.toString(),
+                text = it.formatScore(),
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
