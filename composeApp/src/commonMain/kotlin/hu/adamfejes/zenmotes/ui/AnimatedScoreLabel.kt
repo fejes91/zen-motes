@@ -77,10 +77,10 @@ fun AnimatedScoreLabel(
             text = if (scoreEvent.score > 0) "+${(scoreEvent.score / 1000f).roundToInt()}" else "${(scoreEvent.score / 1000f).roundToInt()}",
             color = when {
                 scoreEvent.isBonus -> colorScheme.positiveText
-                scoreEvent.score > 0 -> colorScheme.textColorOnBackground
+                scoreEvent.score > 0 -> colorScheme.pausedTitleText
                 else -> colorScheme.negativeText
             },
-            fontSize = if(scoreEvent.isBonus) 24.sp else 20.sp,
+            fontSize = if(scoreEvent.isBonus) 36.sp else 24.sp,
             modifier = Modifier
                 .offset(
                     x = animatedX.value.dp,
