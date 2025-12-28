@@ -14,6 +14,7 @@
     <string name="pause_dialog_time">زمان</string>
     <string name="pause_dialog_resume">ادامه</string>
     <string name="pause_dialog_restart">شروع دوباره</string>
+    <string name="pause_dialog_main_menu">منوی اصلی</string>
     <string name="pause_dialog_sound_on">صدا روشن</string>
     <string name="pause_dialog_sound_off">صدا خاموش</string>
 
@@ -23,6 +24,7 @@
     <string name="game_over_dialog_score">امتیاز</string>
     <string name="game_over_dialog_high_score">بالاترین امتیاز</string>
     <string name="game_over_dialog_restart">شروع دوباره</string>
+    <string name="game_over_dialog_main_menu">منوی اصلی</string>
 
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">دستگاه خود را بچرخانید</string>

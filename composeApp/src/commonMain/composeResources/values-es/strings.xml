@@ -14,6 +14,7 @@
     <string name="pause_dialog_time">TIEMPO</string>
     <string name="pause_dialog_resume">REANUDAR</string>
     <string name="pause_dialog_restart">REINICIAR</string>
+    <string name="pause_dialog_main_menu">MENÚ PRINCIPAL</string>
     <string name="pause_dialog_sound_on">SONIDO ACTIVADO</string>
     <string name="pause_dialog_sound_off">SONIDO DESACTIVADO</string>
 
@@ -23,6 +24,7 @@
     <string name="game_over_dialog_score">TANTO</string>
     <string name="game_over_dialog_high_score">TANTO MÁXIMA</string>
     <string name="game_over_dialog_restart">REINICIAR</string>
+    <string name="game_over_dialog_main_menu">MENÚ PRINCIPAL</string>
 
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">GIRA TU DISPOSITIVO</string>

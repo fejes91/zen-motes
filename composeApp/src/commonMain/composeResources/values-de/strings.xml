@@ -14,6 +14,7 @@
     <string name="pause_dialog_time">ZEIT</string>
     <string name="pause_dialog_resume">FORTSETZEN</string>
     <string name="pause_dialog_restart">NEUSTART</string>
+    <string name="pause_dialog_main_menu">HAUPTMENÜ</string>
     <string name="pause_dialog_sound_on">TON AN</string>
     <string name="pause_dialog_sound_off">TON AUS</string>
 
@@ -23,6 +24,7 @@
     <string name="game_over_dialog_score">PUNKTE</string>
     <string name="game_over_dialog_high_score">HIGHSCORE</string>
     <string name="game_over_dialog_restart">NEUSTART</string>
+    <string name="game_over_dialog_main_menu">HAUPTMENÜ</string>
 
     <!-- Orientation Warning Dialog -->
     <string name="orientation_warning_title">GERÄT DREHEN</string>
