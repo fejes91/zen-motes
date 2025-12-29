@@ -8,6 +8,11 @@ class ObstacleAnimator(
         val deltaTimeMs = frameTime - obstacle.lastUpdateTime
         val deltaTimeSeconds = deltaTimeMs / 1000f
 
+        if(deltaTimeMs <= 0) {
+            // No time has passed, return the obstacle unchanged
+            return obstacle.copy(lastUpdateTime = frameTime)
+        }
+
         // Calculate movement based on speed (pixels per second) and time delta
         val movement = obstacle.speed * deltaTimeSeconds
 

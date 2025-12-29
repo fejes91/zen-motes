@@ -214,16 +214,11 @@ fun SandView(
 
 @Composable
 private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
-    /**
-     To elevate frameTime values into a valid date time range. Helps to calculate time-based physics and pause times
-     */
-    val baseDateTime = 1767028741808
-
     LaunchedEffect(isPaused) {
         while (true) {
             withFrameMillis { frameTime ->
                 if (!isPaused) {
-                    onFrame(baseDateTime + frameTime)
+                    onFrame(frameTime)
                 }
             }
         }
