@@ -288,7 +288,7 @@ class SandGrid(
                 // Add score for destroying obstacle (bonus already calculated)
                 increaseScore(obstacle, isBonus)
                 // Convert obstacle to sand particles instead of updating position
-                workingGrid = destroySlidingObstacle(workingGrid, obstacle)
+                workingGrid = destroySlidingObstacle(workingGrid, obstacle, frameTime)
                 continue
             }
 
@@ -678,7 +678,8 @@ class SandGrid(
 
     private fun destroySlidingObstacle(
         grid: Array<Array<Cell>>,
-        obstacle: SlidingObstacle
+        obstacle: SlidingObstacle,
+        frameTime: Long
     ): Array<Array<Cell>> {
         val centerX = obstacle.x.roundToInt()
         val centerY = obstacle.y
@@ -701,7 +702,7 @@ class SandGrid(
                         val unsettlingDelay = 300L // 500ms delay before particles can settle again
                         val sandParticle = particlePhysics.createSandParticle(
                             obstacle.colorType,
-                            TimeUtils.currentTimeMillis()
+                            frameTime
                         ).copy(
                             velocityY = 0.5f, // Give some initial velocity so they fall immediately
                             isActive = true,

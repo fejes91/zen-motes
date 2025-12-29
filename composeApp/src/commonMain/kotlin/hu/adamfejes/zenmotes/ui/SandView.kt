@@ -59,6 +59,7 @@ import zenmotescmp.composeapp.generated.resources.tower
 import zenmotescmp.composeapp.generated.resources.wider_tower
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import kotlin.time.Clock
 import kotlin.time.measureTime
 
 @Composable
@@ -213,11 +214,16 @@ fun SandView(
 
 @Composable
 private fun SandAnimationLoop(isPaused: Boolean, onFrame: (Long) -> Unit) {
+    /**
+     To elevate frameTime values into a valid date time range. Helps to calculate time-based physics and pause times
+     */
+    val baseDateTime = 1767028741808
+
     LaunchedEffect(isPaused) {
         while (true) {
             withFrameMillis { frameTime ->
                 if (!isPaused) {
-                    onFrame(frameTime)
+                    onFrame(baseDateTime + frameTime)
                 }
             }
         }

@@ -3,9 +3,9 @@ package hu.adamfejes.zenmotes.logic
 class ObstacleAnimator(
     private val width: Int
 ) {
-    fun updateObstaclePosition(obstacle: SlidingObstacle, currentTime: Long): SlidingObstacle {
+    fun updateObstaclePosition(obstacle: SlidingObstacle, frameTime: Long): SlidingObstacle {
         // Calculate time delta in seconds
-        val deltaTimeMs = currentTime - obstacle.lastUpdateTime
+        val deltaTimeMs = frameTime - obstacle.lastUpdateTime
         val deltaTimeSeconds = deltaTimeMs / 1000f
 
         // Calculate movement based on speed (pixels per second) and time delta
@@ -14,7 +14,7 @@ class ObstacleAnimator(
         // Keep float position for smooth movement, rounding only happens during grid placement
         return obstacle.copy(
             x = obstacle.x + movement,
-            lastUpdateTime = currentTime
+            lastUpdateTime = frameTime
         )
     }
 
