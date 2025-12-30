@@ -17,12 +17,12 @@ class ObstacleGenerator(
     private val sandColorManager: SandColorManager
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 1500L
-    private val initialColorMatchProbability = 0.95f
+    private val initialColorMatchProbability = 0.9f
     private val minSlidingObstacleInterval = 350L
-    private val minColorMatchProbability = 0.3f
+    private val minColorMatchProbability = 0.4f
     private val demoModeObstacleInterval = 500L
     private val intervalReductionMultiplier = 0.95f
-    private val probabilityReductionMultiplier = 0.98f
+    private val probabilityReductionMultiplier = 0.985f
     private val difficultyIncreaseInterval = 10000L
 
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
