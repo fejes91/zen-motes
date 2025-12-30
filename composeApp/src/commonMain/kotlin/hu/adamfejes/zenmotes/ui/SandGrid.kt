@@ -28,8 +28,7 @@ class SandGrid(
     private val height: Int,
     private val soundManager: SoundManager,
     private val maxMovingParticles: Int, // Parameterized limit for moving particles
-    sandColorManager: SandColorManager,
-    scoreHolder: ScoreHolder
+    sandColorManager: SandColorManager
 ) {
     // Sand generation control
     private var isSandGenerationActive = false
@@ -73,8 +72,7 @@ class SandGrid(
             height,
             nonObstacleZoneHeight,
             slidingObstacleTransitTimeSeconds,
-            sandColorManager,
-            scoreHolder
+            sandColorManager
         )
 
     //ListBasedObstacleGenerator(width = width, height = height)

@@ -11,14 +11,13 @@ class SandGridHolder {
         soundManager: SoundManager,
         dimensions: Pair<Int, Int>,
         images: List<ImageBitmap>,
-        sandColorManager: SandColorManager,
-        scoreHolder: ScoreHolder
+        sandColorManager: SandColorManager
     ) {
         val (width, height) = dimensions
         val obstacleTypes = createObstacleTypes(images)
 
         sandGrid = if (sandGrid == null || sandGrid?.getWidth() != width || sandGrid?.getHeight() != height) {
-            val newGrid = SandGrid(width, height, soundManager, 1000, sandColorManager, scoreHolder)
+            val newGrid = SandGrid(width, height, soundManager, 1000, sandColorManager)
             newGrid.setObstacleTypes(obstacleTypes)
             newGrid
         } else {

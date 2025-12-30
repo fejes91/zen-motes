@@ -75,7 +75,6 @@ fun SandView(
 ) {
     val soundManager = getKoin().get<SoundManager>()
     val sandColorManager: SandColorManager = koinInject()
-    val scoreHolder = koinInject<ScoreHolder>()
 
     val sandGridHolder = koinInject<SandGridHolder>()
 
@@ -148,7 +147,7 @@ fun SandView(
 
             // Initialize grid if needed using actual screen dimensions
             val gridDimensions = calculateGridDimensions(size, CELL_SIZE)
-            sandGridHolder.initializeGridIfNeeded(soundManager, gridDimensions, images, sandColorManager, scoreHolder)
+            sandGridHolder.initializeGridIfNeeded(soundManager, gridDimensions, images, sandColorManager)
 
             sandGridHolder.sandGrid?.let { grid ->
                 // 2. Update sand generation state based on user input

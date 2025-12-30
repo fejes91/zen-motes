@@ -6,6 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import hu.adamfejes.zenmotes.utils.Logger
+import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToLong
 
 class ObstacleGenerator(
@@ -13,16 +14,20 @@ class ObstacleGenerator(
     private val height: Int,
     private val nonObstacleZoneHeight: Int,
     slidingObstacleTransitTimeSeconds: Float,
-    private val sandColorManager: SandColorManager,
-    private val scoreHolder: ScoreHolder
+    private val sandColorManager: SandColorManager
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 1500L
+    private val initialColorMatchProbability = 0.95f
     private val minSlidingObstacleInterval = 350L
+    private val minColorMatchProbability = 0.3f
     private val demoModeObstacleInterval = 500L
     private val intervalReductionMultiplier = 0.95f
+    private val probabilityReductionMultiplier = 0.98f
     private val difficultyIncreaseInterval = 10000L
 
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
+
+    private var currentColorMatchProbability = initialColorMatchProbability
     private var lastDifficultyIncreaseTime = 0L
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
     private var lastSlidingObstacleTime = 0L
@@ -52,29 +57,38 @@ class ObstacleGenerator(
         return frameTime - lastSlidingObstacleTime >= interval
     }
 
-    private fun updateDifficulty(frameTime: Long) {
+    private fun updateDifficulty() {
         // Skip difficulty increase in demo mode
         if (isDemoMode) return
 
         if (lastDifficultyIncreaseTime == 0L) {
-            lastDifficultyIncreaseTime = frameTime
+            lastDifficultyIncreaseTime = TimeUtils.currentTimeMillis()
             return
         }
 
-        if (frameTime - lastDifficultyIncreaseTime >= difficultyIncreaseInterval) {
+        if (TimeUtils.currentTimeMillis() - lastDifficultyIncreaseTime >= difficultyIncreaseInterval) {
             if (currentSlidingObstacleInterval > minSlidingObstacleInterval) {
                 currentSlidingObstacleInterval = maxOf(
                     minSlidingObstacleInterval,
                     (currentSlidingObstacleInterval * intervalReductionMultiplier).roundToLong()
                 )
                 Logger.d("ObstacleGenerator","Increased difficulty: new interval = $currentSlidingObstacleInterval")
-                lastDifficultyIncreaseTime = frameTime
             }
+
+            if(currentColorMatchProbability > minColorMatchProbability) {
+                currentColorMatchProbability = maxOf(
+                    minColorMatchProbability,
+                    currentColorMatchProbability * probabilityReductionMultiplier
+                )
+                Logger.d("ObstacleGenerator","Increased difficulty: new color match probability = $currentColorMatchProbability")
+            }
+
+            lastDifficultyIncreaseTime = TimeUtils.currentTimeMillis()
         }
     }
 
     override fun generateSlidingObstacle(frameTime: Long, obstacleTypes: List<SlidingObstacleType>): SlidingObstacle? {
-        updateDifficulty(frameTime)
+        updateDifficulty()
 
         if (!shouldGenerateObstacle(frameTime)) return null
         if (obstacleTypes.isEmpty()) return null
@@ -106,14 +120,7 @@ class ObstacleGenerator(
             useCurrentSandColorForNext = false // Reset flag after using
             currentColor
         } else {
-            val currentScore = scoreHolder.getScore().value
-            val currentScoreTier = when {
-                currentScore >= ScoreTier.HIGH.minScore -> ScoreTier.HIGH
-                currentScore >= ScoreTier.MEDIUM.minScore -> ScoreTier.MEDIUM
-                else -> ScoreTier.LOW
-            }
-
-            if(Random.nextFloat() < currentScoreTier.colorMatchProbability) {
+            if(Random.nextFloat() < currentColorMatchProbability) {
                 currentColor
             } else {
                 // Random selection excluding current color
@@ -140,6 +147,7 @@ class ObstacleGenerator(
         lastSlidingObstacleTime = 0L
         lastDifficultyIncreaseTime = 0L
         currentSlidingObstacleInterval = initialSlidingObstacleInterval
+        currentColorMatchProbability = initialColorMatchProbability
     }
 
     override fun onPause() {
@@ -162,11 +170,5 @@ class ObstacleGenerator(
             lastSlidingObstacleTime = 0L
             lastDifficultyIncreaseTime = 0L
         }
-    }
-
-    private enum class ScoreTier(val minScore: Int, val colorMatchProbability: Float) {
-        LOW(0, 0.8f),
-        MEDIUM(30000, 0.5f),
-        HIGH(300000, 0.3f)
     }
 }
