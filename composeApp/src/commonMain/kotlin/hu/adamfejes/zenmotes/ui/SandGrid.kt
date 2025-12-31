@@ -274,7 +274,7 @@ class SandGrid(
                 obstacle
             )
             val weightThreshold =
-                obstacle.width * obstacle.height / 2f * 0.8f // Threshold based on obstacle area
+                obstacle.width * obstacle.height / 2f * 0.7f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
                 Logger.d(
@@ -647,7 +647,7 @@ class SandGrid(
             val cell = grid[settledParticle.y][settledParticle.x]
             if (cell.type == CellType.SAND && cell.particle != null) {
                 // Double weight if color matches obstacle color
-                val weight = if (cell.particle.colorType == obstacle.colorType) 3 else 1
+                val weight = if (cell.particle.colorType == obstacle.colorType) 2 else 1
                 totalWeight += weight
                 particleCount++
 
@@ -667,7 +667,7 @@ class SandGrid(
 
         Logger.d(
             "SandWeight",
-            "Obstacle ${obstacle.id}: ${particleCount} particles, weight: ${totalWeight} | FromObstacle: ${fromObstacleParticles} (${if (particleCount > 0) (fromObstacleParticles.toFloat() / particleCount.toFloat() * 100).toInt() else 0}%) | Bonus: $isBonus | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms"
+            "Obstacle ${obstacle.id}: $particleCount particles, weight: $totalWeight | FromObstacle: $fromObstacleParticles (${if (particleCount > 0) (fromObstacleParticles.toFloat() / particleCount.toFloat() * 100).toInt() else 0}%) | Bonus: $isBonus | Fetch: ${fetchTime}ms | Calc: ${calculationTime}ms | Total: ${totalTime}ms"
         )
 
         // Return the weighted count as an integer and bonus flag
