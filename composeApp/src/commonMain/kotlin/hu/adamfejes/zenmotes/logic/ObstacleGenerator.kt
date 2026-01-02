@@ -18,15 +18,13 @@ class ObstacleGenerator(
 ) : IObstacleGenerator {
     private val initialSlidingObstacleInterval = 1500L
     private val initialColorMatchProbability = 0.9f
-    private val minSlidingObstacleInterval = 350L
-    private val minColorMatchProbability = 0.4f
     private val demoModeObstacleInterval = 500L
+    private val minSlidingObstacleInterval = 350L
+    private val minColorMatchProbability = 0.3f
     private val intervalReductionMultiplier = 0.95f
-    private val probabilityReductionMultiplier = 0.985f
+    private val probabilityReductionMultiplier = 0.98f
     private val difficultyIncreaseInterval = 10000L
-
     private var currentSlidingObstacleInterval = initialSlidingObstacleInterval
-
     private var currentColorMatchProbability = initialColorMatchProbability
     private var lastDifficultyIncreaseTime = 0L
     private val slidingSpeed = width / slidingObstacleTransitTimeSeconds // pixels per second
