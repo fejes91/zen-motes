@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.rememberIsLandscape
 import hu.adamfejes.zenmotes.service.AnalyticsService
+import hu.adamfejes.zenmotes.service.MusicManager
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.GameScreen
@@ -61,6 +62,7 @@ fun AppNavigation(
     val preferencesService = koinInject<PreferencesService>()
     val analyticsService = koinInject<AnalyticsService>()
     val soundManager = koinInject<SoundManager>()
+    val musicManager = koinInject<MusicManager>()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -76,9 +78,11 @@ fun AppNavigation(
 
     DisposableEffect(Unit) {
         soundManager.init()
+        musicManager.init()
 
         onDispose {
             soundManager.dispose()
+            musicManager.dispose()
         }
     }
 

@@ -95,7 +95,7 @@ fun InfoDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(licenses) { license ->
-                        LicenseItem(license, colorScheme)
+                        LicenseItem(license, colorScheme, openUrl)
                     }
                 }
             }
@@ -104,9 +104,23 @@ fun InfoDialog(
 }
 
 @Composable
-private fun LicenseItem(license: LicenseInfo, colorScheme: hu.adamfejes.zenmotes.ui.theme.ColorScheme) {
+private fun LicenseItem(
+    license: LicenseInfo,
+    colorScheme: hu.adamfejes.zenmotes.ui.theme.ColorScheme,
+    openUrl: (String) -> Unit
+) {
+    val url = license.licenses.firstOrNull()?.url ?: license.scmUrl
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (url != null) {
+                    Modifier.clickable { openUrl(url) }
+                } else {
+                    Modifier
+                }
+            ),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.pauseButtonBackground.copy(alpha = 0.3f)
         )
@@ -133,7 +147,17 @@ private fun LicenseItem(license: LicenseInfo, colorScheme: hu.adamfejes.zenmotes
                 Text(
                     text = "License: ${spdxLicense.name}",
                     fontSize = 12.sp,
-                    color = colorScheme.textColorOnBackground.copy(alpha = 0.8f)
+                    color = colorScheme.textColorOnBackground.copy(alpha = 0.8f),
+                    textDecoration = TextDecoration.Underline
+                )
+            }
+
+            if (license.scmUrl != null && license.licenses.isEmpty()) {
+                Text(
+                    text = "Source Code",
+                    fontSize = 12.sp,
+                    color = colorScheme.textColorOnBackground.copy(alpha = 0.8f),
+                    textDecoration = TextDecoration.Underline
                 )
             }
         }

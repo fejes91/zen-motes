@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.logic.GameStateHolder
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.service.AnalyticsService
+import hu.adamfejes.zenmotes.service.MusicManager
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.ui.Constants.INITIAL_COUNTDOWN_TIME_MILLIS
@@ -20,6 +21,7 @@ class PauseViewModel(
     private val preferencesService: PreferencesService,
     private val gameStateHolder: GameStateHolder,
     private val soundManager: SoundManager,
+    private val musicManager: MusicManager,
     val adUnitId: String
 ) : BaseViewModel(preferencesService) {
 
@@ -60,6 +62,7 @@ class PauseViewModel(
         viewModelScope.launch {
             preferencesService.saveSoundEnabled(enabled)
             soundManager.setSoundEnabled(enabled)
+            musicManager.setMusicEnabled(enabled)
             analyticsService.trackSettingsChanged("sound_enabled", enabled)
         }
     }

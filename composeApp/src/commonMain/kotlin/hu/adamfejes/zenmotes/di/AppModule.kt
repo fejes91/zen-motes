@@ -42,11 +42,13 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
     viewModel {
         PauseViewModel(
+            get(),
             get(),
             get(),
             get(),
@@ -66,7 +68,7 @@ val appModule = module {
         )
     }
     viewModel {
-        MainMenuViewModel(get())
+        MainMenuViewModel(get(), get())
     }
     viewModel { OrientationWarningViewModel(get()) }
 

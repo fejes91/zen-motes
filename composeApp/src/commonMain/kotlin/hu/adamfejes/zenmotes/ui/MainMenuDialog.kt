@@ -18,6 +18,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -67,6 +69,14 @@ fun MainMenuDialog(
     }
 
     ConsentDialog()
+
+    DisposableEffect (Unit) {
+        viewModel.initialize()
+
+        onDispose {
+            viewModel.cleanUp()
+        }
+    }
 
     val colorScheme = LocalTheme.current.toColorScheme()
 

@@ -111,7 +111,7 @@ class AndroidSoundManager(private val context: Context) : SoundManager {
         }
 
         soundIds[sample]?.let { soundId ->
-            val streamId = soundPool?.play(
+            soundPool?.play(
                 soundId,
                 sample.volume,
                 sample.volume, // leftVolume

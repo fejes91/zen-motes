@@ -3,8 +3,11 @@ package hu.adamfejes.zenmotes.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.getPlatform
+import hu.adamfejes.zenmotes.service.MusicManager
+import hu.adamfejes.zenmotes.service.MusicTrack
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.ui.theme.AppTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,9 +16,20 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MainMenuViewModel(
-    private val preferencesService: PreferencesService
+    private val preferencesService: PreferencesService,
+    private val musicManager: MusicManager
 ) : ViewModel() {
 
+    fun initialize() {
+        viewModelScope.launch {
+            delay(1000)
+            musicManager.play(MusicTrack.MAIN_MENU, loop = true)
+        }
+    }
+
+    fun cleanUp() {
+        musicManager.stop(MusicTrack.MAIN_MENU)
+    }
     val appTheme = preferencesService.getTheme.stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(),
@@ -44,6 +58,7 @@ class MainMenuViewModel(
     fun setSoundEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferencesService.saveSoundEnabled(enabled)
+            musicManager.setMusicEnabled(enabled)
         }
     }
 }

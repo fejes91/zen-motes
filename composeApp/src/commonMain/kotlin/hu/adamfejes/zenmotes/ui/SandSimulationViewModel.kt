@@ -6,6 +6,7 @@ import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.service.AnalyticsService
+import hu.adamfejes.zenmotes.service.MusicManager
 import hu.adamfejes.zenmotes.service.PreferencesService
 import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.service.SoundSample
@@ -32,6 +33,7 @@ class SandSimulationViewModel(
     private val gameStateHolder: GameStateHolder,
     private val scoreHolder: ScoreHolder,
     private val soundManager: SoundManager,
+    private val musicManager: MusicManager,
     private val analyticsService: AnalyticsService,
     private val fpsAverageCalculator: FpsAverageCalculator
 ) : BaseViewModel(preferencesService) {
@@ -73,9 +75,14 @@ class SandSimulationViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun initialize() {
-        // Sync SoundManager with stored sound preference
+        // Sync SoundManager and MusicManager with stored sound preference
         soundEnabled.combine(isDemoMode) { enabled, demoMode ->
-            soundManager.setSoundEnabled(enabled && !demoMode)
+            soundManager.setSoundEnabled(enabled)
+            musicManager.setMusicEnabled(enabled)
+
+            if (demoMode) {
+                soundManager.stopGameSceneSounds()
+            }
         }.launchIn(viewModelScope)
 
         countDownTimeMillis.combine(gameStateHolder.isPaused) { timeMillis, isPaused ->

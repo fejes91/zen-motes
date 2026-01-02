@@ -3,6 +3,7 @@ package hu.adamfejes.zenmotes.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.adamfejes.zenmotes.model.LicenseInfo
+import hu.adamfejes.zenmotes.model.SpdxLicense
 import hu.adamfejes.zenmotes.service.LicenseService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,27 @@ class InfoViewModel(
 
     private fun loadLicenses() {
         viewModelScope.launch {
-            _licenses.value = licenseService.getLicenses()
+            val musicCredit = getMusicLicences()
+
+            val generatedLicenses = licenseService.getLicenses().sortedBy { it.name }
+            _licenses.value = listOf(musicCredit) + generatedLicenses
         }
+    }
+
+    private fun getMusicLicences(): LicenseInfo {
+        return LicenseInfo(
+            name = "Theme Music by Denis Pavlov",
+            groupId = "",
+            artifactId = "Marimba Game Music Playful Tropical Jungle Puzzle",
+            version = "",
+            licenses = listOf(
+                SpdxLicense(
+                    identifier = "Pixabay-License",
+                    name = "Pixabay Content License",
+                    url = "https://pixabay.com/service/license-summary/"
+                )
+            ),
+            scmUrl = "https://pixabay.com/music/video-games-marimba-game-music-playful-tropical-jungle-puzzle-399759/"
+        )
     }
 }
