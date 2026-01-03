@@ -274,7 +274,7 @@ class SandGrid(
                 obstacle
             )
             val weightThreshold =
-                obstacle.width * obstacle.height / 2f * 0.7f // Threshold based on obstacle area
+                obstacle.width * obstacle.height / 2f * 0.75f // Threshold based on obstacle area
 
             if (sandHeight >= weightThreshold) {
                 Logger.d(
