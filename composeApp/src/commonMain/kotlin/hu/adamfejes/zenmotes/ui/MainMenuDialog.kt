@@ -1,5 +1,7 @@
 package hu.adamfejes.zenmotes.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,12 +22,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
@@ -34,21 +40,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.BackHandler
-import hu.adamfejes.zenmotes.logic.ColorType
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.components.AppThemeSwitch
+import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatScore
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zenmotescmp.composeapp.generated.resources.Res
-import zenmotescmp.composeapp.generated.resources.main_menu_app_name
+import zenmotescmp.composeapp.generated.resources.main_menu_app_name1
+import zenmotescmp.composeapp.generated.resources.main_menu_app_name2
 import zenmotescmp.composeapp.generated.resources.main_menu_high_score_label
 import zenmotescmp.composeapp.generated.resources.main_menu_start_game
 import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_off
 import zenmotescmp.composeapp.generated.resources.pause_dialog_sound_on
 import zenmotescmp.composeapp.generated.resources.wider_tower
+import kotlin.random.Random
 
 @Composable
 fun MainMenuDialog(
@@ -70,7 +80,7 @@ fun MainMenuDialog(
 
     ConsentDialog()
 
-    DisposableEffect (Unit) {
+    DisposableEffect(Unit) {
         viewModel.initialize()
 
         onDispose {
@@ -79,9 +89,7 @@ fun MainMenuDialog(
     }
 
     val colorScheme = LocalTheme.current.toColorScheme()
-
-    // Get random color from palette for tower
-    val randomColorType = remember { ColorType.entries.random() }
+    val animatedRandomColors = getRandomColors(colorScheme)
 
     Box(
         modifier = Modifier
@@ -104,7 +112,7 @@ fun MainMenuDialog(
                     modifier = Modifier
                         .size(100.dp),
                     colorFilter = ColorFilter.tint(
-                        color = mapObstacleColorToTheme(randomColorType, colorScheme),
+                        color = animatedRandomColors[0].value,
                         blendMode = BlendMode.Modulate
                     )
                 )
@@ -112,11 +120,19 @@ fun MainMenuDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = stringResource(Res.string.main_menu_app_name),
+                    text = stringResource(Res.string.main_menu_app_name1),
                     fontSize = 48.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 48.sp,
-                    color = colorScheme.pausedTitleText
+                    color = animatedRandomColors[1].value,
+                )
+
+                Text(
+                    text = stringResource(Res.string.main_menu_app_name2),
+                    fontSize = 48.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 48.sp,
+                    color = animatedRandomColors[2].value,
                 )
             }
 
@@ -130,6 +146,7 @@ fun MainMenuDialog(
                     )
                 ) {
                     Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
                         text = stringResource(Res.string.main_menu_start_game),
                         color = colorScheme.primaryButtonText,
                         fontSize = 18.sp,
@@ -139,7 +156,7 @@ fun MainMenuDialog(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(22.dp))
 
                 Text(
                     text = stringResource(
@@ -207,4 +224,32 @@ fun MainMenuDialog(
             )
         }
     }
+}
+
+@Composable
+fun getRandomColors(colorScheme: ColorScheme) : List<State<Color>> {
+    var randomColors by remember {
+        mutableStateOf(
+            listOf(
+                colorScheme.obstacleColors.random(),
+                colorScheme.obstacleColors.random(),
+                colorScheme.obstacleColors.random()
+            )
+        )
+    }
+
+    val animatedRandomColors = randomColors.map { randomColor ->
+        animateColorAsState(targetValue = randomColor, animationSpec = TweenSpec())
+    }
+
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            delay(Random.nextLong(3000L, 6000L))
+            randomColors = randomColors.map { randomColor ->
+                colorScheme.obstacleColors.filter { it != randomColor }.random()
+            }
+        }
+    }
+
+    return animatedRandomColors
 }
