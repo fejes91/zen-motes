@@ -11,7 +11,8 @@ enum class SoundSample(val isGameScene: Boolean, val fileName: String, val durat
     BONUS2(isGameScene = true, "bonus2.m4a", 150),
     CLOCK_FAST(isGameScene = true, "clock-ticking-fast.mp3", 5000),
     CLOCK_SLOW(isGameScene = true, "clock-ticking-slow.m4a", 7000, volume = 0.5f),
-    GAME_OVER(isGameScene = false, "game-over.m4a", 3000)
+    GAME_OVER(isGameScene = false, "game-over.m4a", 3000),
+    HIGH_SCORE(isGameScene = false, "high-score.mp3", 4000)
 }
 
 interface SoundManager {

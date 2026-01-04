@@ -58,7 +58,11 @@ class GameOverViewModel(
                 isNewHighScore = isNewHighScore
             )
 
-            soundManager.play(SoundSample.GAME_OVER)
+            if (isNewHighScore) {
+                soundManager.playAsync(SoundSample.HIGH_SCORE)
+            } else {
+                soundManager.play(SoundSample.GAME_OVER)
+            }
         }
     }
 
