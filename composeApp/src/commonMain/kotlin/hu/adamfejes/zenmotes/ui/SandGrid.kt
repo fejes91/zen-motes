@@ -21,8 +21,6 @@ import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
-private const val slidingObstacleTransitTimeSeconds = 7.5f
-
 class SandGrid(
     private val width: Int,
     private val height: Int,
@@ -71,7 +69,6 @@ class SandGrid(
             width,
             height,
             nonObstacleZoneHeight,
-            slidingObstacleTransitTimeSeconds,
             sandColorManager
         )
 

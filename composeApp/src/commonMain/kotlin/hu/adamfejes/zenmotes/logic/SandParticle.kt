@@ -22,7 +22,7 @@ sealed class SlidingObstacleType(
     class Small(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST_SHORT,
-        value = 2000,
+        value = 1000,
         width = 10,
         height = 21
     )
@@ -30,7 +30,7 @@ sealed class SlidingObstacleType(
     class Big(imageBitmap: ImageBitmap) : SlidingObstacleType(
         imageBitmap = imageBitmap,
         soundSample = SoundSample.SAND_BLAST,
-        value = 5000,
+        value = 3000,
         width = 22,
         height = 38
     )
