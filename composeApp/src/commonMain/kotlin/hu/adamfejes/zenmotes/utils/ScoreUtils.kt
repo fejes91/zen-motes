@@ -8,7 +8,7 @@ import kotlin.math.roundToInt
 internal fun createScoreDecreaseEvent(slidingObstacle: SlidingObstacle): ScoreEvent = ScoreEvent(
     x = slidingObstacle.x.roundToInt(),
     y = slidingObstacle.y,
-    score = -slidingObstacle.getBallparkScore(),
+    score = -slidingObstacle.getBallparkScore() * 2,
     obstacle = slidingObstacle
 )
 
