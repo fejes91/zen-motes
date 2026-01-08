@@ -1,6 +1,6 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.googleServices)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.licensee)
+    alias(libs.plugins.firebaseAppDistribution)
 }
 
 kotlin {
@@ -104,6 +105,10 @@ android {
             isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "ADMOB_AD_UNIT_ID", "\"${project.findProperty("admob.adUnitId") ?: ""}\"")
+            firebaseAppDistribution {
+                artifactType = "APK"
+                testers = "fejes91@gmail.com"
+            }
         }
     }
 
