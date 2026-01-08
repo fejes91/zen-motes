@@ -7,9 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import java.util.concurrent.ConcurrentHashMap
 
 @OptIn(ExperimentalResourceApi::class)
 class AndroidMusicManager(private val context: Context) : MusicManager {
@@ -24,7 +22,11 @@ class AndroidMusicManager(private val context: Context) : MusicManager {
 
     private fun applyVolume() {
         Logger.d("AndroidMusicManager", "Applying global volume: $globalVolume")
-        mediaPlayer.setVolume(globalVolume, globalVolume)
+        try {
+            mediaPlayer.setVolume(globalVolume, globalVolume)
+        } catch (e: IllegalStateException) {
+            Logger.e("AndroidMusicManager", "Error applying volume: ${e.message}")
+        }
     }
 
     override fun setMusicEnabled(enabled: Boolean) {
