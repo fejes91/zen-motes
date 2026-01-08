@@ -66,18 +66,26 @@ class AndroidMusicManager(private val context: Context) : MusicManager {
     override fun stop(track: MusicTrack) {
         Logger.d("AndroidMusicManager", "Stopping music: ${track.fileName}")
 
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-            mediaPlayer.seekTo(0)
+        try {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.pause()
+                mediaPlayer.seekTo(0)
+            }
+        } catch (e: IllegalStateException) {
+            Logger.e("AndroidMusicManager", "Error stopping music: ${e.message}")
         }
     }
 
     override fun dispose() {
         Logger.d("AndroidMusicManager", "Disposing MusicManager")
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
+        try {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.stop()
+            }
+            mediaPlayer.release()
+        } catch (e: IllegalStateException) {
+            Logger.e("AndroidMusicManager", "Error disposing MediaPlayer: ${e.message}")
         }
-        mediaPlayer.release()
         scope?.cancel()
         scope = null
     }
