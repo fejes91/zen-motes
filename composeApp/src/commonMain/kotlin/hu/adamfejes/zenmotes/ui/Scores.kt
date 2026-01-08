@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import hu.adamfejes.zenmotes.logic.ScoreEvent
 import hu.adamfejes.zenmotes.navigation.LocalTheme
 import hu.adamfejes.zenmotes.ui.Constants.SCORE_DISPLAY_DURATION
+import hu.adamfejes.zenmotes.ui.Constants.SLOW_TICKING_THRESHOLD_MILLIS
 import hu.adamfejes.zenmotes.ui.theme.ColorScheme
 import hu.adamfejes.zenmotes.ui.theme.toColorScheme
 import hu.adamfejes.zenmotes.utils.formatScore
@@ -131,6 +132,7 @@ private fun ScoreDisplay(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(Res.string.game_screen_time_label),
@@ -139,11 +141,18 @@ private fun ScoreDisplay(
                     fontSize = 16.sp,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
+
+                val isTimeAlert = countDownTimeMillis <= SLOW_TICKING_THRESHOLD_MILLIS
+
                 Text(
                     text = countDownTimeMillis.formatTime(),
-                    color = colorScheme.pausedTitleText,
+                    color = if (isTimeAlert) {
+                        colorScheme.negativeText
+                    } else {
+                        colorScheme.pausedTitleText
+                    },
                     textAlign = TextAlign.Start,
-                    fontSize = 22.sp,
+                    fontSize = 36.sp,
                     modifier = Modifier.fillMaxWidth().weight(1f)
                 )
             }
