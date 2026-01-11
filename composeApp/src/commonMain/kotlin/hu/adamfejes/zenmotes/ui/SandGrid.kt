@@ -678,15 +678,16 @@ class SandGrid(
     ): Array<Array<Cell>> {
         val centerX = obstacle.x.roundToInt()
         val centerY = obstacle.y
-        val sandWidth = (obstacle.width * 1.3).roundToInt()
-        val sandHeight = (obstacle.height * .35).roundToInt()
+        val sandWidth = (obstacle.width * 1.25f).roundToInt()
+        val sandHeight = (obstacle.height * .5f).roundToInt()
 
         // Convert entire obstacle block to sand particles
         var convertedCells = 0
         var totalCellsChecked = 0
         for (dy in 0..sandHeight) {
             for (dx in 0..sandWidth) {
-                if((dx % 4 != 0) && Random.Default.nextFloat() < .5) continue
+                // if not a multiple of 4, skip half the time
+                if(Random.Default.nextFloat() < .33) continue
 
                 val x = centerX + dx - sandWidth / 2
                 val y = centerY + dy - sandHeight / 2
