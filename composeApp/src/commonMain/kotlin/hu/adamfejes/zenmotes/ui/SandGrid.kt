@@ -11,7 +11,6 @@ import hu.adamfejes.zenmotes.logic.ParticlePhysics
 import hu.adamfejes.zenmotes.logic.SandColorManager
 import hu.adamfejes.zenmotes.logic.ParticlePosition
 import hu.adamfejes.zenmotes.logic.PerformanceData
-import hu.adamfejes.zenmotes.logic.ScoreHolder
 import hu.adamfejes.zenmotes.logic.SlidingObstacle
 import hu.adamfejes.zenmotes.logic.SlidingObstacleType
 import hu.adamfejes.zenmotes.logic.setCell
@@ -19,6 +18,7 @@ import hu.adamfejes.zenmotes.service.SoundManager
 import hu.adamfejes.zenmotes.utils.Logger
 import hu.adamfejes.zenmotes.utils.TimeUtils
 import kotlin.math.roundToInt
+import kotlin.random.Random
 import kotlin.time.measureTime
 
 class SandGrid(
@@ -678,16 +678,18 @@ class SandGrid(
     ): Array<Array<Cell>> {
         val centerX = obstacle.x.roundToInt()
         val centerY = obstacle.y
-        val halfWidth = obstacle.width / 2
-        val halfHeight = obstacle.height / 2
+        val sandWidth = (obstacle.width * 1.3).roundToInt()
+        val sandHeight = (obstacle.height * .35).roundToInt()
 
         // Convert entire obstacle block to sand particles
         var convertedCells = 0
         var totalCellsChecked = 0
-        for (dy in -halfHeight..halfHeight) {
-            for (dx in -halfWidth..halfWidth) {
-                val x = centerX + dx
-                val y = centerY + dy
+        for (dy in 0..sandHeight) {
+            for (dx in 0..sandWidth) {
+                if((dx % 4 != 0) && Random.Default.nextFloat() < .5) continue
+
+                val x = centerX + dx - sandWidth / 2
+                val y = centerY + dy - sandHeight / 2
                 if (x in 0 until width && y in 0 until height) {
                     totalCellsChecked++
                     val cellType = grid[y][x].type
